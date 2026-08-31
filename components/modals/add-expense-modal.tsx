@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { ExpenseCategory, ExpenseItem, User } from "@/types";
 import { computeEqualSplit } from "@/lib/balance";
-import { Plus, Trash2, Receipt, Layers, Sparkles, Users, CheckSquare, Square, ChevronDown, Calendar, Clock } from "lucide-react";
+import { Plus, Trash2, Receipt, Layers, Sparkles, Users, CheckSquare, Square, ChevronDown, Calendar, Clock, Pencil, ShoppingCart, Check, X } from "lucide-react";
 import { format } from "date-fns";
 import { GroceryItemCombobox } from "./grocery-item-combobox";
 import { mapBanglaUnitToStandard } from "@/lib/grocery-catalog";
@@ -45,6 +45,22 @@ export const COMMON_QUANTITY_UNITS = [
 
 export const QUICK_UNIT_CHIPS = ["kg", "gm", "pcs", "litre", "dozen", "pack", "hali"];
 
+interface GroceryHaulItem {
+  id: string;
+  name: string;
+  quantity: string;
+  unit: string;
+  unit_price: string;
+}
+
+const createEmptyGroceryItem = (): GroceryHaulItem => ({
+  id: `item-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+  name: "",
+  quantity: "",
+  unit: "kg",
+  unit_price: "",
+});
+
 export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
   const { users, currentUser, addExpense } = useExpenses();
   const { recordUsage } = useGroceryCatalog();
@@ -69,14 +85,15 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
   const [groceryPaidBy, setGroceryPaidBy] = React.useState(currentUser?.id || "");
   const [groceryDate, setGroceryDate] = React.useState(format(new Date(), "yyyy-MM-dd"));
   const [groceryTime, setGroceryTime] = React.useState(format(new Date(), "HH:mm"));
-  const [groceryItems, setGroceryItems] = React.useState<
-    Array<{ name: string; quantity: string; unit: string; unit_price: string }>
-  >([
-    { name: "Miniket Rice", quantity: "10", unit: "kg", unit_price: "84" },
-    { name: "Broiler Chicken", quantity: "4", unit: "kg", unit_price: "220" },
-    { name: "Fresh Vegetables", quantity: "", unit: "", unit_price: "450" },
-  ]);
+  const [groceryItems, setGroceryItems] = React.useState<GroceryHaulItem[]>([]);
   const [groceryParticipants, setGroceryParticipants] = React.useState<string[]>([]);
+
+  // Quick-Add Composer State (Option 1)
+  const [composerName, setComposerName] = React.useState("");
+  const [composerQty, setComposerQty] = React.useState("");
+  const [composerUnit, setComposerUnit] = React.useState("kg");
+  const [composerPrice, setComposerPrice] = React.useState("");
+  const [editingItemId, setEditingItemId] = React.useState<string | null>(null);
 
   // Reset and initialize participants & current date/time when modal opens
   React.useEffect(() => {
@@ -90,6 +107,13 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
       setTime(format(now, "HH:mm"));
       setGroceryDate(format(now, "yyyy-MM-dd"));
       setGroceryTime(format(now, "HH:mm"));
+      setGroceryTitle("Weekly Grocery Trip");
+      setGroceryItems([]);
+      setComposerName("");
+      setComposerQty("");
+      setComposerUnit("kg");
+      setComposerPrice("");
+      setEditingItemId(null);
     }
   }, [isOpen, currentUser.id, users]);
 
@@ -117,37 +141,75 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
     });
   };
 
-  // Compute itemized total
+  // Compute itemized total (sum of full amounts of all items)
   const groceryTotal = React.useMemo(() => {
     return groceryItems.reduce((sum, item) => {
       const price = parseFloat(item.unit_price) || 0;
-      const qty = parseFloat(item.quantity) || 1;
-      return sum + qty * price;
+      return sum + price;
     }, 0);
   }, [groceryItems]);
 
-  const handleAddGroceryItem = () => {
-    setGroceryItems((prev) => [
-      ...prev,
-      { name: "", quantity: "", unit: "kg", unit_price: "" },
-    ]);
+  // Add or update item in the haul list (Option 1)
+  const handleAddOrUpdateItem = () => {
+    const trimmedName = composerName.trim();
+    const numPrice = parseFloat(composerPrice);
+    if (!trimmedName || isNaN(numPrice) || numPrice <= 0) return;
+
+    if (editingItemId) {
+      setGroceryItems((prev) =>
+        prev.map((item) =>
+          item.id === editingItemId
+            ? {
+                ...item,
+                name: trimmedName,
+                quantity: composerQty.trim(),
+                unit: composerUnit.trim() || "kg",
+                unit_price: composerPrice.trim(),
+              }
+            : item
+        )
+      );
+      setEditingItemId(null);
+    } else {
+      setGroceryItems((prev) => [
+        {
+          id: `item-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+          name: trimmedName,
+          quantity: composerQty.trim(),
+          unit: composerUnit.trim() || "kg",
+          unit_price: composerPrice.trim(),
+        },
+        ...prev,
+      ]);
+    }
+
+    setComposerName("");
+    setComposerQty("");
+    setComposerUnit("kg");
+    setComposerPrice("");
   };
 
-  const handleUpdateGroceryItem = (
-    index: number,
-    field: "name" | "quantity" | "unit" | "unit_price",
-    value: string
-  ) => {
-    setGroceryItems((prev) =>
-      prev.map((item, idx) =>
-        idx === index ? { ...item, [field]: value } : item
-      )
-    );
+  const handleStartEdit = (item: GroceryHaulItem) => {
+    setEditingItemId(item.id);
+    setComposerName(item.name);
+    setComposerQty(item.quantity);
+    setComposerUnit(item.unit || "kg");
+    setComposerPrice(item.unit_price);
   };
 
-  const handleRemoveGroceryItem = (index: number) => {
-    if (groceryItems.length <= 1) return;
-    setGroceryItems((prev) => prev.filter((_, idx) => idx !== index));
+  const handleCancelEdit = () => {
+    setEditingItemId(null);
+    setComposerName("");
+    setComposerQty("");
+    setComposerUnit("kg");
+    setComposerPrice("");
+  };
+
+  const handleRemoveGroceryItem = (id: string) => {
+    setGroceryItems((prev) => prev.filter((item) => item.id !== id));
+    if (editingItemId === id) {
+      handleCancelEdit();
+    }
   };
 
   // Submit Single Bill
@@ -196,32 +258,61 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
   // Submit Itemized Groceries
   const handleItemizedSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (groceryTotal <= 0) return;
 
-    const validItems: ExpenseItem[] = groceryItems
+    // Include currently typed item if valid
+    let itemsToSubmit = [...groceryItems];
+    if (composerName.trim() && parseFloat(composerPrice) > 0) {
+      if (editingItemId) {
+        itemsToSubmit = itemsToSubmit.map((it) =>
+          it.id === editingItemId
+            ? {
+                ...it,
+                name: composerName.trim(),
+                quantity: composerQty.trim(),
+                unit: composerUnit.trim() || "kg",
+                unit_price: composerPrice.trim(),
+              }
+            : it
+        );
+      } else {
+        itemsToSubmit = [
+          {
+            id: `item-${Date.now()}`,
+            name: composerName.trim(),
+            quantity: composerQty.trim(),
+            unit: composerUnit.trim() || "kg",
+            unit_price: composerPrice.trim(),
+          },
+          ...itemsToSubmit,
+        ];
+      }
+    }
+
+    const validItems: ExpenseItem[] = itemsToSubmit
       .filter((item) => item.name.trim() && parseFloat(item.unit_price) > 0)
       .map((item, idx) => {
-        const uPrice = parseFloat(item.unit_price) || 0;
+        const itemTotal = parseFloat(item.unit_price) || 0;
         const hasQty = item.quantity.trim() !== "" && !isNaN(parseFloat(item.quantity));
         const qty = hasQty ? parseFloat(item.quantity) : undefined;
-        const multiplier = qty ?? 1;
+        const uPrice = qty && qty > 0 ? Number((itemTotal / qty).toFixed(2)) : itemTotal;
 
         return {
-          id: `item-${Date.now()}-${idx}`,
+          id: item.id || `item-${Date.now()}-${idx}`,
           name: item.name.trim(),
           quantity: qty,
           unit: item.unit.trim() || undefined,
           unit_price: uPrice,
-          total_price: Number((multiplier * uPrice).toFixed(2)),
+          total_price: Number(itemTotal.toFixed(2)),
         };
       });
 
-    if (validItems.length === 0) return;
+    const finalTotal = validItems.reduce((sum, it) => sum + it.total_price, 0);
+    if (validItems.length === 0 || finalTotal <= 0) return;
 
     const participatingUsers = users.filter((u) =>
       groceryParticipants.includes(u.id)
     );
-    const splits = computeEqualSplit(groceryTotal, participatingUsers, groceryPaidBy);
+    const splits = computeEqualSplit(finalTotal, participatingUsers, groceryPaidBy);
 
     const [gYear, gMonth, gDay] = groceryDate.split("-").map(Number);
     const [gHours, gMinutes] = (groceryTime || "12:00").split(":").map(Number);
@@ -230,7 +321,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
     addExpense({
       title: groceryTitle.trim() || "Grocery Trip",
       category: "groceries",
-      amount: groceryTotal,
+      amount: finalTotal,
       paid_by: groceryPaidBy,
       date: groceryDate,
       created_at: groceryDateTime.toISOString(),
@@ -244,6 +335,10 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
       recordUsage(vi.name, vi.unit);
     });
 
+    // Reset & close
+    setGroceryTitle("Weekly Grocery Trip");
+    setGroceryItems([]);
+    handleCancelEdit();
     onClose();
   };
 
@@ -417,8 +512,8 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
               </div>
 
               {/* Total Amount, Date & Time */}
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                <div className="sm:col-span-6 space-y-1.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-foreground">Total Amount (৳)</label>
                   <div className="relative">
                     <span className="absolute left-3 top-2.5 text-xs font-bold text-muted-foreground">৳</span>
@@ -435,32 +530,34 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                   </div>
                 </div>
 
-                <div className="sm:col-span-3 space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground flex items-center gap-1">
-                    <Calendar className="size-3 text-muted-foreground" />
-                    <span>Date</span>
-                  </label>
-                  <Input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="h-10 text-xs bg-accent/20 border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all cursor-pointer"
-                    required
-                  />
-                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-foreground flex items-center gap-1">
+                      <Calendar className="size-3 text-muted-foreground" />
+                      <span>Date</span>
+                    </label>
+                    <Input
+                      type="date"
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      className="h-10 text-xs bg-accent/20 border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all cursor-pointer min-w-0"
+                      required
+                    />
+                  </div>
 
-                <div className="sm:col-span-3 space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground flex items-center gap-1">
-                    <Clock className="size-3 text-muted-foreground" />
-                    <span>Time</span>
-                  </label>
-                  <Input
-                    type="time"
-                    value={time}
-                    onChange={(e) => setTime(e.target.value)}
-                    className="h-10 text-xs bg-accent/20 border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all cursor-pointer"
-                    required
-                  />
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-foreground flex items-center gap-1">
+                      <Clock className="size-3 text-muted-foreground" />
+                      <span>Time</span>
+                    </label>
+                    <Input
+                      type="time"
+                      value={time}
+                      onChange={(e) => setTime(e.target.value)}
+                      className="h-10 text-xs bg-accent/20 border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all cursor-pointer min-w-0"
+                      required
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -542,17 +639,19 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
             className="flex-1 overflow-y-auto pl-1 pr-2.5 sm:pr-3.5 py-2 space-y-4 outline-none focus:outline-none focus-visible:ring-0 custom-scrollbar overscroll-contain mt-0"
           >
             <form onSubmit={handleItemizedSubmit} className="space-y-4 pb-2">
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                <div className="sm:col-span-4 space-y-1.5">
+              {/* Row 1: Trip Title & Paid By */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-foreground">Trip Title</label>
                   <Input
                     value={groceryTitle}
                     onChange={(e) => setGroceryTitle(e.target.value)}
+                    placeholder="e.g. Weekly Grocery Trip"
                     className="h-10 text-xs bg-accent/20 border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                     required
                   />
                 </div>
-                <div className="sm:col-span-4 space-y-1.5">
+                <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-foreground">Paid By</label>
                   <div className="relative">
                     <select
@@ -569,7 +668,11 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                     <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
                   </div>
                 </div>
-                <div className="sm:col-span-2 space-y-1.5">
+              </div>
+
+              {/* Row 2: Date & Time */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-foreground flex items-center gap-1">
                     <Calendar className="size-3 text-muted-foreground" />
                     <span>Date</span>
@@ -578,11 +681,11 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                     type="date"
                     value={groceryDate}
                     onChange={(e) => setGroceryDate(e.target.value)}
-                    className="h-10 text-xs bg-accent/20 border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all cursor-pointer"
+                    className="h-10 text-xs bg-accent/20 border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all cursor-pointer min-w-0"
                     required
                   />
                 </div>
-                <div className="sm:col-span-2 space-y-1.5">
+                <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-foreground flex items-center gap-1">
                     <Clock className="size-3 text-muted-foreground" />
                     <span>Time</span>
@@ -591,7 +694,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                     type="time"
                     value={groceryTime}
                     onChange={(e) => setGroceryTime(e.target.value)}
-                    className="h-10 text-xs bg-accent/20 border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all cursor-pointer"
+                    className="h-10 text-xs bg-accent/20 border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all cursor-pointer min-w-0"
                     required
                   />
                 </div>
@@ -633,152 +736,245 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                 </div>
               </div>
 
-              {/* Items Card List (Responsive item cards with quantity & unit selectors) */}
-              <div className="space-y-2.5">
+              {/* Option 1: The Quick-Add Composer Card */}
+              <div className="p-3 sm:p-3.5 rounded-xl bg-accent/30 border border-border/80 space-y-3 shadow-xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-foreground">Grocery Line Items</span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleAddGroceryItem}
-                    className="h-7 text-xs text-primary gap-1 px-2.5 rounded-lg hover:bg-primary/10 cursor-pointer"
-                  >
-                    <Plus className="size-3.5" />
-                    Add Item
-                  </Button>
+                  <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                    {editingItemId ? (
+                      <>
+                        <Pencil className="size-3.5 text-primary" />
+                        <span>Editing Item</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="size-3.5 text-primary" />
+                        <span>Add Grocery Item</span>
+                      </>
+                    )}
+                  </span>
+                  {editingItemId && (
+                    <button
+                      type="button"
+                      onClick={handleCancelEdit}
+                      className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1 cursor-pointer transition-colors"
+                    >
+                      <X className="size-3" />
+                      <span>Cancel Edit</span>
+                    </button>
+                  )}
                 </div>
 
-                <div className="space-y-2.5 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
-                  {groceryItems.map((item, idx) => {
-                    const price = parseFloat(item.unit_price) || 0;
-                    const qty = parseFloat(item.quantity) || 1;
-                    const rowTotal = qty * price;
-                    const hasCustomQty = item.quantity.trim() !== "" || item.unit.trim() !== "";
+                {/* Composer Row 1: Item Name Combobox */}
+                <div className="space-y-1">
+                  <GroceryItemCombobox
+                    placeholder="Item name (e.g. chal, rice, peyaj, dim)"
+                    value={composerName}
+                    onChange={(val) => setComposerName(val)}
+                    onSelectSuggestion={(suggestion) => {
+                      if (suggestion.default_unit) {
+                        const stdUnit = mapBanglaUnitToStandard(suggestion.default_unit);
+                        setComposerUnit(stdUnit);
+                      }
+                    }}
+                    className="h-9 text-xs bg-card border-border rounded-lg"
+                  />
+                </div>
 
-                    return (
-                      <div
-                        key={idx}
-                        className="p-3 rounded-xl bg-accent/30 border border-border/70 space-y-2.5 shadow-xs"
+                {/* Composer Row 2: Qty, Unit, Price & Add Button */}
+                <div className="grid grid-cols-12 gap-2 items-center">
+                  <div className="col-span-3 sm:col-span-3">
+                    <div className="relative">
+                      <span className="absolute left-2.5 top-2.5 text-[9px] text-muted-foreground font-semibold">Qty:</span>
+                      <Input
+                        type="number"
+                        inputMode="decimal"
+                        step="any"
+                        placeholder="1 (opt)"
+                        value={composerQty}
+                        onChange={(e) => setComposerQty(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleAddOrUpdateItem();
+                          }
+                        }}
+                        className="h-9 pl-9 text-xs bg-card font-numeral rounded-lg text-center border-border focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                        min="0.01"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="col-span-4 sm:col-span-3">
+                    <div className="relative">
+                      <select
+                        value={composerUnit}
+                        onChange={(e) => setComposerUnit(e.target.value)}
+                        className="w-full h-9 bg-card border border-border rounded-lg pl-2.5 pr-7 text-xs font-medium focus:ring-2 focus:ring-primary/40 focus:border-primary focus:outline-none transition-all cursor-pointer appearance-none"
                       >
-                        {/* Top: Item Name + Delete */}
-                        <div className="flex items-center justify-between gap-2">
-                          <GroceryItemCombobox
-                            placeholder="Item name (e.g. chal, rice, peyaj, dim)"
-                            value={item.name}
-                            onChange={(val) => handleUpdateGroceryItem(idx, "name", val)}
-                            onSelectSuggestion={(suggestion) => {
-                              // If current unit is empty or default, auto-populate with suggested unit
-                              if (suggestion.default_unit && (!item.unit || item.unit === "kg" || item.unit === "pcs" || item.unit === "")) {
-                                const stdUnit = mapBanglaUnitToStandard(suggestion.default_unit);
-                                handleUpdateGroceryItem(idx, "unit", stdUnit);
-                              }
-                            }}
-                            required
-                          />
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveGroceryItem(idx)}
-                            disabled={groceryItems.length <= 1}
-                            className="size-8 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg disabled:opacity-30 cursor-pointer shrink-0 transition-colors"
-                            title="Remove item"
-                          >
-                            <Trash2 className="size-3.5" />
-                          </button>
-                        </div>
+                        {COMMON_QUANTITY_UNITS.map((u) => (
+                          <option key={u.value} value={u.value}>
+                            {u.label}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 size-3 text-muted-foreground pointer-events-none" />
+                    </div>
+                  </div>
 
-                        {/* Middle: Quantity, Unit Selector, and Price */}
-                        <div className="grid grid-cols-12 gap-2 items-center">
-                          {/* Quantity (Optional) */}
-                          <div className="col-span-4 sm:col-span-3">
-                            <div className="relative">
-                              <span className="absolute left-2 top-2 text-[9px] text-muted-foreground font-semibold">Qty:</span>
-                              <Input
-                                type="number"
-                                inputMode="decimal"
-                                step="any"
-                                placeholder="1 (opt)"
-                                value={item.quantity}
-                                onChange={(e) =>
-                                  handleUpdateGroceryItem(idx, "quantity", e.target.value)
-                                }
-                                className="h-8 pl-8 text-xs bg-card font-numeral rounded-lg text-center border-border focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-                                min="0.01"
-                              />
-                            </div>
-                          </div>
+                  <div className="col-span-5 sm:col-span-3">
+                    <div className="relative">
+                      <span className="absolute left-2.5 top-2 text-[10px] text-muted-foreground font-semibold">৳</span>
+                      <Input
+                        type="number"
+                        inputMode="decimal"
+                        step="any"
+                        placeholder="Total ৳"
+                        value={composerPrice}
+                        onChange={(e) => setComposerPrice(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleAddOrUpdateItem();
+                          }
+                        }}
+                        className="h-9 pl-6 text-xs bg-card font-numeral font-bold rounded-lg border-border focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                      />
+                    </div>
+                  </div>
 
-                          {/* Unit of Measurement Dropdown / Suggestions (Optional) */}
-                          <div className="col-span-4 sm:col-span-4">
-                            <div className="relative">
-                              <select
-                                value={item.unit}
-                                onChange={(e) => handleUpdateGroceryItem(idx, "unit", e.target.value)}
-                                className="w-full h-8 bg-card border border-border rounded-lg pl-2.5 pr-7 text-xs font-medium focus:ring-2 focus:ring-primary/40 focus:border-primary focus:outline-none transition-all cursor-pointer appearance-none"
-                              >
-                                {COMMON_QUANTITY_UNITS.map((u) => (
-                                  <option key={u.value} value={u.value}>
-                                    {u.label}
-                                  </option>
-                                ))}
-                              </select>
-                              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 size-3 text-muted-foreground pointer-events-none" />
-                            </div>
-                          </div>
-
-                          {/* Price */}
-                          <div className="col-span-4 sm:col-span-5">
-                            <div className="relative">
-                              <span className="absolute left-2.5 top-2 text-[10px] text-muted-foreground font-semibold">৳</span>
-                              <Input
-                                type="number"
-                                inputMode="decimal"
-                                step="any"
-                                placeholder="Price"
-                                value={item.unit_price}
-                                onChange={(e) =>
-                                  handleUpdateGroceryItem(idx, "unit_price", e.target.value)
-                                }
-                                className="h-8 pl-6 text-xs bg-card font-numeral font-bold rounded-lg border-border focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-                                required
-                              />
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Quick Unit Suggestion Chips for row */}
-                        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
-                          {QUICK_UNIT_CHIPS.map((chip) => (
-                            <button
-                              key={chip}
-                              type="button"
-                              onClick={() => handleUpdateGroceryItem(idx, "unit", chip)}
-                              className={`px-1.5 py-0.5 text-[9px] rounded font-medium border transition-all cursor-pointer shrink-0 ${
-                                item.unit === chip
-                                  ? "bg-primary text-primary-foreground border-primary"
-                                  : "bg-card text-muted-foreground border-border hover:text-foreground"
-                              }`}
-                            >
-                              {chip}
-                            </button>
-                          ))}
-                        </div>
-
-                        {/* Bottom: Subtotal computation badge */}
-                        <div className="flex items-center justify-between text-[11px] px-1 text-muted-foreground">
-                          <span>
-                            {hasCustomQty
-                              ? `${item.quantity || "1"} ${item.unit || "unit"} × ৳${price || 0}`
-                              : `Price: ৳${price || 0}`}
-                          </span>
-                          <span className="font-semibold text-foreground">
-                            Subtotal: <strong className="text-primary font-numeral">৳{rowTotal.toFixed(2)}</strong>
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
+                  <div className="col-span-12 sm:col-span-3">
+                    <Button
+                      type="button"
+                      onClick={handleAddOrUpdateItem}
+                      disabled={!composerName.trim() || !(parseFloat(composerPrice) > 0)}
+                      className="w-full h-9 text-xs font-semibold rounded-lg bg-primary text-primary-foreground shadow-xs hover:opacity-90 transition-opacity cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      {editingItemId ? (
+                        <>
+                          <Check className="size-3.5" />
+                          <span>Update Item</span>
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="size-3.5" />
+                          <span>Add to Haul</span>
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
+
+                {/* Quick Unit Suggestion Chips */}
+                <div className="flex items-center gap-1 overflow-x-auto no-scrollbar pt-0.5">
+                  <span className="text-[10px] text-muted-foreground shrink-0 mr-1">Unit:</span>
+                  {QUICK_UNIT_CHIPS.map((chip) => (
+                    <button
+                      key={chip}
+                      type="button"
+                      onClick={() => setComposerUnit(chip)}
+                      className={`px-2 py-0.5 text-[10px] rounded-md font-semibold border transition-all cursor-pointer shrink-0 ${
+                        composerUnit === chip
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-card text-muted-foreground border-border hover:text-foreground hover:bg-accent"
+                      }`}
+                    >
+                      {chip}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Haul Receipt Breakdown (Compact Rows) */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                    <Receipt className="size-3.5 text-primary" />
+                    <span>Items in this Haul ({groceryItems.length})</span>
+                  </span>
+                  {groceryItems.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setGroceryItems([]);
+                        handleCancelEdit();
+                      }}
+                      className="text-[11px] text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
+                    >
+                      Clear All
+                    </button>
+                  )}
+                </div>
+
+                {groceryItems.length === 0 ? (
+                  <div className="py-6 px-4 rounded-xl border border-dashed border-border/80 text-center flex flex-col items-center justify-center gap-1.5 bg-accent/10">
+                    <ShoppingCart className="size-6 text-muted-foreground/50" />
+                    <p className="text-xs font-medium text-foreground">No items added to this haul yet</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Type an item name and total amount above, then click <strong>Add to Haul</strong> (or press Enter)
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1 custom-scrollbar">
+                    {groceryItems.map((item) => {
+                      const itemTotal = parseFloat(item.unit_price) || 0;
+                      const qty = parseFloat(item.quantity) || 0;
+                      const hasQty = qty > 0;
+                      const rate = hasQty ? (itemTotal / qty).toFixed(2) : null;
+                      const isBeingEdited = editingItemId === item.id;
+
+                      return (
+                        <div
+                          key={item.id}
+                          className={`flex items-center justify-between p-2.5 px-3 rounded-xl border transition-all gap-2 ${
+                            isBeingEdited
+                              ? "bg-primary/10 border-primary/50 shadow-xs"
+                              : "bg-card border-border/70 hover:border-primary/40"
+                          }`}
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-semibold text-foreground truncate">
+                                {item.name}
+                              </span>
+                              {item.unit && (
+                                <span className="text-[9px] font-semibold px-1.5 py-0.2 bg-accent text-muted-foreground rounded border border-border/50 shrink-0">
+                                  {hasQty ? `${item.quantity} ${item.unit}` : item.unit}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-muted-foreground font-numeral">
+                              {hasQty
+                                ? `${item.quantity} ${item.unit || "unit"} (≈ ৳${rate}/${item.unit || "unit"})`
+                                : "Full item amount"}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className="font-bold text-xs text-primary font-numeral">
+                              ৳{itemTotal.toFixed(2)}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleStartEdit(item)}
+                              className="size-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent cursor-pointer transition-colors"
+                              title="Edit item"
+                            >
+                              <Pencil className="size-3" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveGroceryItem(item.id)}
+                              className="size-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer transition-colors"
+                              title="Remove item"
+                            >
+                              <Trash2 className="size-3" />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* Total Grocery Summary */}

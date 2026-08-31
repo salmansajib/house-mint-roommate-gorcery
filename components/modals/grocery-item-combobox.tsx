@@ -39,12 +39,9 @@ export function GroceryItemCombobox({
     return search(value, 6);
   }, [value, search]);
 
-  // Open popover when user types and suggestions exist
+  // Automatically close if suggestions become empty
   React.useEffect(() => {
-    if (suggestions.length > 0 && document.activeElement === inputRef.current) {
-      setIsOpen(true);
-      setHighlightedIndex(0);
-    } else {
+    if (suggestions.length === 0) {
       setIsOpen(false);
       setHighlightedIndex(-1);
     }
@@ -62,11 +59,10 @@ export function GroceryItemCombobox({
   }, []);
 
   const handleSelect = (item: GroceryCatalogItem) => {
-    onChange(item.name_bn);
-    onSelectSuggestion?.(item);
     setIsOpen(false);
     setHighlightedIndex(-1);
-    inputRef.current?.focus();
+    onChange(item.name_bn);
+    onSelectSuggestion?.(item);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -132,6 +128,10 @@ export function GroceryItemCombobox({
                 <button
                   key={item.id || item.name_bn}
                   type="button"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleSelect(item);
+                  }}
                   onClick={() => handleSelect(item)}
                   onMouseEnter={() => setHighlightedIndex(idx)}
                   className={cn(
