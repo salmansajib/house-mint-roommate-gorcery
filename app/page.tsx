@@ -45,7 +45,7 @@ function DashboardContent() {
         initial="hidden"
         animate="show"
         variants={pageContainerVariants}
-        className="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-4 sm:space-y-6 pb-24 sm:pb-8"
+        className="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-4 sm:space-y-6 pb-[max(6rem,calc(5.5rem+env(safe-area-inset-bottom)))] sm:pb-8"
       >
         {/* Hero Balance Card */}
         <motion.section variants={sectionRevealVariants}>

@@ -20,7 +20,7 @@ export function MobileBottomBar({
       initial="hidden"
       animate="show"
       variants={bottomBarVariants}
-      className="sm:hidden fixed bottom-0 left-0 right-0 z-30 p-3 bg-background/90 backdrop-blur-lg border-t border-border/80 shadow-2xl"
+      className="sm:hidden fixed bottom-0 left-0 right-0 z-30 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-background/95 backdrop-blur-lg border-t border-border/80 shadow-2xl"
     >
       <div className="grid grid-cols-2 gap-2 max-w-md mx-auto">
         <motion.div whileTap={{ scale: 0.96 }}>

@@ -16,6 +16,7 @@ import {
   Check,
   ShieldCheck,
   Key,
+  Download,
 } from "lucide-react";
 import { navVariants, navItemVariants } from "@/lib/animations";
 import { NotificationPopover } from "@/components/notifications/notification-popover";
@@ -302,6 +303,17 @@ export function Navbar({
                           </span>
                         </div>
                         {copiedInvite && <Check className="size-3 text-positive shrink-0" />}
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setIsOpenMenu(false);
+                          window.dispatchEvent(new CustomEvent("open-pwa-install"));
+                        }}
+                        className="w-full px-3 py-1.5 text-xs flex items-center gap-2 text-primary hover:text-primary hover:bg-primary/10 transition-colors cursor-pointer text-left font-medium"
+                      >
+                        <Download className="size-3.5 shrink-0" />
+                        <span>Install HouseMint App</span>
                       </button>
 
                       {(!currentUser || !currentUser.email) && (
