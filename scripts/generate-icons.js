@@ -1,0 +1,154 @@
+const fs = require('fs');
+const path = require('path');
+const sharp = require('sharp');
+
+// 1. Standard Vector SVG for HouseMint
+const svgStandard = `
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#162c24"/>
+      <stop offset="60%" stop-color="#0d1814"/>
+      <stop offset="100%" stop-color="#080c0a"/>
+    </radialGradient>
+    <linearGradient id="mintGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="50%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGlow)"/>
+  <rect width="508" height="508" x="2" y="2" rx="110" stroke="#10b981" stroke-opacity="0.3" stroke-width="3"/>
+
+  <!-- Centered House + Mint Emblem -->
+  <g transform="translate(96, 96)" filter="url(#glow)">
+    <!-- House Roof / Mint Leaf Peak -->
+    <path d="M160 32 L280 144 C280 144 260 216 192 248 C124 280 48 248 40 180 C32 112 112 48 160 32 Z" 
+          fill="url(#mintGrad)" />
+    
+    <!-- Secondary Leaf / House Wing -->
+    <path d="M160 32 L40 144 C40 144 60 216 128 248 C196 280 272 248 280 180 C288 112 208 48 160 32 Z" 
+          fill="url(#accentGrad)" 
+          opacity="0.85" />
+    
+    <!-- Center Leaf Rib / Roof Crest -->
+    <path d="M160 36 L160 260" stroke="#042416" stroke-width="12" stroke-linecap="round"/>
+    
+    <!-- Sparkle Stars -->
+    <path d="M268 76 Q276 96 296 104 Q276 112 268 132 Q260 112 240 104 Q260 96 268 76 Z" fill="#6ee7b7" />
+    <circle cx="68" cy="80" r="8" fill="#38bdf8" />
+    <circle cx="256" cy="220" r="6" fill="#a7f3d0" />
+  </g>
+
+  <!-- Clean Bottom Household Foundation -->
+  <g transform="translate(160, 360)">
+    <rect x="0" y="0" width="192" height="20" rx="10" fill="#10b981" opacity="0.8"/>
+    <rect x="36" y="30" width="120" height="12" rx="6" fill="#22d3ee" opacity="0.5"/>
+  </g>
+</svg>
+`;
+
+// 2. Maskable Icon (safe zone: essential graphic inside center 65% of canvas)
+const svgMaskable = `
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="mBgGlow" cx="50%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#162c24"/>
+      <stop offset="60%" stop-color="#0d1814"/>
+      <stop offset="100%" stop-color="#080c0a"/>
+    </radialGradient>
+    <linearGradient id="mMintGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="50%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="mAccentGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+    <filter id="mGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Full bleed background for adaptive icon masking -->
+  <rect width="512" height="512" fill="url(#mBgGlow)"/>
+
+  <!-- Scaled content within 70% safe viewport -->
+  <g transform="translate(256, 256) scale(0.72) translate(-256, -256)">
+    <g transform="translate(96, 96)" filter="url(#mGlow)">
+      <!-- House Roof / Mint Leaf Peak -->
+      <path d="M160 32 L280 144 C280 144 260 216 192 248 C124 280 48 248 40 180 C32 112 112 48 160 32 Z" 
+            fill="url(#mMintGrad)" />
+      
+      <!-- Secondary Leaf / House Wing -->
+      <path d="M160 32 L40 144 C40 144 60 216 128 248 C196 280 272 248 280 180 C288 112 208 48 160 32 Z" 
+            fill="url(#mAccentGrad)" 
+            opacity="0.85" />
+      
+      <!-- Center Leaf Rib / Roof Crest -->
+      <path d="M160 36 L160 260" stroke="#042416" stroke-width="12" stroke-linecap="round"/>
+      
+      <!-- Sparkle Stars -->
+      <path d="M268 76 Q276 96 296 104 Q276 112 268 132 Q260 112 240 104 Q260 96 268 76 Z" fill="#6ee7b7" />
+      <circle cx="68" cy="80" r="8" fill="#38bdf8" />
+      <circle cx="256" cy="220" r="6" fill="#a7f3d0" />
+    </g>
+
+    <!-- Clean Bottom Household Foundation -->
+    <g transform="translate(160, 360)">
+      <rect x="0" y="0" width="192" height="20" rx="10" fill="#10b981" opacity="0.8"/>
+      <rect x="36" y="30" width="120" height="12" rx="6" fill="#22d3ee" opacity="0.5"/>
+    </g>
+  </g>
+</svg>
+`;
+
+async function generate() {
+  const iconsDir = path.join(__dirname, '../public/icons');
+  if (!fs.existsSync(iconsDir)) {
+    fs.mkdirSync(iconsDir, { recursive: true });
+  }
+
+  // Save SVG
+  fs.writeFileSync(path.join(iconsDir, 'icon.svg'), svgStandard.trim());
+
+  // Generate 512x512
+  await sharp(Buffer.from(svgStandard))
+    .resize(512, 512)
+    .png()
+    .toFile(path.join(iconsDir, 'icon-512x512.png'));
+
+  // Generate 192x192
+  await sharp(Buffer.from(svgStandard))
+    .resize(192, 192)
+    .png()
+    .toFile(path.join(iconsDir, 'icon-192x192.png'));
+
+  // Generate Apple Touch Icon (180x180)
+  await sharp(Buffer.from(svgStandard))
+    .resize(180, 180)
+    .png()
+    .toFile(path.join(iconsDir, 'apple-touch-icon.png'));
+
+  // Generate Maskable 512x512
+  await sharp(Buffer.from(svgMaskable))
+    .resize(512, 512)
+    .png()
+    .toFile(path.join(iconsDir, 'icon-maskable-512x512.png'));
+
+  console.log('Successfully generated all PWA icons in public/icons/');
+}
+
+generate().catch(console.error);
