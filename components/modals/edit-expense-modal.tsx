@@ -119,7 +119,7 @@ export function EditExpenseModal({
             name: it.name,
             quantity: it.quantity ? it.quantity.toString() : "",
             unit: it.unit || "",
-            unit_price: it.unit_price.toString(),
+            unit_price: (it.total_price ?? it.unit_price).toString(),
           }))
         );
       } else {
@@ -128,14 +128,10 @@ export function EditExpenseModal({
     }
   }, [expense, isOpen, users]);
 
-  // Calculate items total if itemized
+  // Calculate items total if itemized (sum of item total amounts)
   const itemsTotal = React.useMemo(() => {
     if (!isItemized) return parseFloat(amount) || 0;
-    return items.reduce((acc, it) => {
-      const p = parseFloat(it.unit_price) || 0;
-      const q = parseFloat(it.quantity) || 1;
-      return acc + q * p;
-    }, 0);
+    return items.reduce((acc, it) => acc + (parseFloat(it.unit_price) || 0), 0);
   }, [isItemized, items, amount]);
 
   const toggleParticipant = (userId: string) => {
@@ -161,8 +157,8 @@ export function EditExpenseModal({
 
   const handleAddItem = () => {
     setItems((prev) => [
+      { id: `item-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, name: "", quantity: "", unit: "", unit_price: "" },
       ...prev,
-      { name: "", quantity: "", unit: "", unit_price: "" },
     ]);
   };
 
@@ -199,10 +195,10 @@ export function EditExpenseModal({
       updatedItems = items
         .filter((it) => it.name.trim() && parseFloat(it.unit_price) > 0)
         .map((it, idx) => {
-          const uPrice = parseFloat(it.unit_price) || 0;
+          const itemTotal = parseFloat(it.unit_price) || 0;
           const hasQty = it.quantity.trim() !== "" && !isNaN(parseFloat(it.quantity));
           const qty = hasQty ? parseFloat(it.quantity) : undefined;
-          const multiplier = qty ?? 1;
+          const uPrice = qty && qty > 0 ? Number((itemTotal / qty).toFixed(2)) : itemTotal;
           return {
             id: it.id || `item-${Date.now()}-${idx}`,
             expense_id: expense.id,
@@ -210,7 +206,7 @@ export function EditExpenseModal({
             quantity: qty,
             unit: it.unit.trim() || undefined,
             unit_price: uPrice,
-            total_price: Number((multiplier * uPrice).toFixed(2)),
+            total_price: Number(itemTotal.toFixed(2)),
           };
         });
     }
@@ -403,8 +399,8 @@ export function EditExpenseModal({
           )}
 
           {/* Amount, Date & Time */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-            <div className="sm:col-span-6 space-y-1.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1.5">
               <label className="text-xs font-semibold text-foreground">
                 Total Amount (৳) {isItemized && "(Calculated from items)"}
               </label>
@@ -426,32 +422,34 @@ export function EditExpenseModal({
               </div>
             </div>
 
-            <div className="sm:col-span-3 space-y-1.5">
-              <label className="text-xs font-semibold text-foreground flex items-center gap-1">
-                <Calendar className="size-3 text-muted-foreground" />
-                <span>Date</span>
-              </label>
-              <Input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="h-10 text-xs bg-accent/20 border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all cursor-pointer"
-                required
-              />
-            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-foreground flex items-center gap-1">
+                  <Calendar className="size-3 text-muted-foreground" />
+                  <span>Date</span>
+                </label>
+                <Input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="h-10 text-xs bg-accent/20 border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all cursor-pointer min-w-0"
+                  required
+                />
+              </div>
 
-            <div className="sm:col-span-3 space-y-1.5">
-              <label className="text-xs font-semibold text-foreground flex items-center gap-1">
-                <Clock className="size-3 text-muted-foreground" />
-                <span>Time</span>
-              </label>
-              <Input
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                className="h-10 text-xs bg-accent/20 border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all cursor-pointer"
-                required
-              />
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-foreground flex items-center gap-1">
+                  <Clock className="size-3 text-muted-foreground" />
+                  <span>Time</span>
+                </label>
+                <Input
+                  type="time"
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  className="h-10 text-xs bg-accent/20 border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all cursor-pointer min-w-0"
+                  required
+                />
+              </div>
             </div>
           </div>
 
@@ -577,7 +575,7 @@ export function EditExpenseModal({
                           type="number"
                           inputMode="decimal"
                           step="any"
-                          placeholder="Price (৳)"
+                          placeholder="Total (৳)"
                           value={item.unit_price}
                           onChange={(e) => handleUpdateItem(idx, "unit_price", e.target.value)}
                           className="h-8 text-xs bg-card font-numeral font-bold rounded-lg border-border text-right"
