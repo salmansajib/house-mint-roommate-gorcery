@@ -17,6 +17,7 @@ import { UserAvatar } from "@/components/ui/user-avatar";
 import { UserBadge } from "@/components/ui/user-badge";
 import { RecurringBill } from "@/types";
 import { format } from "date-fns";
+import { toast } from "@/components/ui/sonner";
 import {
   Home,
   Wifi,
@@ -81,6 +82,9 @@ export function QuickLogBillDialog({
 
     setIsSubmitting(true);
     logRecurringBillExpense(bill.id, numAmount, date, payerId);
+    toast.success("Bill logged", {
+      description: `${bill.title} (৳${numAmount.toFixed(2)}) marked as paid.`,
+    });
     setIsSubmitting(false);
     onClose();
   };

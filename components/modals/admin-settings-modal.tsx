@@ -17,6 +17,18 @@ import { UserAvatar } from "@/components/ui/user-avatar";
 import { UserBadge } from "@/components/ui/user-badge";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+import { toast } from "@/components/ui/sonner";
+import { GroceryCatalogItem } from "@/types";
+import {
   ShieldCheck,
   Users,
   Building,
@@ -42,6 +54,8 @@ import {
   Search,
   Trash2,
   Plus,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useGroceryCatalog } from "@/hooks/use-grocery-catalog";
@@ -137,6 +151,41 @@ export function AdminSettingsModal({
   const [itemCategory, setItemCategory] = React.useState("staples");
   const [isSavingItem, setIsSavingItem] = React.useState(false);
   const [itemSavedSuccess, setItemSavedSuccess] = React.useState(false);
+  const [catalogItemToDelete, setCatalogItemToDelete] = React.useState<GroceryCatalogItem | null>(null);
+  const [isResetConfirmOpen, setIsResetConfirmOpen] = React.useState(false);
+
+  // Category pills horizontal scroll state
+  const categoryScrollRef = React.useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = React.useState(false);
+  const [canScrollRight, setCanScrollRight] = React.useState(false);
+
+  const checkCategoryScroll = React.useCallback(() => {
+    const el = categoryScrollRef.current;
+    if (!el) return;
+    const hasOverflow = el.scrollWidth > el.clientWidth;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(hasOverflow && el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
+  }, []);
+
+  React.useEffect(() => {
+    const el = categoryScrollRef.current;
+    if (!el) return;
+    const timer = setTimeout(checkCategoryScroll, 60);
+    el.addEventListener("scroll", checkCategoryScroll, { passive: true });
+    window.addEventListener("resize", checkCategoryScroll);
+    return () => {
+      clearTimeout(timer);
+      el.removeEventListener("scroll", checkCategoryScroll);
+      window.removeEventListener("resize", checkCategoryScroll);
+    };
+  }, [checkCategoryScroll, activeTab]);
+
+  const handleScrollCategories = (direction: "left" | "right") => {
+    const el = categoryScrollRef.current;
+    if (!el) return;
+    const offset = direction === "left" ? -180 : 180;
+    el.scrollBy({ left: offset, behavior: "smooth" });
+  };
 
   const handleAddCatalogItem = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -293,8 +342,9 @@ export function AdminSettingsModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="w-[calc(100%-1.25rem)] sm:w-full sm:max-w-3xl max-h-[92dvh] sm:max-h-[88vh] flex flex-col bg-card border-border shadow-2xl p-0 rounded-xl overflow-hidden">
+    <>
+      <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <DialogContent className="w-[calc(100%-1.25rem)] sm:w-full sm:max-w-3xl max-h-[92dvh] sm:max-h-[88vh] flex flex-col bg-card border-border shadow-2xl p-0 rounded-xl overflow-hidden">
         {/* Header */}
         <DialogHeader className="p-4 sm:p-5 pb-3 sm:pb-4 border-b border-border bg-card shrink-0 text-left">
           <div className="flex items-center gap-2.5 sm:gap-3 pr-8 sm:pr-0">
@@ -898,32 +948,79 @@ export function AdminSettingsModal({
                   )}
                 </div>
 
-                {/* Category Pills */}
-                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs">
-                  {[
-                    { key: "all", label: "All Items" },
-                    { key: "custom", label: "Apartment Custom" },
-                    { key: "staples", label: "Staples" },
-                    { key: "vegetables", label: "Vegetables" },
-                    { key: "meat_fish", label: "Meat & Fish" },
-                    { key: "spices", label: "Spices" },
-                    { key: "dairy_eggs", label: "Dairy & Eggs" },
-                    { key: "oil_ghee", label: "Oil & Ghee" },
-                    { key: "household", label: "Household" },
-                  ].map((cat) => (
+                {/* Category Pills with Horizontal Scroll, Arrows & Gradient Edges */}
+                <div className="relative flex items-center">
+                  {/* Left Scroll Button */}
+                  {canScrollLeft && (
                     <button
-                      key={cat.key}
                       type="button"
-                      onClick={() => setSelectedCatalogCategory(cat.key)}
-                      className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all shrink-0 cursor-pointer ${
-                        selectedCatalogCategory === cat.key
-                          ? "bg-primary text-primary-foreground font-semibold"
-                          : "bg-card border border-border/80 text-muted-foreground hover:text-foreground"
-                      }`}
+                      onClick={() => handleScrollCategories("left")}
+                      className="absolute -left-1.5 z-20 size-6 sm:size-7 rounded-full bg-card/95 border border-border shadow-md flex items-center justify-center text-foreground hover:bg-accent hover:text-primary transition-all cursor-pointer"
+                      aria-label="Scroll categories left"
                     >
-                      {cat.label}
+                      <ChevronLeft className="size-3.5" />
                     </button>
-                  ))}
+                  )}
+
+                  {/* Left Gradient Edge */}
+                  {canScrollLeft && (
+                    <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-card to-transparent pointer-events-none z-10" />
+                  )}
+
+                  {/* Scrollable Container */}
+                  <div
+                    ref={categoryScrollRef}
+                    className="flex items-center gap-1.5 overflow-x-auto py-1 px-1 scroll-smooth no-scrollbar text-xs w-full"
+                  >
+                    {[
+                      { key: "all", label: "All Items" },
+                      { key: "custom", label: "Apartment Custom" },
+                      { key: "staples", label: "Staples" },
+                      { key: "vegetables", label: "Vegetables" },
+                      { key: "meat_fish", label: "Meat & Fish" },
+                      { key: "spices", label: "Spices" },
+                      { key: "dairy_eggs", label: "Dairy & Eggs" },
+                      { key: "oil_ghee", label: "Oil & Ghee" },
+                      { key: "household", label: "Household" },
+                    ].map((cat) => (
+                      <button
+                        key={cat.key}
+                        type="button"
+                        onClick={(e) => {
+                          setSelectedCatalogCategory(cat.key);
+                          e.currentTarget.scrollIntoView({
+                            behavior: "smooth",
+                            block: "nearest",
+                            inline: "nearest",
+                          });
+                        }}
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all shrink-0 cursor-pointer ${
+                          selectedCatalogCategory === cat.key
+                            ? "bg-primary text-primary-foreground font-semibold shadow-xs"
+                            : "bg-card border border-border/80 text-muted-foreground hover:text-foreground hover:border-border"
+                        }`}
+                      >
+                        {cat.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Right Gradient Edge */}
+                  {canScrollRight && (
+                    <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-card to-transparent pointer-events-none z-10" />
+                  )}
+
+                  {/* Right Scroll Button */}
+                  {canScrollRight && (
+                    <button
+                      type="button"
+                      onClick={() => handleScrollCategories("right")}
+                      className="absolute -right-1.5 z-20 size-6 sm:size-7 rounded-full bg-card/95 border border-border shadow-md flex items-center justify-center text-foreground hover:bg-accent hover:text-primary transition-all cursor-pointer"
+                      aria-label="Scroll categories right"
+                    >
+                      <ChevronRight className="size-3.5" />
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -994,11 +1091,7 @@ export function AdminSettingsModal({
                           {isApartmentCustom && (
                             <button
                               type="button"
-                              onClick={() => {
-                                if (confirm(`Remove "${item.name_bn}" from apartment suggestions?`)) {
-                                  deleteItem(item.id);
-                                }
-                              }}
+                              onClick={() => setCatalogItemToDelete(item)}
                               className="size-7 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors cursor-pointer ml-auto sm:ml-0"
                               title="Delete custom item"
                             >
@@ -1506,16 +1599,7 @@ export function AdminSettingsModal({
                     <Button
                       size="sm"
                       variant="destructive"
-                      onClick={() => {
-                        if (
-                          confirm(
-                            "Are you sure you want to reset all household data to default seeds?"
-                          )
-                        ) {
-                          resetToDefaults();
-                          onClose();
-                        }
-                      }}
+                      onClick={() => setIsResetConfirmOpen(true)}
                       className="text-xs font-semibold gap-1.5 cursor-pointer w-full xs:w-auto justify-center"
                     >
                       <RotateCcw className="size-3.5" />
@@ -1529,5 +1613,80 @@ export function AdminSettingsModal({
         </div>
       </DialogContent>
     </Dialog>
-  );
-}
+
+    {/* Delete Custom Grocery Item Alert Dialog */}
+        <AlertDialog open={Boolean(catalogItemToDelete)} onOpenChange={(open) => !open && setCatalogItemToDelete(null)}>
+          <AlertDialogContent className="w-[95vw] sm:max-w-md bg-card border-border rounded-2xl p-5 sm:p-6 shadow-2xl">
+            <AlertDialogHeader className="text-left space-y-2">
+              <div className="size-10 rounded-full bg-destructive/15 border border-destructive/30 flex items-center justify-center text-destructive mb-1">
+                <AlertTriangle className="size-5" />
+              </div>
+              <AlertDialogTitle className="text-lg font-bold text-foreground">
+                Delete Custom Item?
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-xs text-muted-foreground space-y-1">
+                <span>Are you sure you want to remove </span>
+                <strong className="text-foreground font-semibold">
+                  &ldquo;{catalogItemToDelete?.name_bn || catalogItemToDelete?.name_en}&rdquo;
+                </strong>
+                <span> from apartment catalog suggestions?</span>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="pt-3 gap-2 flex-col-reverse sm:flex-row">
+              <AlertDialogCancel className="h-10 rounded-xl border-border hover:bg-accent cursor-pointer">
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  if (catalogItemToDelete) {
+                    deleteItem(catalogItemToDelete.id);
+                    toast.success("Catalog item removed", {
+                      description: `"${catalogItemToDelete.name_bn || catalogItemToDelete.name_en}" was deleted.`,
+                    });
+                    setCatalogItemToDelete(null);
+                  }
+                }}
+                className="h-10 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90 font-semibold cursor-pointer shadow-md shadow-destructive/20"
+              >
+                Yes, Remove Item
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Reset Household Data Alert Dialog */}
+        <AlertDialog open={isResetConfirmOpen} onOpenChange={setIsResetConfirmOpen}>
+          <AlertDialogContent className="w-[95vw] sm:max-w-md bg-card border-border rounded-2xl p-5 sm:p-6 shadow-2xl">
+            <AlertDialogHeader className="text-left space-y-2">
+              <div className="size-10 rounded-full bg-destructive/15 border border-destructive/30 flex items-center justify-center text-destructive mb-1">
+                <AlertTriangle className="size-5" />
+              </div>
+              <AlertDialogTitle className="text-lg font-bold text-foreground">
+                Reset All Household Data?
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-xs text-muted-foreground space-y-1">
+                <span>Are you sure you want to reset all household expenses, settlements, and recurring bills back to demo defaults? </span>
+                <strong className="text-destructive font-semibold">This action cannot be undone.</strong>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="pt-3 gap-2 flex-col-reverse sm:flex-row">
+              <AlertDialogCancel className="h-10 rounded-xl border-border hover:bg-accent cursor-pointer">
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  resetToDefaults();
+                  toast.success("Household data reset to default demo seeds");
+                  setIsResetConfirmOpen(false);
+                  onClose();
+                }}
+                className="h-10 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90 font-semibold cursor-pointer shadow-md shadow-destructive/20"
+              >
+                Yes, Reset Everything
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </>
+    );
+  }

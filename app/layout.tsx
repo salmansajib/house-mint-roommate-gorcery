@@ -43,6 +43,8 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
       { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
       { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
     ],
@@ -55,6 +57,7 @@ export const metadata: Metadata = {
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/context/auth-context";
 import { PwaManager } from "@/components/pwa/pwa-manager";
+import { Toaster } from "@/components/ui/sonner";
 
 export default function RootLayout({
   children,
@@ -80,6 +83,7 @@ export default function RootLayout({
           <AuthProvider>
             {children}
             <PwaManager />
+            <Toaster position="top-right" richColors closeButton />
           </AuthProvider>
         </ThemeProvider>
         <Analytics />

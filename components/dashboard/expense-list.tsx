@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { CATEGORY_META } from "@/lib/balance";
 import { Expense } from "@/types";
+import { toast } from "@/components/ui/sonner";
 import {
   ShoppingBag,
   Home,
@@ -170,10 +171,16 @@ export function ExpenseList() {
       const canDelete =
         expenseToDelete.paid_by === currentUser.id || currentUser.role === "admin";
       if (!canDelete) {
+        toast.error("Cannot delete expense", {
+          description: "You can only delete your own expenses unless you are an admin.",
+        });
         setExpenseToDelete(null);
         return;
       }
       deleteExpense(expenseToDelete.id);
+      toast.success("Expense deleted", {
+        description: `"${expenseToDelete.title}" (৳${expenseToDelete.amount.toFixed(2)}) was removed.`,
+      });
       setExpenseToDelete(null);
     }
   };

@@ -1,5 +1,5 @@
 // HouseMint Progressive Web App Service Worker
-const CACHE_NAME = 'housemint-v1';
+const CACHE_NAME = 'housemint-v2';
 
 const PRECACHE_ASSETS = [
   '/',

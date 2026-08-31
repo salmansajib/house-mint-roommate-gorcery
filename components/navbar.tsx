@@ -17,12 +17,15 @@ import {
   ShieldCheck,
   Key,
   Download,
+  RefreshCw,
+  WifiOff,
 } from "lucide-react";
 import { navVariants, navItemVariants } from "@/lib/animations";
 import { NotificationPopover } from "@/components/notifications/notification-popover";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 import { UserAvatar } from "@/components/ui/user-avatar";
+import { HouseMintLogo } from "@/components/ui/house-mint-logo";
 
 interface NavbarProps {
   onOpenAdminSettings?: () => void;
@@ -43,6 +46,7 @@ export function Navbar({
     isLoaded,
     isCloudConnected,
     isSyncing,
+    pendingOfflineCount,
   } = useExpenses();
 
   const [isOpenMenu, setIsOpenMenu] = React.useState(false);
@@ -75,7 +79,7 @@ export function Navbar({
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className="size-8 sm:size-9 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shadow-xs shrink-0 cursor-default"
           >
-            <Sparkles className="size-4 sm:size-5" />
+            <HouseMintLogo size={20} className="size-4.5 sm:size-5" />
           </motion.div>
           <div className="flex items-center gap-1.5 sm:gap-2">
             <span className="font-extrabold text-base sm:text-lg tracking-tight bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent shrink-0 select-none">
@@ -106,17 +110,6 @@ export function Navbar({
             </Button>
           )}
 
-          {/* Show Offline Pill ONLY if connection is lost */}
-          {!isCloudConnected && (
-            <Badge
-              variant="outline"
-              className="inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-medium border-warning/30 bg-warning/10 text-warning shrink-0"
-              title="Running locally with offline cache"
-            >
-              <span className="size-1.5 rounded-full bg-warning/80" />
-              <span>Offline</span>
-            </Badge>
-          )}
 
           {/* Household Total Pill (Desktop/Tablet) */}
           <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card border border-border text-xs transition-colors hover:border-border/80 min-h-[34px]">
@@ -344,6 +337,40 @@ export function Navbar({
           )}
         </motion.div>
       </div>
+
+      {/* Slim Sub-Header Offline / Sync Banner */}
+      <AnimatePresence>
+        {(!isCloudConnected || isSyncing) && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            className="overflow-hidden border-t border-warning/20 bg-warning/10 text-warning text-[11px] sm:text-xs font-medium select-none"
+          >
+            <div className="max-w-6xl mx-auto px-3 sm:px-6 py-1 flex items-center justify-center gap-2 text-center">
+              {isSyncing ? (
+                <>
+                  <RefreshCw className="size-3 animate-spin text-primary shrink-0" />
+                  <span className="text-primary font-semibold">
+                    Syncing offline changes with cloud...
+                  </span>
+                </>
+              ) : (
+                <>
+                  <WifiOff className="size-3 text-warning shrink-0" />
+                  <span className="truncate">
+                    You are currently offline.{" "}
+                    {pendingOfflineCount > 0
+                      ? `${pendingOfflineCount} change${pendingOfflineCount === 1 ? "" : "s"} saved locally and will auto-sync when back online.`
+                      : "Viewing data from offline device cache."}
+                  </span>
+                </>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.header>
   );
 }

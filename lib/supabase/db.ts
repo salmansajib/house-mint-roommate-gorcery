@@ -299,27 +299,35 @@ export async function createExpenseInDb(
   if (!supabase) return false;
 
   try {
-    const { error: expErr } = await supabase.from("expenses").insert({
-      id: expense.id,
-      household_id: householdId,
-      title: expense.title,
-      category: expense.category,
-      amount: expense.amount,
-      quantity: expense.quantity ?? null,
-      unit: expense.unit ?? null,
-      paid_by: expense.paid_by,
-      date: expense.date.includes("T") ? expense.date.split("T")[0] : expense.date,
-      split_type: expense.split_type,
-      is_recurring: expense.is_recurring ?? false,
-      recurring_bill_id: expense.recurring_bill_id ?? null,
-      notes: expense.notes ?? null,
-      created_at: expense.created_at,
-    });
+    const { error: expErr } = await supabase.from("expenses").upsert(
+      {
+        id: expense.id,
+        household_id: householdId,
+        title: expense.title,
+        category: expense.category,
+        amount: expense.amount,
+        quantity: expense.quantity ?? null,
+        unit: expense.unit ?? null,
+        paid_by: expense.paid_by,
+        date: expense.date.includes("T") ? expense.date.split("T")[0] : expense.date,
+        split_type: expense.split_type,
+        is_recurring: expense.is_recurring ?? false,
+        recurring_bill_id: expense.recurring_bill_id ?? null,
+        notes: expense.notes ?? null,
+        created_at: expense.created_at,
+      },
+      { onConflict: "id" }
+    );
 
     if (expErr) throw expErr;
 
-    // Insert line items if any
+    // Clean and insert line items if any
     if (expense.items && expense.items.length > 0) {
+      await supabase
+        .from("expense_items")
+        .delete()
+        .eq("expense_id", expense.id);
+
       const itemsToInsert = expense.items.map((item) => ({
         id: item.id,
         expense_id: expense.id,
@@ -337,8 +345,13 @@ export async function createExpenseInDb(
       if (itemErr) throw itemErr;
     }
 
-    // Insert split shares
+    // Clean and insert split shares
     if (expense.splits && expense.splits.length > 0) {
+      await supabase
+        .from("expense_splits")
+        .delete()
+        .eq("expense_id", expense.id);
+
       const splitsToInsert = expense.splits.map((s, idx) => ({
         id: `spl-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 5)}`,
         expense_id: expense.id,
@@ -354,8 +367,11 @@ export async function createExpenseInDb(
     }
 
     return true;
-  } catch (error) {
-    console.error("createExpenseInDb error:", error);
+  } catch (error: any) {
+    console.error(
+      "createExpenseInDb error:",
+      error?.message || error?.details || JSON.stringify(error)
+    );
     return false;
   }
 }
@@ -497,7 +513,7 @@ export async function createRecurringBillInDb(
   if (!supabase) return false;
 
   try {
-    const { error } = await supabase.from("recurring_bills").insert({
+    const payload = {
       id: bill.id,
       household_id: householdId,
       title: bill.title,
@@ -505,18 +521,35 @@ export async function createRecurringBillInDb(
       default_amount: bill.default_amount,
       billing_cycle: bill.billing_cycle,
       due_day_of_month: bill.due_day_of_month,
-      default_payer_id: bill.default_payer_id,
+      default_payer_id: bill.default_payer_id || null,
       split_type: bill.split_type,
-      participant_ids: bill.participant_ids,
-      is_active: bill.is_active,
+      participant_ids: bill.participant_ids || [],
+      is_active: bill.is_active ?? true,
       notes: bill.notes ?? null,
       created_at: bill.created_at,
-    });
+    };
 
-    if (error) throw error;
+    const { error } = await supabase
+      .from("recurring_bills")
+      .upsert(payload, { onConflict: "id" });
+
+    if (error) {
+      // If foreign key constraint on default_payer_id fails (e.g. payer doesn't exist in cloud profiles yet), retry with null
+      if (error.code === "23503") {
+        const { error: retryErr } = await supabase
+          .from("recurring_bills")
+          .upsert({ ...payload, default_payer_id: null }, { onConflict: "id" });
+        if (retryErr) throw retryErr;
+        return true;
+      }
+      throw error;
+    }
     return true;
-  } catch (error) {
-    console.error("createRecurringBillInDb error:", error);
+  } catch (error: any) {
+    console.error(
+      "createRecurringBillInDb error:",
+      error?.message || error?.details || JSON.stringify(error)
+    );
     return false;
   }
 }
@@ -700,10 +733,10 @@ export async function createNotificationInDb(
   if (!supabase) return false;
 
   try {
-    const { error } = await supabase.from("notifications").insert({
+    const payload = {
       id: notification.id,
       household_id: householdId,
-      actor_id: notification.actor_id,
+      actor_id: notification.actor_id || null,
       actor_name: notification.actor_name,
       action_type: notification.action_type,
       title: notification.title,
@@ -714,9 +747,21 @@ export async function createNotificationInDb(
       target_title: notification.target_title ?? null,
       created_at: notification.created_at,
       read_by: notification.read_by || [],
-    });
+    };
+
+    const { error } = await supabase
+      .from("notifications")
+      .upsert(payload, { onConflict: "id" });
 
     if (error) {
+      if (error.code === "23503") {
+        // FK violation on actor_id, retry with null actor_id so notification is preserved
+        const { error: retryErr } = await supabase
+          .from("notifications")
+          .upsert({ ...payload, actor_id: null }, { onConflict: "id" });
+        if (!retryErr) return true;
+      }
+
       if (
         error.code === "PGRST205" ||
         error.message?.includes("notifications") ||
@@ -726,7 +771,7 @@ export async function createNotificationInDb(
           "[HouseMint Info] Cloud notification sync requires the notifications table. Run supabase/notifications_migration.sql in Supabase SQL editor."
         );
       } else {
-        console.warn("createNotificationInDb warning:", error.message);
+        console.warn("createNotificationInDb warning:", error.message || error);
       }
       return false;
     }

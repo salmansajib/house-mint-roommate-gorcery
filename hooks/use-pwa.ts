@@ -62,32 +62,47 @@ export function usePwa() {
         handleBeforeInstallPrompt
       );
 
-      // 6. Register Service Worker
+      // 6. Service Worker handling: production only, cleanup in development
       if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-          navigator.serviceWorker
-            .register("/sw.js")
-            .then((reg) => {
-              // Check for updates periodically
-              reg.onupdatefound = () => {
-                const installingWorker = reg.installing;
-                if (installingWorker) {
-                  installingWorker.onstatechange = () => {
-                    if (
-                      installingWorker.state === "installed" &&
-                      navigator.serviceWorker.controller
-                    ) {
-                      // New content is available
-                      console.log("[PWA] New version ready.");
-                    }
-                  };
-                }
-              };
-            })
-            .catch((err) => {
-              console.warn("[PWA] Service Worker registration failed:", err);
+        if (process.env.NODE_ENV === "development") {
+          // Unregister any active service worker and clean caches in development to avoid stale HTML hydration mismatches
+          navigator.serviceWorker.getRegistrations().then((registrations) => {
+            for (const registration of registrations) {
+              registration.unregister();
+            }
+          });
+          if ("caches" in window) {
+            caches.keys().then((keys) => {
+              for (const key of keys) {
+                caches.delete(key);
+              }
             });
-        });
+          }
+        } else {
+          window.addEventListener("load", () => {
+            navigator.serviceWorker
+              .register("/sw.js")
+              .then((reg) => {
+                // Check for updates periodically
+                reg.onupdatefound = () => {
+                  const installingWorker = reg.installing;
+                  if (installingWorker) {
+                    installingWorker.onstatechange = () => {
+                      if (
+                        installingWorker.state === "installed" &&
+                        navigator.serviceWorker.controller
+                      ) {
+                        console.log("[PWA] New version ready.");
+                      }
+                    };
+                  }
+                };
+              })
+              .catch((err) => {
+                console.warn("[PWA] Service Worker registration failed:", err);
+              });
+          });
+        }
       }
 
       return () => {
