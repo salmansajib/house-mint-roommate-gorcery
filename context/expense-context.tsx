@@ -57,6 +57,12 @@ import {
   APARTMENT_ADMIN_KEY,
   DEFAULT_HOUSEHOLD_ID,
 } from "@/lib/supabase/db";
+import { toast } from "@/components/ui/sonner";
+import {
+  getOfflineQueue,
+  enqueueOfflineMutation,
+  flushOfflineQueue,
+} from "@/lib/offline-sync";
 
 import { useAuth } from "./auth-context";
 
@@ -82,6 +88,7 @@ interface ExpenseContextType {
   isLoaded: boolean;
   isCloudConnected: boolean;
   isSyncing: boolean;
+  pendingOfflineCount: number;
   addExpense: (
     expense: Omit<Expense, "id" | "created_at"> & { created_at?: string }
   ) => void;
@@ -186,6 +193,20 @@ export function ExpenseProvider({ children }: { children: React.ReactNode }) {
   const [isLoaded, setIsLoaded] = React.useState(false);
   const [isCloudConnected, setIsCloudConnected] = React.useState(false);
   const [isSyncing, setIsSyncing] = React.useState(false);
+  const [pendingOfflineCount, setPendingOfflineCount] = React.useState<number>(() => {
+    return typeof window !== "undefined" ? getOfflineQueue().length : 0;
+  });
+
+  React.useEffect(() => {
+    const handleQueueChange = (e: Event) => {
+      const custom = e as CustomEvent<{ count: number }>;
+      setPendingOfflineCount(custom.detail?.count ?? getOfflineQueue().length);
+    };
+    window.addEventListener("housemint_offline_queue_change", handleQueueChange);
+    return () => {
+      window.removeEventListener("housemint_offline_queue_change", handleQueueChange);
+    };
+  }, []);
 
   const [selectedCategory, setSelectedCategory] = React.useState<
     ExpenseCategory | "all"
@@ -200,6 +221,10 @@ export function ExpenseProvider({ children }: { children: React.ReactNode }) {
 
     try {
       setIsSyncing(true);
+      // 1. Flush any pending offline mutations first
+      await flushOfflineQueue();
+
+      // 2. Fetch fresh household data from Supabase
       const cloudData = await fetchHouseholdData();
       if (cloudData) {
         const resolvedUsers =
@@ -220,11 +245,34 @@ export function ExpenseProvider({ children }: { children: React.ReactNode }) {
           }
         }
 
-        setExpenses(cloudData.expenses);
+        // 3. Reconcile: Preserve any locally created expenses that are pending in the queue
+        const currentQueue = getOfflineQueue();
+        const pendingCreatedExpenses = currentQueue
+          .filter((q) => q.type === "CREATE_EXPENSE")
+          .map((q) => q.payload as Expense)
+          .filter(Boolean);
+
+        const cloudExpenseIds = new Set(cloudData.expenses.map((e) => e.id));
+        const mergedExpenses = [
+          ...pendingCreatedExpenses.filter((pe) => !cloudExpenseIds.has(pe.id)),
+          ...cloudData.expenses,
+        ];
+
+        setExpenses(mergedExpenses);
         setSettlements(cloudData.settlements);
         setRecurringBills(cloudData.recurringBills);
         if (cloudData.notifications !== undefined) {
-          setNotifications(cloudData.notifications);
+          const pendingCreatedNotifications = currentQueue
+            .filter((q) => q.type === "CREATE_NOTIFICATION")
+            .map((q) => q.payload as AppNotification)
+            .filter(Boolean);
+
+          const cloudNotifIds = new Set(cloudData.notifications.map((n) => n.id));
+          const mergedNotifications = [
+            ...pendingCreatedNotifications.filter((pn) => !cloudNotifIds.has(pn.id)),
+            ...cloudData.notifications,
+          ];
+          setNotifications(mergedNotifications);
         }
         if (cloudData.settings) {
           setHouseholdSettings(cloudData.settings);
@@ -247,61 +295,64 @@ export function ExpenseProvider({ children }: { children: React.ReactNode }) {
     }
   }, [authUser, users.length]);
 
-  // Hydrate on initial mount: Clean cloud mode or fallback to local storage
+  // Hydrate on initial mount: Offline-first cache hydration + Cloud sync
   React.useEffect(() => {
     async function initData() {
-      // 1. In offline mode, check local storage. In cloud mode, clear stale demo mock data.
       try {
-        const savedNotifications = localStorage.getItem(
-          STORAGE_KEYS.NOTIFICATIONS
-        );
+        // 1. ALWAYS hydrate cached data from localStorage first
+        // This guarantees entries and balances are instantly visible even when offline or during cold PWA start.
+        const savedExpenses = localStorage.getItem(STORAGE_KEYS.EXPENSES);
+        const savedSettlements = localStorage.getItem(STORAGE_KEYS.SETTLEMENTS);
+        const savedRecurringBills = localStorage.getItem(STORAGE_KEYS.RECURRING_BILLS);
+        const savedUsers = localStorage.getItem(STORAGE_KEYS.USERS);
+        const savedSettings = localStorage.getItem(STORAGE_KEYS.HOUSEHOLD_SETTINGS);
+        const savedUser = localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
+        const savedNotifications = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS);
+
         if (savedNotifications) {
+          try { setNotifications(JSON.parse(savedNotifications)); } catch {}
+        }
+        if (savedExpenses) {
           try {
-            setNotifications(JSON.parse(savedNotifications));
+            const parsed = JSON.parse(savedExpenses);
+            if (Array.isArray(parsed) && parsed.length > 0) setExpenses(parsed);
           } catch {}
         }
+        if (savedSettlements) {
+          try {
+            const parsed = JSON.parse(savedSettlements);
+            if (Array.isArray(parsed) && parsed.length > 0) setSettlements(parsed);
+          } catch {}
+        }
+        if (savedRecurringBills) {
+          try {
+            const parsed = JSON.parse(savedRecurringBills);
+            if (Array.isArray(parsed) && parsed.length > 0) setRecurringBills(parsed);
+          } catch {}
+        }
+        if (savedUsers) {
+          try {
+            const parsed = JSON.parse(savedUsers);
+            if (Array.isArray(parsed) && parsed.length > 0) setUsers(parsed);
+          } catch {}
+        }
+        if (savedSettings) {
+          try { setHouseholdSettings(JSON.parse(savedSettings)); } catch {}
+        }
+        if (savedUser) {
+          const found = INITIAL_USERS.find((u) => u.id === savedUser);
+          if (found) setCurrentUser(found);
+        }
 
-        if (!isSupabaseConfigured()) {
-          const savedExpenses = localStorage.getItem(STORAGE_KEYS.EXPENSES);
-          const savedSettlements = localStorage.getItem(STORAGE_KEYS.SETTLEMENTS);
-          const savedRecurringBills = localStorage.getItem(
-            STORAGE_KEYS.RECURRING_BILLS
-          );
-          const savedUsers = localStorage.getItem(STORAGE_KEYS.USERS);
-          const savedSettings = localStorage.getItem(STORAGE_KEYS.HOUSEHOLD_SETTINGS);
-          const savedUser = localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
-
-          if (savedExpenses) setExpenses(JSON.parse(savedExpenses));
-          if (savedSettlements) setSettlements(JSON.parse(savedSettlements));
-          if (savedRecurringBills) setRecurringBills(JSON.parse(savedRecurringBills));
-          if (savedUsers) setUsers(JSON.parse(savedUsers));
-          if (savedSettings) setHouseholdSettings(JSON.parse(savedSettings));
-          if (savedUser) {
-            const found = INITIAL_USERS.find((u) => u.id === savedUser);
-            if (found) setCurrentUser(found);
-          }
-
-          // Small graceful delay in offline mode so the skeleton transition is visible on reload
-          await new Promise((resolve) => setTimeout(resolve, 300));
-        } else {
-          // If previous prototype mock data exists in localStorage, clear it immediately
-          const savedExpenses = localStorage.getItem(STORAGE_KEYS.EXPENSES);
-          if (
-            savedExpenses &&
-            (savedExpenses.includes("exp-1") || savedExpenses.includes("user-salman"))
-          ) {
-            localStorage.removeItem(STORAGE_KEYS.EXPENSES);
-            localStorage.removeItem(STORAGE_KEYS.SETTLEMENTS);
-            localStorage.removeItem(STORAGE_KEYS.RECURRING_BILLS);
-            localStorage.removeItem(STORAGE_KEYS.USERS);
-            localStorage.removeItem(STORAGE_KEYS.HOUSEHOLD_SETTINGS);
-            localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
-          }
-
-          // 2. Hydrate from Supabase Cloud before marking loaded
-          const connected = await syncWithSupabase();
-          if (!connected) {
+        // 2. If Supabase is configured and device is online, sync with cloud
+        if (isSupabaseConfigured()) {
+          if (typeof navigator !== "undefined" && !navigator.onLine) {
             setIsCloudConnected(false);
+          } else {
+            const connected = await syncWithSupabase();
+            if (!connected) {
+              setIsCloudConnected(false);
+            }
           }
         }
       } catch (e) {
@@ -312,6 +363,50 @@ export function ExpenseProvider({ children }: { children: React.ReactNode }) {
     }
 
     initData();
+  }, [syncWithSupabase]);
+
+  // Listen to network reconnection & mobile PWA app resume
+  React.useEffect(() => {
+    const handleReconnect = async () => {
+      if (!isSupabaseConfigured() || (typeof navigator !== "undefined" && !navigator.onLine)) return;
+      setIsSyncing(true);
+      try {
+        const { processed } = await flushOfflineQueue();
+        const connected = await syncWithSupabase();
+        if (connected) {
+          setIsCloudConnected(true);
+          if (processed > 0) {
+            toast.success("Back online", {
+              description: `Successfully synced ${processed} offline change${processed === 1 ? "" : "s"} to the cloud.`,
+            });
+          }
+        }
+      } catch (err) {
+        console.warn("Error during reconnect sync:", err);
+      } finally {
+        setIsSyncing(false);
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible" && typeof navigator !== "undefined" && navigator.onLine) {
+        handleReconnect();
+      }
+    };
+
+    const handleOffline = () => {
+      setIsCloudConnected(false);
+    };
+
+    window.addEventListener("online", handleReconnect);
+    window.addEventListener("offline", handleOffline);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("online", handleReconnect);
+      window.removeEventListener("offline", handleOffline);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [syncWithSupabase]);
 
   // Realtime WebSocket Subscription
@@ -516,9 +611,20 @@ export function ExpenseProvider({ children }: { children: React.ReactNode }) {
       setNotifications((prev) => [notif, ...prev.slice(0, 49)]);
 
       if (isSupabaseConfigured()) {
-        createNotificationInDb(notif).catch((err) =>
-          console.warn("createNotificationInDb failed:", err)
-        );
+        if (typeof navigator !== "undefined" && !navigator.onLine) {
+          enqueueOfflineMutation("CREATE_NOTIFICATION", notif);
+        } else {
+          createNotificationInDb(notif)
+            .then((ok) => {
+              if (!ok) {
+                enqueueOfflineMutation("CREATE_NOTIFICATION", notif);
+              }
+            })
+            .catch((err) => {
+              console.warn("createNotificationInDb failed, queuing offline:", err);
+              enqueueOfflineMutation("CREATE_NOTIFICATION", notif);
+            });
+        }
       }
     },
     [currentUser]
@@ -602,11 +708,31 @@ export function ExpenseProvider({ children }: { children: React.ReactNode }) {
         target_title: expense.title,
       });
 
-      // Cloud mutation in background
+      // Cloud mutation in background or enqueue for offline sync
       if (isSupabaseConfigured()) {
-        createExpenseInDb(expense).catch((err) =>
-          console.error("Supabase createExpense error:", err)
-        );
+        if (typeof navigator !== "undefined" && !navigator.onLine) {
+          enqueueOfflineMutation("CREATE_EXPENSE", expense);
+          toast.info("Saved offline", {
+            description: `"${expense.title}" will sync when you're back online.`,
+          });
+        } else {
+          createExpenseInDb(expense)
+            .then((success) => {
+              if (!success) {
+                enqueueOfflineMutation("CREATE_EXPENSE", expense);
+                toast.info("Saved offline", {
+                  description: `"${expense.title}" queued for cloud sync.`,
+                });
+              }
+            })
+            .catch((err) => {
+              console.warn("Supabase createExpense error:", err);
+              enqueueOfflineMutation("CREATE_EXPENSE", expense);
+              toast.info("Saved offline", {
+                description: `"${expense.title}" queued for cloud sync.`,
+              });
+            });
+        }
       }
     },
     [addNotification, currentUser.name]
@@ -649,11 +775,25 @@ export function ExpenseProvider({ children }: { children: React.ReactNode }) {
         target_title: updatedExpense.title,
       });
 
-      // Cloud mutation in background
+      // Cloud mutation in background or enqueue for offline sync
       if (isSupabaseConfigured()) {
-        updateExpenseInDb(updatedExpense).catch((err) =>
-          console.error("Supabase updateExpense error:", err)
-        );
+        if (typeof navigator !== "undefined" && !navigator.onLine) {
+          enqueueOfflineMutation("UPDATE_EXPENSE", updatedExpense);
+          toast.info("Saved offline", {
+            description: `Changes to "${updatedExpense.title}" will sync when back online.`,
+          });
+        } else {
+          updateExpenseInDb(updatedExpense)
+            .then((success) => {
+              if (!success) {
+                enqueueOfflineMutation("UPDATE_EXPENSE", updatedExpense);
+              }
+            })
+            .catch((err) => {
+              console.warn("Supabase updateExpense error:", err);
+              enqueueOfflineMutation("UPDATE_EXPENSE", updatedExpense);
+            });
+        }
       }
     },
     [expenses, currentUser.id, currentUser.role, currentUser.name, addNotification]
@@ -688,11 +828,25 @@ export function ExpenseProvider({ children }: { children: React.ReactNode }) {
         target_title: targetExpense.title,
       });
 
-      // Cloud deletion in background
+      // Cloud deletion in background or enqueue for offline sync
       if (isSupabaseConfigured()) {
-        deleteExpenseInDb(id).catch((err) =>
-          console.error("Supabase deleteExpense error:", err)
-        );
+        if (typeof navigator !== "undefined" && !navigator.onLine) {
+          enqueueOfflineMutation("DELETE_EXPENSE", { id });
+          toast.info("Saved offline", {
+            description: "Expense deletion will sync when back online.",
+          });
+        } else {
+          deleteExpenseInDb(id)
+            .then((success) => {
+              if (!success) {
+                enqueueOfflineMutation("DELETE_EXPENSE", { id });
+              }
+            })
+            .catch((err) => {
+              console.warn("Supabase deleteExpense error:", err);
+              enqueueOfflineMutation("DELETE_EXPENSE", { id });
+            });
+        }
       }
     },
     [expenses, currentUser.id, currentUser.role, currentUser.name, addNotification]
@@ -718,11 +872,25 @@ export function ExpenseProvider({ children }: { children: React.ReactNode }) {
         target_id: settlement.id,
       });
 
-      // Cloud mutation in background
+      // Cloud mutation in background or enqueue for offline sync
       if (isSupabaseConfigured()) {
-        createSettlementInDb(settlement).catch((err) =>
-          console.error("Supabase createSettlement error:", err)
-        );
+        if (typeof navigator !== "undefined" && !navigator.onLine) {
+          enqueueOfflineMutation("CREATE_SETTLEMENT", settlement);
+          toast.info("Saved offline", {
+            description: "Settlement will sync when you're back online.",
+          });
+        } else {
+          createSettlementInDb(settlement)
+            .then((success) => {
+              if (!success) {
+                enqueueOfflineMutation("CREATE_SETTLEMENT", settlement);
+              }
+            })
+            .catch((err) => {
+              console.warn("Supabase createSettlement error:", err);
+              enqueueOfflineMutation("CREATE_SETTLEMENT", settlement);
+            });
+        }
       }
     },
     [users, addNotification]
@@ -747,11 +915,25 @@ export function ExpenseProvider({ children }: { children: React.ReactNode }) {
         target_title: bill.title,
       });
 
-      // Cloud mutation in background
+      // Cloud mutation in background or enqueue for offline sync
       if (isSupabaseConfigured()) {
-        createRecurringBillInDb(bill).catch((err) =>
-          console.error("Supabase createRecurringBill error:", err)
-        );
+        if (typeof navigator !== "undefined" && !navigator.onLine) {
+          enqueueOfflineMutation("CREATE_RECURRING_BILL", bill);
+          toast.info("Saved offline", {
+            description: `"${bill.title}" template will sync when back online.`,
+          });
+        } else {
+          createRecurringBillInDb(bill)
+            .then((success) => {
+              if (!success) {
+                enqueueOfflineMutation("CREATE_RECURRING_BILL", bill);
+              }
+            })
+            .catch((err) => {
+              console.warn("Supabase createRecurringBill error:", err);
+              enqueueOfflineMutation("CREATE_RECURRING_BILL", bill);
+            });
+        }
       }
     },
     [currentUser.name, addNotification]
@@ -782,11 +964,22 @@ export function ExpenseProvider({ children }: { children: React.ReactNode }) {
         target_id: id,
       });
 
-      // Cloud deletion in background
+      // Cloud deletion in background or enqueue for offline sync
       if (isSupabaseConfigured()) {
-        deleteRecurringBillInDb(id).catch((err) =>
-          console.error("Supabase deleteRecurringBill error:", err)
-        );
+        if (typeof navigator !== "undefined" && !navigator.onLine) {
+          enqueueOfflineMutation("DELETE_RECURRING_BILL", { id });
+        } else {
+          deleteRecurringBillInDb(id)
+            .then((success) => {
+              if (!success) {
+                enqueueOfflineMutation("DELETE_RECURRING_BILL", { id });
+              }
+            })
+            .catch((err) => {
+              console.warn("Supabase deleteRecurringBill error:", err);
+              enqueueOfflineMutation("DELETE_RECURRING_BILL", { id });
+            });
+        }
       }
     },
     [recurringBills, currentUser.name, addNotification]
@@ -845,7 +1038,15 @@ export function ExpenseProvider({ children }: { children: React.ReactNode }) {
             JSON.stringify(next)
           );
         } catch {}
-        updateHouseholdSettingsInDb(next);
+        if (isSupabaseConfigured()) {
+          if (typeof navigator !== "undefined" && !navigator.onLine) {
+            enqueueOfflineMutation("UPDATE_HOUSEHOLD_SETTINGS", next);
+          } else {
+            updateHouseholdSettingsInDb(next).catch(() => {
+              enqueueOfflineMutation("UPDATE_HOUSEHOLD_SETTINGS", next);
+            });
+          }
+        }
         return next;
       });
     },
@@ -975,6 +1176,7 @@ export function ExpenseProvider({ children }: { children: React.ReactNode }) {
       isLoaded,
       isCloudConnected,
       isSyncing,
+      pendingOfflineCount,
       notifications,
       unreadNotificationCount,
       latestLiveToast,
@@ -1017,6 +1219,7 @@ export function ExpenseProvider({ children }: { children: React.ReactNode }) {
       isLoaded,
       isCloudConnected,
       isSyncing,
+      pendingOfflineCount,
       notifications,
       unreadNotificationCount,
       latestLiveToast,

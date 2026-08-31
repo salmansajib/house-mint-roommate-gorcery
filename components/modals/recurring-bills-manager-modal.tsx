@@ -17,6 +17,17 @@ import { UserAvatar } from "@/components/ui/user-avatar";
 import { UserBadge } from "@/components/ui/user-badge";
 import { formatOrdinalDay } from "@/lib/recurring-bills";
 import { RecurringBill, ExpenseCategory } from "@/types";
+import { toast } from "@/components/ui/sonner";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 import {
   Home,
   Wifi,
@@ -32,6 +43,7 @@ import {
   CheckSquare,
   Square,
   Sparkles,
+  AlertTriangle,
 } from "lucide-react";
 
 interface RecurringBillsManagerModalProps {
@@ -69,6 +81,7 @@ export function RecurringBillsManagerModal({
 
   const [activeTab, setActiveTab] = React.useState<"list" | "new">("list");
   const [editingBillId, setEditingBillId] = React.useState<string | null>(null);
+  const [billToDelete, setBillToDelete] = React.useState<RecurringBill | null>(null);
 
   // Form State
   const [title, setTitle] = React.useState("");
@@ -139,6 +152,9 @@ export function RecurringBillsManagerModal({
         participant_ids: participantIds,
         notes: notes.trim() || undefined,
       });
+      toast.success("Recurring bill updated", {
+        description: `"${title.trim()}" (৳${numAmount.toFixed(2)}) updated.`,
+      });
     } else {
       addRecurringBill({
         title: title.trim(),
@@ -152,6 +168,9 @@ export function RecurringBillsManagerModal({
         is_active: true,
         notes: notes.trim() || undefined,
       });
+      toast.success("Recurring bill created", {
+        description: `"${title.trim()}" (৳${numAmount.toFixed(2)}) will repeat monthly.`,
+      });
     }
 
     resetForm();
@@ -159,7 +178,8 @@ export function RecurringBillsManagerModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <>
+      <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="w-[calc(100%-1.25rem)] sm:w-full sm:max-w-2xl max-h-[92dvh] sm:max-h-[90vh] flex flex-col p-0 overflow-hidden bg-card border-border text-foreground rounded-2xl shadow-2xl">
         <DialogHeader className="p-4 sm:p-6 pb-3 sm:pb-4 border-b border-border pr-10 sm:pr-6 text-left">
           <div className="flex items-center justify-between">
@@ -333,7 +353,7 @@ export function RecurringBillsManagerModal({
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => deleteRecurringBill(bill.id)}
+                            onClick={() => setBillToDelete(bill)}
                             className="size-7 p-0 text-destructive/70 hover:text-destructive hover:bg-destructive/10 cursor-pointer"
                             title="Delete Bill Template"
                           >
@@ -542,5 +562,46 @@ export function RecurringBillsManagerModal({
         </div>
       </DialogContent>
     </Dialog>
+
+    {/* Delete Confirmation Alert Dialog */}
+    <AlertDialog open={Boolean(billToDelete)} onOpenChange={(open) => !open && setBillToDelete(null)}>
+      <AlertDialogContent className="w-[95vw] sm:max-w-md bg-card border-border rounded-2xl p-5 sm:p-6 shadow-2xl">
+        <AlertDialogHeader className="text-left space-y-2">
+          <div className="size-10 rounded-full bg-destructive/15 border border-destructive/30 flex items-center justify-center text-destructive mb-1">
+            <AlertTriangle className="size-5" />
+          </div>
+          <AlertDialogTitle className="text-lg font-bold text-foreground">
+            Delete Recurring Bill Template?
+          </AlertDialogTitle>
+          <AlertDialogDescription className="text-xs text-muted-foreground space-y-1">
+            <span>Are you sure you want to delete </span>
+            <strong className="text-foreground font-semibold">
+              &ldquo;{billToDelete?.title}&rdquo;
+            </strong>
+            <span>? This template will no longer generate monthly reminder badges or quick log options.</span>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="pt-3 gap-2 flex-col-reverse sm:flex-row">
+          <AlertDialogCancel className="h-10 rounded-xl border-border hover:bg-accent cursor-pointer">
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => {
+              if (billToDelete) {
+                deleteRecurringBill(billToDelete.id);
+                toast.success("Recurring bill deleted", {
+                  description: `"${billToDelete.title}" template removed.`,
+                });
+                setBillToDelete(null);
+              }
+            }}
+            className="h-10 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90 font-semibold cursor-pointer shadow-md shadow-destructive/20"
+          >
+            Yes, Delete Bill
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  </>
   );
 }

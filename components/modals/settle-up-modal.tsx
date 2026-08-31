@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { HandCoins, ArrowRight, ChevronDown } from "lucide-react";
 import { format } from "date-fns";
+import { toast } from "@/components/ui/sonner";
 
 interface SettleUpModalProps {
   isOpen: boolean;
@@ -87,6 +88,9 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
     if (matchingDebt) setAmount(matchingDebt.amount.toString());
   };
 
+  const payerName = users.find((u) => u.id === payerId)?.name || "Payer";
+  const receiverName = users.find((u) => u.id === receiverId)?.name || "Receiver";
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const numAmount = parseFloat(amount);
@@ -100,11 +104,12 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
       notes: notes.trim() || undefined,
     });
 
+    toast.success("Payment recorded", {
+      description: `${payerName} paid ${receiverName} ৳${numAmount.toFixed(2)}`,
+    });
+
     onClose();
   };
-
-  const payerName = users.find((u) => u.id === payerId)?.name || "Payer";
-  const receiverName = users.find((u) => u.id === receiverId)?.name || "Receiver";
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>

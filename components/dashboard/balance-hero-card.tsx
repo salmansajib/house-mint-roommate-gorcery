@@ -27,6 +27,12 @@ export function BalanceHeroCardSkeleton() {
   return (
     <Card className="relative overflow-hidden border-border/80 bg-gradient-to-b from-card via-card to-card/70 shadow-xl">
       <CardContent className="p-4 sm:p-6 lg:p-7 space-y-5">
+        {/* Top Header Strip Skeleton */}
+        <div className="flex items-center justify-between gap-3">
+          <Skeleton className="h-4 w-44" />
+          <Skeleton className="h-5 w-20 rounded-full" />
+        </div>
+
         {/* Top Balance Summary Row */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
           <div className="space-y-2.5">
@@ -118,130 +124,131 @@ export function BalanceHeroCard({
           initial="hidden"
           animate="show"
           variants={heroContentVariants}
-          className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6"
+          className="space-y-5 sm:space-y-6"
         >
-          {/* Main Balance Display */}
-          <div className="flex-1 space-y-3">
-            <motion.div
-              variants={heroItemVariants}
-              className="flex flex-wrap items-center justify-between gap-y-1.5 gap-x-2 text-[11px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider"
-            >
-              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                <span className="text-foreground/90 whitespace-nowrap">Personal Balance</span>
-                <span className="text-muted-foreground/40">•</span>
-                <span className="text-muted-foreground/80 whitespace-nowrap">
-                  {users.length} {users.length === 1 ? "Roommate" : "Roommates"}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-1.5 shrink-0 tracking-normal normal-case">
-                <span className="text-[10px] text-muted-foreground uppercase tracking-wider hidden sm:inline">
-                  Viewing:
-                </span>
-                <UserBadge user={currentUser} size="sm" showDot />
-              </div>
-            </motion.div>
-
-            {/* Dynamic Status Headline */}
-            <motion.div variants={heroItemVariants} className="min-w-0">
-              {isSettled ? (
-                <div className="flex items-center gap-3">
-                  <div className="size-10 sm:size-12 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0 shadow-inner">
-                    <CheckCircle2 className="size-6 sm:size-7" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight">
-                      All Settled Up!
-                    </h2>
-                    <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                      You are all square with everyone in the apartment.
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <motion.div
-                  key={`${currentUser.id}-${netBalance}`}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, ease: premiumEase }}
-                  className="flex flex-col sm:flex-row sm:items-baseline gap-1.5 sm:gap-3"
-                >
-                  <span className="text-sm sm:text-base text-muted-foreground font-medium">
-                    {isOwed ? "You are owed in total" : "You owe in total"}
-                  </span>
-                  <CurrencyAmount
-                    amount={Math.abs(netBalance)}
-                    intent={isOwed ? "positive" : "negative"}
-                    size="display"
-                    className="font-extrabold tracking-tight leading-none"
-                  />
-                </motion.div>
-              )}
-            </motion.div>
-
-            {/* Financial Ledger Sub-metrics */}
-            <motion.div
-              variants={heroItemVariants}
-              className="pt-1 grid grid-cols-1 xs:grid-cols-2 gap-2.5 sm:gap-4 max-w-xl"
-            >
-              <div className="flex items-center gap-2.5 bg-accent/40 border border-border/70 p-2.5 sm:p-3 rounded-xl transition-[transform,background-color,border-color] duration-200 ease-out hover:bg-accent/60 hover:border-border hover:-translate-y-0.5">
-                <div className="size-7 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
-                  <ArrowUpRight className="size-4" />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-[11px] text-muted-foreground block truncate">Paid Out of Pocket</span>
-                  <CurrencyAmount amount={userBalance.total_paid} size="sm" className="font-bold text-foreground" />
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2.5 bg-accent/40 border border-border/70 p-2.5 sm:p-3 rounded-xl transition-[transform,background-color,border-color] duration-200 ease-out hover:bg-accent/60 hover:border-border hover:-translate-y-0.5">
-                <div className="size-7 rounded-lg bg-rose-500/15 text-rose-400 flex items-center justify-center shrink-0">
-                  <ArrowDownLeft className="size-4" />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-[11px] text-muted-foreground block truncate">Your Equal Fair Share</span>
-                  <CurrencyAmount amount={userBalance.total_share} size="sm" className="font-bold text-foreground" />
-                </div>
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Action Buttons with smooth entrance and press physics */}
+          {/* Full-width Card Top Header Strip */}
           <motion.div
             variants={heroItemVariants}
-            className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 pt-2 lg:pt-0 shrink-0"
+            className="flex items-center justify-between gap-3 text-[11px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider"
           >
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <Button
-                onClick={onOpenAddExpense}
-                size="lg"
-                className="w-full sm:w-auto h-11 sm:h-12 bg-primary text-primary-foreground font-semibold shadow-lg shadow-primary/20 hover:bg-primary/90 gap-2 justify-center cursor-pointer"
-              >
-                <PlusCircle className="size-5" />
-                <span>Add Expense</span>
-              </Button>
-            </motion.div>
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <span className="text-foreground/90 whitespace-nowrap">Personal Balance</span>
+              <span className="text-muted-foreground/40">•</span>
+              <span className="text-muted-foreground/80 whitespace-nowrap">
+                {users.length} {users.length === 1 ? "Roommate" : "Roommates"}
+              </span>
+            </div>
 
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <Button
-                onClick={onOpenSettleUp}
-                variant="outline"
-                size="lg"
-                className="w-full sm:w-auto h-11 sm:h-12 border-border hover:bg-accent hover:text-accent-foreground font-semibold gap-2 justify-center cursor-pointer"
-              >
-                <HandCoins className="size-5 text-emerald-400" />
-                <span>Settle Up</span>
-              </Button>
-            </motion.div>
+            <div className="flex items-center gap-1.5 shrink-0 tracking-normal normal-case">
+              <UserBadge user={currentUser} size="sm" showDot />
+            </div>
           </motion.div>
+
+          {/* Main Balance Display & Actions Row */}
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            {/* Main Balance Display */}
+            <div className="flex-1 space-y-3">
+              {/* Dynamic Status Headline */}
+              <motion.div variants={heroItemVariants} className="min-w-0">
+                {isSettled ? (
+                  <div className="flex items-center gap-3">
+                    <div className="size-10 sm:size-12 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0 shadow-inner">
+                      <CheckCircle2 className="size-6 sm:size-7" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight">
+                        All Settled Up!
+                      </h2>
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+                        You are all square with everyone in the apartment.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <motion.div
+                    key={`${currentUser.id}-${netBalance}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease: premiumEase }}
+                    className="flex flex-col sm:flex-row sm:items-baseline gap-1.5 sm:gap-3"
+                  >
+                    <span className="text-sm sm:text-base text-muted-foreground font-medium">
+                      {isOwed ? "You are owed in total" : "You owe in total"}
+                    </span>
+                    <CurrencyAmount
+                      amount={Math.abs(netBalance)}
+                      intent={isOwed ? "positive" : "negative"}
+                      size="display"
+                      className="font-extrabold tracking-tight leading-none"
+                    />
+                  </motion.div>
+                )}
+              </motion.div>
+
+              {/* Financial Ledger Sub-metrics */}
+              <motion.div
+                variants={heroItemVariants}
+                className="pt-1 grid grid-cols-1 xs:grid-cols-2 gap-2.5 sm:gap-4 max-w-xl"
+              >
+                <div className="flex items-center gap-2.5 bg-accent/40 border border-border/70 p-2.5 sm:p-3 rounded-xl transition-[transform,background-color,border-color] duration-200 ease-out hover:bg-accent/60 hover:border-border hover:-translate-y-0.5">
+                  <div className="size-7 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
+                    <ArrowUpRight className="size-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[11px] text-muted-foreground block truncate">Paid Out of Pocket</span>
+                    <CurrencyAmount amount={userBalance.total_paid} size="sm" className="font-bold text-foreground" />
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2.5 bg-accent/40 border border-border/70 p-2.5 sm:p-3 rounded-xl transition-[transform,background-color,border-color] duration-200 ease-out hover:bg-accent/60 hover:border-border hover:-translate-y-0.5">
+                  <div className="size-7 rounded-lg bg-rose-500/15 text-rose-400 flex items-center justify-center shrink-0">
+                    <ArrowDownLeft className="size-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[11px] text-muted-foreground block truncate">Your Equal Fair Share</span>
+                    <CurrencyAmount amount={userBalance.total_share} size="sm" className="font-bold text-foreground" />
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Action Buttons with smooth entrance and press physics */}
+            <motion.div
+              variants={heroItemVariants}
+              className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 pt-2 lg:pt-0 shrink-0"
+            >
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <Button
+                  onClick={onOpenAddExpense}
+                  size="lg"
+                  className="w-full sm:w-auto h-11 sm:h-12 bg-primary text-primary-foreground font-semibold shadow-lg shadow-primary/20 hover:bg-primary/90 gap-2 justify-center cursor-pointer"
+                >
+                  <PlusCircle className="size-5" />
+                  <span>Add Expense</span>
+                </Button>
+              </motion.div>
+
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <Button
+                  onClick={onOpenSettleUp}
+                  variant="outline"
+                  size="lg"
+                  className="w-full sm:w-auto h-11 sm:h-12 border-border hover:bg-accent hover:text-accent-foreground font-semibold gap-2 justify-center cursor-pointer"
+                >
+                  <HandCoins className="size-5 text-emerald-400" />
+                  <span>Settle Up</span>
+                </Button>
+              </motion.div>
+            </motion.div>
+          </div>
         </motion.div>
 
         {/* N-Member Pairwise Debt Matrix (Who owes who) */}

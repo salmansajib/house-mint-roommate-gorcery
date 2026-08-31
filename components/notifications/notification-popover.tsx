@@ -20,9 +20,21 @@ import {
   BellOff,
   Sparkles,
   X,
+  AlertTriangle,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { AppNotification, NotificationActionType } from "@/types";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+import { toast } from "@/components/ui/sonner";
 
 export function NotificationPopover() {
   const {
@@ -40,6 +52,7 @@ export function NotificationPopover() {
   const [isOpen, setIsOpen] = React.useState(false);
   const [filter, setFilter] = React.useState<"all" | "unread">("all");
   const [sessionUnreadIds, setSessionUnreadIds] = React.useState<string[]>([]);
+  const [isClearConfirmOpen, setIsClearConfirmOpen] = React.useState(false);
   const popoverRef = React.useRef<HTMLDivElement>(null);
 
   // Auto-mark notifications as read for the specific user when opening the modal/popover
@@ -277,7 +290,7 @@ export function NotificationPopover() {
 
               {notifications.length > 0 && (
                 <button
-                  onClick={clearAllNotifications}
+                  onClick={() => setIsClearConfirmOpen(true)}
                   title="Clear all notifications"
                   className="text-[10px] text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1 cursor-pointer px-1 py-0.5"
                 >
@@ -426,6 +439,38 @@ export function NotificationPopover() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Clear All Notifications Alert Dialog */}
+      <AlertDialog open={isClearConfirmOpen} onOpenChange={setIsClearConfirmOpen}>
+        <AlertDialogContent className="w-[95vw] sm:max-w-md bg-card border-border rounded-2xl p-5 sm:p-6 shadow-2xl">
+          <AlertDialogHeader className="text-left space-y-2">
+            <div className="size-10 rounded-full bg-destructive/15 border border-destructive/30 flex items-center justify-center text-destructive mb-1">
+              <AlertTriangle className="size-5" />
+            </div>
+            <AlertDialogTitle className="text-lg font-bold text-foreground">
+              Clear All Notifications?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-xs text-muted-foreground space-y-1">
+              <span>Are you sure you want to clear all {notifications.length} notification(s)? This will remove your notification activity history.</span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="pt-3 gap-2 flex-col-reverse sm:flex-row">
+            <AlertDialogCancel className="h-10 rounded-xl border-border hover:bg-accent cursor-pointer">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                clearAllNotifications();
+                toast.success("Notifications cleared");
+                setIsClearConfirmOpen(false);
+              }}
+              className="h-10 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90 font-semibold cursor-pointer shadow-md shadow-destructive/20"
+            >
+              Yes, Clear All
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -10,6 +10,7 @@ import {
   APARTMENT_ADMIN_KEY,
 } from "@/lib/supabase/db";
 import { UserAvatar } from "@/components/ui/user-avatar";
+import { HouseMintLogo } from "@/components/ui/house-mint-logo";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -374,7 +375,7 @@ export default function LoginPage() {
             variants={headerItemVariants}
             className="inline-flex size-12 rounded-2xl bg-primary/15 border border-primary/30 items-center justify-center text-primary shadow-xs mb-1"
           >
-            <Sparkles className="size-6" />
+            <HouseMintLogo size={28} className="size-7" />
           </motion.div>
           <motion.h1
             variants={headerItemVariants}

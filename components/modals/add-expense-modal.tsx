@@ -16,11 +16,22 @@ import { Button } from "@/components/ui/button";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { ExpenseCategory, ExpenseItem, User } from "@/types";
 import { computeEqualSplit } from "@/lib/balance";
-import { Plus, Trash2, Receipt, Layers, Sparkles, Users, CheckSquare, Square, ChevronDown, Calendar, Clock, Pencil, ShoppingCart, Check, X } from "lucide-react";
+import { Plus, Trash2, Receipt, Layers, Sparkles, Users, CheckSquare, Square, ChevronDown, Calendar, Clock, Pencil, ShoppingCart, Check, X, AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
 import { GroceryItemCombobox } from "./grocery-item-combobox";
 import { mapBanglaUnitToStandard } from "@/lib/grocery-catalog";
 import { useGroceryCatalog } from "@/hooks/use-grocery-catalog";
+import { toast } from "@/components/ui/sonner";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 interface AddExpenseModalProps {
   isOpen: boolean;
@@ -94,6 +105,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
   const [composerUnit, setComposerUnit] = React.useState("kg");
   const [composerPrice, setComposerPrice] = React.useState("");
   const [editingItemId, setEditingItemId] = React.useState<string | null>(null);
+  const [groceryItemToDelete, setGroceryItemToDelete] = React.useState<GroceryHaulItem | null>(null);
 
   // Reset and initialize participants & current date/time when modal opens
   React.useEffect(() => {
@@ -246,6 +258,10 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
       recordUsage(title.trim(), singleUnit.trim() || undefined);
     }
 
+    toast.success("Expense added", {
+      description: `${title.trim()} (৳${numAmount.toFixed(2)})`,
+    });
+
     // Reset & close
     setTitle("");
     setAmount("");
@@ -335,6 +351,10 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
       recordUsage(vi.name, vi.unit);
     });
 
+    toast.success("Grocery trip logged", {
+      description: `${groceryTitle.trim()} — ${validItems.length} items (৳${groceryTotal.toFixed(2)})`,
+    });
+
     // Reset & close
     setGroceryTitle("Weekly Grocery Trip");
     setGroceryItems([]);
@@ -351,7 +371,8 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
     : "0.00";
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <>
+      <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="w-[95vw] sm:max-w-xl max-h-[90vh] flex flex-col p-4 sm:p-6 bg-card border-border rounded-2xl overflow-hidden shadow-2xl">
         <DialogHeader className="shrink-0 text-left pb-1">
           <DialogTitle className="text-lg sm:text-xl font-bold flex items-center gap-2">
@@ -963,7 +984,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                             </button>
                             <button
                               type="button"
-                              onClick={() => handleRemoveGroceryItem(item.id)}
+                              onClick={() => setGroceryItemToDelete(item)}
                               className="size-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer transition-colors"
                               title="Remove item"
                             >
@@ -1006,5 +1027,43 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
         </Tabs>
       </DialogContent>
     </Dialog>
+
+    {/* Remove Grocery Item Alert Dialog */}
+    <AlertDialog open={Boolean(groceryItemToDelete)} onOpenChange={(open) => !open && setGroceryItemToDelete(null)}>
+      <AlertDialogContent className="w-[95vw] sm:max-w-md bg-card border-border rounded-2xl p-5 sm:p-6 shadow-2xl">
+        <AlertDialogHeader className="text-left space-y-2">
+          <div className="size-10 rounded-full bg-destructive/15 border border-destructive/30 flex items-center justify-center text-destructive mb-1">
+            <AlertTriangle className="size-5" />
+          </div>
+          <AlertDialogTitle className="text-lg font-bold text-foreground">
+            Remove Item from Grocery Trip?
+          </AlertDialogTitle>
+          <AlertDialogDescription className="text-xs text-muted-foreground space-y-1">
+            <span>Are you sure you want to remove </span>
+            <strong className="text-foreground font-semibold">
+              &ldquo;{groceryItemToDelete?.name}&rdquo;
+            </strong>
+            <span> from this grocery trip?</span>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="pt-3 gap-2 flex-col-reverse sm:flex-row">
+          <AlertDialogCancel className="h-10 rounded-xl border-border hover:bg-accent cursor-pointer">
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => {
+              if (groceryItemToDelete) {
+                handleRemoveGroceryItem(groceryItemToDelete.id);
+                setGroceryItemToDelete(null);
+              }
+            }}
+            className="h-10 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90 font-semibold cursor-pointer shadow-md shadow-destructive/20"
+          >
+            Yes, Remove Item
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  </>
   );
 }

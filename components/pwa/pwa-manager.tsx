@@ -37,9 +37,6 @@ export function PwaManager() {
 
   return (
     <>
-      {/* Network Connectivity Status Indicator */}
-      <OfflineBadge isOnline={isOnline} />
-
       {/* Floating PWA Install Prompt Banner */}
       <AnimatePresence>
         {showBanner && (

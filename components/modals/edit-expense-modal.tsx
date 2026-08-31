@@ -25,9 +25,21 @@ import {
   Users,
   Plus,
   Trash2,
+  AlertTriangle,
 } from "lucide-react";
 import { format } from "date-fns";
 import { COMMON_QUANTITY_UNITS, QUICK_UNIT_CHIPS } from "./add-expense-modal";
+import { toast } from "@/components/ui/sonner";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 import { GroceryItemCombobox } from "./grocery-item-combobox";
 import { mapBanglaUnitToStandard } from "@/lib/grocery-catalog";
 import { useGroceryCatalog } from "@/hooks/use-grocery-catalog";
@@ -64,6 +76,7 @@ export function EditExpenseModal({
   const [items, setItems] = React.useState<
     Array<{ id?: string; name: string; quantity: string; unit: string; unit_price: string }>
   >([]);
+  const [itemIndexToRemove, setItemIndexToRemove] = React.useState<number | null>(null);
 
   const isItemized = Boolean(expense?.items && expense.items.length > 0);
   const isAdminEdit = Boolean(
@@ -236,14 +249,19 @@ export function EditExpenseModal({
       recordUsage(title.trim(), singleUnit.trim() || undefined);
     }
 
+    toast.success("Expense updated", {
+      description: `${title.trim()} (৳${numAmount.toFixed(2)})`,
+    });
+
     onClose();
   };
 
   if (!expense) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="w-[95vw] sm:max-w-xl max-h-[90vh] flex flex-col p-4 sm:p-6 bg-card border-border rounded-2xl overflow-hidden shadow-2xl">
+    <>
+      <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <DialogContent className="w-[95vw] sm:max-w-xl max-h-[90vh] flex flex-col p-4 sm:p-6 bg-card border-border rounded-2xl overflow-hidden shadow-2xl">
         <DialogHeader className="shrink-0 text-left pb-1">
           <div className="flex items-center justify-between gap-2">
             <DialogTitle className="text-lg sm:text-xl font-bold flex items-center gap-2">
@@ -536,7 +554,7 @@ export function EditExpenseModal({
                       />
                       <button
                         type="button"
-                        onClick={() => handleRemoveItem(idx)}
+                        onClick={() => setItemIndexToRemove(idx)}
                         disabled={items.length <= 1}
                         className="size-8 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg disabled:opacity-30 cursor-pointer shrink-0 transition-colors"
                         title="Remove item"
@@ -621,5 +639,43 @@ export function EditExpenseModal({
         </form>
       </DialogContent>
     </Dialog>
+
+    {/* Remove Item Alert Dialog */}
+    <AlertDialog open={itemIndexToRemove !== null} onOpenChange={(open) => !open && setItemIndexToRemove(null)}>
+      <AlertDialogContent className="w-[95vw] sm:max-w-md bg-card border-border rounded-2xl p-5 sm:p-6 shadow-2xl">
+        <AlertDialogHeader className="text-left space-y-2">
+          <div className="size-10 rounded-full bg-destructive/15 border border-destructive/30 flex items-center justify-center text-destructive mb-1">
+            <AlertTriangle className="size-5" />
+          </div>
+          <AlertDialogTitle className="text-lg font-bold text-foreground">
+            Remove Item from Expense?
+          </AlertDialogTitle>
+          <AlertDialogDescription className="text-xs text-muted-foreground space-y-1">
+            <span>Are you sure you want to remove </span>
+            <strong className="text-foreground font-semibold">
+              &ldquo;{itemIndexToRemove !== null && items[itemIndexToRemove]?.name ? items[itemIndexToRemove].name : "this item"}&rdquo;
+            </strong>
+            <span> from this expense?</span>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="pt-3 gap-2 flex-col-reverse sm:flex-row">
+          <AlertDialogCancel className="h-10 rounded-xl border-border hover:bg-accent cursor-pointer">
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => {
+              if (itemIndexToRemove !== null) {
+                handleRemoveItem(itemIndexToRemove);
+                setItemIndexToRemove(null);
+              }
+            }}
+            className="h-10 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90 font-semibold cursor-pointer shadow-md shadow-destructive/20"
+          >
+            Yes, Remove Item
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  </>
   );
 }
