@@ -87,8 +87,8 @@ export function QuickLogBillDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md bg-card border-border p-5 sm:p-6 text-foreground">
-        <DialogHeader className="space-y-2">
+      <DialogContent className="w-[calc(100%-1.25rem)] sm:w-full sm:max-w-md bg-card border-border p-4 sm:p-6 text-foreground rounded-2xl shadow-2xl">
+        <DialogHeader className="space-y-2 pr-8 sm:pr-0 text-left">
           <div className="flex items-center gap-3">
             <div
               className="size-10 rounded-xl flex items-center justify-center border shadow-xs"

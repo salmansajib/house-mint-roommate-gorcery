@@ -238,8 +238,8 @@ export async function fetchHouseholdData(
         landlordPaymentMethod: dbSettings.landlordPaymentMethod,
         electricityMeterNo: dbSettings.electricityMeterNo,
         internetClientId: dbSettings.internetClientId,
-        emergencyFundEnabled: dbSettings.emergencyFundEnabled ?? true,
-        emergencyFundBalance: dbSettings.emergencyFundBalance ?? 3500,
+        emergencyFundEnabled: dbSettings.emergencyFundEnabled ?? false,
+        emergencyFundBalance: dbSettings.emergencyFundBalance ?? 0,
       };
     }
 

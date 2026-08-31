@@ -106,10 +106,10 @@ export function AdminSettingsModal({
 
   // Policies state
   const [emergencyEnabled, setEmergencyEnabled] = React.useState(
-    householdSettings.emergencyFundEnabled ?? true
+    householdSettings.emergencyFundEnabled ?? false
   );
   const [emergencyBalance, setEmergencyBalance] = React.useState(
-    (householdSettings.emergencyFundBalance ?? 3500).toString()
+    (householdSettings.emergencyFundBalance ?? 0).toString()
   );
   const [policiesSaved, setPoliciesSaved] = React.useState(false);
 
@@ -201,9 +201,9 @@ export function AdminSettingsModal({
       setLandlordPaymentMethod(householdSettings.landlordPaymentMethod || "");
       setElectricityMeterNo(householdSettings.electricityMeterNo || "");
       setInternetClientId(householdSettings.internetClientId || "");
-      setEmergencyEnabled(householdSettings.emergencyFundEnabled ?? true);
+      setEmergencyEnabled(householdSettings.emergencyFundEnabled ?? false);
       setEmergencyBalance(
-        (householdSettings.emergencyFundBalance ?? 3500).toString()
+        (householdSettings.emergencyFundBalance ?? 0).toString()
       );
       setVaultSaved(false);
       setPoliciesSaved(false);
@@ -294,83 +294,76 @@ export function AdminSettingsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-3xl max-h-[90vh] flex flex-col bg-card border-border shadow-2xl p-0 overflow-hidden">
+      <DialogContent className="w-[calc(100%-1.25rem)] sm:w-full sm:max-w-3xl max-h-[92dvh] sm:max-h-[88vh] flex flex-col bg-card border-border shadow-2xl p-0 rounded-2xl overflow-hidden">
         {/* Header */}
-        <DialogHeader className="p-5 pb-4 border-b border-border/80 bg-muted/20 shrink-0">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="size-10 rounded-2xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shadow-xs">
-                <ShieldCheck className="size-5" />
+        <DialogHeader className="p-4 sm:p-5 pb-3 sm:pb-4 border-b border-border/80 bg-muted/20 shrink-0 pr-11 sm:pr-6 text-left">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="size-9 sm:size-10 rounded-xl sm:rounded-2xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shadow-xs shrink-0">
+              <ShieldCheck className="size-4.5 sm:size-5" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                <DialogTitle className="text-base sm:text-lg font-bold text-foreground truncate">
+                  Apartment Admin Hub
+                </DialogTitle>
+                <Badge
+                  variant="outline"
+                  className="border-primary/40 text-primary bg-primary/10 text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0 font-semibold shrink-0"
+                >
+                  Administrator
+                </Badge>
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <DialogTitle className="text-lg font-bold text-foreground">
-                    Apartment Admin Hub
-                  </DialogTitle>
-                  <Badge
-                    variant="outline"
-                    className="border-primary/40 text-primary bg-primary/10 text-[10px] px-2 py-0 font-semibold"
-                  >
-                    Administrator
-                  </Badge>
-                </div>
-                <DialogDescription className="text-xs text-muted-foreground mt-0.5">
-                  Manage household members, invite keys, utility credentials & policies for{" "}
-                  <span className="font-semibold text-foreground">
-                    {householdSettings.householdName}
-                  </span>
-                </DialogDescription>
-              </div>
+              <DialogDescription className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 line-clamp-1 sm:line-clamp-none">
+                Manage household members, invite keys, utility credentials & policies for{" "}
+                <span className="font-semibold text-foreground">
+                  {householdSettings.householdName}
+                </span>
+              </DialogDescription>
             </div>
           </div>
 
           {/* Navigation Tabs */}
-          <div className="pt-4">
+          <div className="pt-3 sm:pt-4 -mr-4 sm:mr-0 pr-4 sm:pr-0">
             <Tabs
               value={activeTab}
               onValueChange={(val) => setActiveTab(val as any)}
               className="w-full"
             >
-              <TabsList className="grid grid-cols-2 sm:grid-cols-5 w-full bg-background/80 border border-border/80 p-1">
+              <TabsList className="flex sm:grid sm:grid-cols-5 w-full h-auto p-1 bg-muted/40 border border-border/80 rounded-xl gap-1 overflow-x-auto no-scrollbar touch-pan-x">
                 <TabsTrigger
                   value="members"
-                  className="text-xs font-semibold gap-1.5 py-1.5 data-[state=active]:bg-card data-[state=active]:text-foreground"
+                  className="shrink-0 flex-1 min-w-[95px] sm:min-w-0 text-xs font-semibold gap-1.5 py-1.5 sm:py-2 rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all"
                 >
-                  <Users className="size-3.5" />
-                  <span className="hidden sm:inline">Members & Keys</span>
-                  <span className="sm:hidden">Members</span>
+                  <Users className="size-3.5 shrink-0" />
+                  <span className="truncate">Members</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="catalog"
-                  className="text-xs font-semibold gap-1.5 py-1.5 data-[state=active]:bg-card data-[state=active]:text-foreground"
+                  className="shrink-0 flex-1 min-w-[95px] sm:min-w-0 text-xs font-semibold gap-1.5 py-1.5 sm:py-2 rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all"
                 >
-                  <ShoppingBag className="size-3.5" />
-                  <span className="hidden sm:inline">Grocery Catalog</span>
-                  <span className="sm:hidden">Catalog</span>
+                  <ShoppingBag className="size-3.5 shrink-0" />
+                  <span className="truncate">Catalog</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="vault"
-                  className="text-xs font-semibold gap-1.5 py-1.5 data-[state=active]:bg-card data-[state=active]:text-foreground"
+                  className="shrink-0 flex-1 min-w-[95px] sm:min-w-0 text-xs font-semibold gap-1.5 py-1.5 sm:py-2 rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all"
                 >
-                  <Building className="size-3.5" />
-                  <span className="hidden sm:inline">Landlord & Vault</span>
-                  <span className="sm:hidden">Vault</span>
+                  <Building className="size-3.5 shrink-0" />
+                  <span className="truncate">Vault</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="policies"
-                  className="text-xs font-semibold gap-1.5 py-1.5 data-[state=active]:bg-card data-[state=active]:text-foreground"
+                  className="shrink-0 flex-1 min-w-[95px] sm:min-w-0 text-xs font-semibold gap-1.5 py-1.5 sm:py-2 rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all"
                 >
-                  <Sliders className="size-3.5" />
-                  <span className="hidden sm:inline">House Policies</span>
-                  <span className="sm:hidden">Policies</span>
+                  <Sliders className="size-3.5 shrink-0" />
+                  <span className="truncate">Policies</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="audit"
-                  className="text-xs font-semibold gap-1.5 py-1.5 data-[state=active]:bg-card data-[state=active]:text-foreground"
+                  className="shrink-0 flex-1 min-w-[95px] sm:min-w-0 text-xs font-semibold gap-1.5 py-1.5 sm:py-2 rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all"
                 >
-                  <Lock className="size-3.5" />
-                  <span className="hidden sm:inline">Period Lock & Audit</span>
-                  <span className="sm:hidden">Lock</span>
+                  <Lock className="size-3.5 shrink-0" />
+                  <span className="truncate">Lock & Audit</span>
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -378,7 +371,7 @@ export function AdminSettingsModal({
         </DialogHeader>
 
         {/* Tab Content Container */}
-        <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6 overscroll-contain custom-scrollbar">
           {/* TAB 1: MEMBERS & KEYS */}
           {activeTab === "members" && (
             <div className="space-y-6">
@@ -480,7 +473,7 @@ export function AdminSettingsModal({
 
               {/* Members Roster Section */}
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2.5">
                   <div>
                     <h3 className="text-sm font-bold text-foreground">
                       Household Roster ({users.length} Total)
@@ -492,7 +485,7 @@ export function AdminSettingsModal({
                   <Button
                     size="sm"
                     onClick={() => setIsAddUserOpen(!isAddUserOpen)}
-                    className="text-xs font-semibold bg-primary text-primary-foreground gap-1.5 cursor-pointer"
+                    className="text-xs font-semibold bg-primary text-primary-foreground gap-1.5 cursor-pointer w-full xs:w-auto shrink-0 justify-center"
                   >
                     <UserPlus className="size-3.5" />
                     <span>Add Member</span>
@@ -666,16 +659,17 @@ export function AdminSettingsModal({
                               {isRoommate ? (
                                 <Badge
                                   variant="outline"
-                                  className="text-[10px] px-1.5 py-0 border-positive/30 text-positive bg-positive/5"
+                                  className="text-[10px] px-1.5 py-0 border-positive/30 text-positive bg-positive/5 shrink-0"
                                 >
                                   Active Roommate
                                 </Badge>
                               ) : (
                                 <Badge
                                   variant="outline"
-                                  className="text-[10px] px-1.5 py-0 border-warning/30 text-warning bg-warning/5"
+                                  className="text-[10px] px-1.5 py-0 border-warning/30 text-warning bg-warning/5 shrink-0"
                                 >
-                                  External Manager (No Splits)
+                                  <span className="xs:hidden">External</span>
+                                  <span className="hidden xs:inline">External Manager (No Splits)</span>
                                 </Badge>
                               )}
                             </div>
@@ -686,12 +680,12 @@ export function AdminSettingsModal({
                         </div>
 
                         {/* Controls */}
-                        <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                        <div className="w-full grid grid-cols-2 gap-2 pt-2.5 border-t border-border/40 sm:border-0 sm:pt-0 sm:w-auto sm:flex sm:items-center sm:gap-2 shrink-0">
                           {/* Toggle Role Button */}
                           <Button
                             size="sm"
                             variant="outline"
-                            className="text-xs h-7.5 cursor-pointer"
+                            className="text-xs h-8 sm:h-7.5 w-full sm:w-auto cursor-pointer justify-center"
                             onClick={() =>
                               updateUserRole(
                                 u.id,
@@ -711,7 +705,7 @@ export function AdminSettingsModal({
                           <Button
                             size="sm"
                             variant="outline"
-                            className="text-xs h-7.5 cursor-pointer"
+                            className="text-xs h-8 sm:h-7.5 w-full sm:w-auto cursor-pointer justify-center"
                             onClick={() =>
                               updateUserResidentStatus(u.id, !isRoommate)
                             }
@@ -745,7 +739,7 @@ export function AdminSettingsModal({
                     Manage Bangla item suggestions, phonetic Banglish spellings, and default units for all roommates.
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
                   {itemSavedSuccess && (
                     <Badge className="bg-positive/15 border border-positive/30 text-positive text-xs flex items-center gap-1 font-semibold">
                       <Check className="size-3" />
@@ -755,7 +749,7 @@ export function AdminSettingsModal({
                   <Button
                     size="sm"
                     onClick={() => setIsAddItemOpen((prev) => !prev)}
-                    className="text-xs font-semibold gap-1.5 h-8 bg-primary text-primary-foreground hover:opacity-90 cursor-pointer"
+                    className="text-xs font-semibold gap-1.5 h-8 bg-primary text-primary-foreground hover:opacity-90 cursor-pointer w-full sm:w-auto justify-center"
                   >
                     <Plus className="size-3.5" />
                     <span>{isAddItemOpen ? "Close Form" : "Add Item"}</span>
@@ -990,7 +984,7 @@ export function AdminSettingsModal({
                           )}
                         </div>
 
-                        <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                        <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0 w-full sm:w-auto pt-2 border-t border-border/40 sm:border-0 sm:pt-0">
                           {item.default_unit && (
                             <span className="text-[11px] font-semibold bg-accent/70 text-foreground px-2 py-0.5 rounded border border-border/60">
                               Unit: {item.default_unit}
@@ -1005,7 +999,7 @@ export function AdminSettingsModal({
                                   deleteItem(item.id);
                                 }
                               }}
-                              className="size-7 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors cursor-pointer"
+                              className="size-7 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors cursor-pointer ml-auto sm:ml-0"
                               title="Delete custom item"
                             >
                               <Trash2 className="size-3.5" />
@@ -1217,7 +1211,7 @@ export function AdminSettingsModal({
                 <Button
                   type="submit"
                   size="sm"
-                  className="bg-primary text-primary-foreground text-xs font-semibold cursor-pointer"
+                  className="bg-primary text-primary-foreground text-xs font-semibold cursor-pointer w-full sm:w-auto"
                 >
                   Save Vault Details
                 </Button>
@@ -1248,53 +1242,107 @@ export function AdminSettingsModal({
               {/* Emergency Petty Cash Pool */}
               <div className="p-4 rounded-xl bg-background border border-border/80 space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="size-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="size-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
                       <Sparkles className="size-4" />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <h4 className="text-xs font-bold text-foreground">
                         Common Emergency / Petty Cash Pool
                       </h4>
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-[11px] text-muted-foreground line-clamp-2 sm:line-clamp-none">
                         Fixed household drawer cash for daily drinking water jars, garbage bills & maid tips.
                       </p>
                     </div>
                   </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
                     <input
                       type="checkbox"
                       checked={emergencyEnabled}
                       onChange={(e) => setEmergencyEnabled(e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-muted peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                    <div className="w-9 h-5 bg-muted peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-border after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                   </label>
                 </div>
 
-                {emergencyEnabled && (
-                  <div className="p-3 rounded-lg bg-card border border-border/60 flex items-center justify-between gap-4">
-                    <div>
-                      <span className="text-[11px] text-muted-foreground block">
-                        Current Pool Cash Balance:
-                      </span>
-                      <CurrencyAmount
-                        amount={Number(emergencyBalance) || 0}
-                        size="md"
-                        className="text-foreground font-bold"
-                      />
+                {emergencyEnabled ? (
+                  <div className="p-3 rounded-lg bg-card border border-border/60 space-y-3">
+                    <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-3">
+                      <div>
+                        <span className="text-[11px] text-muted-foreground block">
+                          Current Pool Cash Balance:
+                        </span>
+                        <CurrencyAmount
+                          amount={Number(emergencyBalance) || 0}
+                          size="md"
+                          className="text-foreground font-bold"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2 w-full xs:w-auto">
+                        <span className="text-xs text-muted-foreground font-medium shrink-0">
+                          Set Balance ৳:
+                        </span>
+                        <Input
+                          type="number"
+                          min="0"
+                          value={emergencyBalance}
+                          onChange={(e) => setEmergencyBalance(e.target.value)}
+                          className="w-full xs:w-28 text-xs font-mono h-8 bg-background"
+                        />
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground font-medium">
-                        Update ৳:
-                      </span>
-                      <Input
-                        type="number"
-                        value={emergencyBalance}
-                        onChange={(e) => setEmergencyBalance(e.target.value)}
-                        className="w-28 text-xs font-mono h-8 bg-background"
-                      />
+
+                    {/* Quick Add / Deposit Chips */}
+                    <div className="flex items-center gap-1.5 pt-1.5 border-t border-border/40 flex-wrap">
+                      <span className="text-[10px] text-muted-foreground font-medium">Quick Deposit:</span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setEmergencyBalance((prev) =>
+                            ((Number(prev) || 0) + 500).toString()
+                          )
+                        }
+                        className="px-2 py-0.5 rounded-md bg-accent/80 hover:bg-accent text-[10px] font-mono font-semibold text-foreground border border-border/60 cursor-pointer transition-colors"
+                      >
+                        +৳500
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setEmergencyBalance((prev) =>
+                            ((Number(prev) || 0) + 1000).toString()
+                          )
+                        }
+                        className="px-2 py-0.5 rounded-md bg-accent/80 hover:bg-accent text-[10px] font-mono font-semibold text-foreground border border-border/60 cursor-pointer transition-colors"
+                      >
+                        +৳1,000
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setEmergencyBalance((prev) =>
+                            ((Number(prev) || 0) + 2000).toString()
+                          )
+                        }
+                        className="px-2 py-0.5 rounded-md bg-accent/80 hover:bg-accent text-[10px] font-mono font-semibold text-foreground border border-border/60 cursor-pointer transition-colors"
+                      >
+                        +৳2,000
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEmergencyBalance("0")}
+                        className="px-2 py-0.5 rounded-md text-[10px] font-mono text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer ml-auto transition-colors"
+                      >
+                        Reset to ৳0
+                      </button>
                     </div>
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-lg bg-muted/20 border border-border/40 text-center">
+                    <p className="text-[11px] text-muted-foreground">
+                      Petty cash pool is currently <span className="font-semibold text-foreground">disabled</span>. Toggle the switch above to activate common drawer cash.
+                    </p>
                   </div>
                 )}
               </div>
@@ -1341,11 +1389,14 @@ export function AdminSettingsModal({
                 </div>
               </div>
 
-              <div className="pt-2 flex justify-end">
+              <div className="pt-2 flex flex-col xs:flex-row xs:items-center justify-between gap-2">
+                <span className="text-[11px] text-muted-foreground">
+                  Changes save directly to Supabase & sync real-time to all roommates.
+                </span>
                 <Button
                   type="submit"
                   size="sm"
-                  className="bg-primary text-primary-foreground text-xs font-semibold cursor-pointer"
+                  className="bg-primary text-primary-foreground text-xs font-semibold cursor-pointer w-full xs:w-auto shrink-0"
                 >
                   Save Policies
                 </Button>
@@ -1420,7 +1471,7 @@ export function AdminSettingsModal({
 
               {/* Data Export & Backup */}
               <div className="p-4 rounded-xl bg-background border border-border/80 space-y-3">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-3">
                   <div>
                     <h4 className="text-xs font-bold text-foreground">
                       Download Full Apartment Backup
@@ -1433,7 +1484,7 @@ export function AdminSettingsModal({
                     size="sm"
                     variant="outline"
                     onClick={handleExportBackup}
-                    className="text-xs font-semibold gap-1.5 cursor-pointer"
+                    className="text-xs font-semibold gap-1.5 cursor-pointer w-full xs:w-auto shrink-0 justify-center"
                   >
                     <Download className="size-3.5" />
                     <span>Export JSON</span>
@@ -1445,7 +1496,7 @@ export function AdminSettingsModal({
               {!isCloudConnected && (
                 <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/30 space-y-3">
                   <div className="flex items-center gap-2 text-destructive">
-                    <AlertTriangle className="size-4" />
+                    <AlertTriangle className="size-4 shrink-0" />
                     <h4 className="text-xs font-bold">Reset Demo Household Data</h4>
                   </div>
                   <p className="text-[11px] text-muted-foreground leading-relaxed">
@@ -1465,7 +1516,7 @@ export function AdminSettingsModal({
                           onClose();
                         }
                       }}
-                      className="text-xs font-semibold gap-1.5 cursor-pointer"
+                      className="text-xs font-semibold gap-1.5 cursor-pointer w-full xs:w-auto justify-center"
                     >
                       <RotateCcw className="size-3.5" />
                       <span>Reset to Defaults</span>

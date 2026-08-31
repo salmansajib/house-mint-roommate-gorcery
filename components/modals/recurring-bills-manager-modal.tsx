@@ -160,15 +160,15 @@ export function RecurringBillsManagerModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col p-0 overflow-hidden bg-card border-border text-foreground">
-        <DialogHeader className="p-5 sm:p-6 pb-4 border-b border-border">
+      <DialogContent className="w-[calc(100%-1.25rem)] sm:w-full sm:max-w-2xl max-h-[92dvh] sm:max-h-[90vh] flex flex-col p-0 overflow-hidden bg-card border-border text-foreground rounded-2xl shadow-2xl">
+        <DialogHeader className="p-4 sm:p-6 pb-3 sm:pb-4 border-b border-border pr-10 sm:pr-6 text-left">
           <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <DialogTitle className="text-lg sm:text-xl font-extrabold flex items-center gap-2">
-                <Sparkles className="size-5 text-primary" />
-                <span>Manage Recurring Bills</span>
+            <div className="space-y-1 min-w-0">
+              <DialogTitle className="text-base sm:text-xl font-extrabold flex items-center gap-2">
+                <Sparkles className="size-4.5 sm:size-5 text-primary shrink-0" />
+                <span className="truncate">Manage Recurring Bills</span>
               </DialogTitle>
-              <DialogDescription className="text-xs text-muted-foreground">
+              <DialogDescription className="text-xs text-muted-foreground line-clamp-1 sm:line-clamp-none">
                 Set up recurring monthly utility templates and automatic due-date alerts.
               </DialogDescription>
             </div>

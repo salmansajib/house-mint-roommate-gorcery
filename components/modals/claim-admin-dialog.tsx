@@ -59,24 +59,24 @@ export function ClaimAdminDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md bg-card border-border shadow-2xl p-0 overflow-hidden">
-        <DialogHeader className="p-5 pb-3 border-b border-border/70 bg-muted/20">
+      <DialogContent className="w-[calc(100%-1.25rem)] sm:w-full sm:max-w-md bg-card border-border shadow-2xl p-0 rounded-2xl overflow-hidden">
+        <DialogHeader className="p-4 sm:p-5 pb-3 border-b border-border/70 bg-muted/20 pr-10 sm:pr-6 text-left">
           <div className="flex items-center gap-2.5">
             <div className="size-9 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shrink-0">
               <ShieldCheck className="size-5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <DialogTitle className="text-base font-bold text-foreground">
                 Claim Admin Access
               </DialogTitle>
-              <DialogDescription className="text-xs text-muted-foreground">
+              <DialogDescription className="text-xs text-muted-foreground truncate">
                 Elevate <span className="font-semibold text-foreground">{currentUser?.name}</span> to Apartment Administrator.
               </DialogDescription>
             </div>
           </div>
         </DialogHeader>
 
-        <form onSubmit={handleClaim} className="p-5 space-y-4">
+        <form onSubmit={handleClaim} className="p-4 sm:p-5 space-y-4">
           <AnimatePresence mode="wait">
             {error && (
               <motion.div
@@ -121,13 +121,13 @@ export function ClaimAdminDialog({
             </p>
           </div>
 
-          <DialogFooter className="pt-2 flex items-center justify-end gap-2">
+          <DialogFooter className="pt-2 flex flex-col-reverse xs:flex-row xs:items-center justify-end gap-2">
             <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={onClose}
-              className="text-xs"
+              className="text-xs w-full xs:w-auto"
             >
               Cancel
             </Button>
@@ -135,7 +135,7 @@ export function ClaimAdminDialog({
               type="submit"
               size="sm"
               disabled={!adminKey.trim() || success}
-              className="bg-primary text-primary-foreground text-xs font-semibold gap-1.5"
+              className="bg-primary text-primary-foreground text-xs font-semibold gap-1.5 w-full xs:w-auto justify-center"
             >
               <ShieldCheck className="size-3.5" />
               <span>Unlock Admin Hub</span>

@@ -46,20 +46,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           } = await supabase.auth.getSession();
 
           if (session?.user) {
-            // Find or build user profile
+            // Find or build user profile, fetching authoritative role from profiles table
             const authEmail = session.user.email;
-            const authName =
+            let authName =
               session.user.user_metadata?.name ||
               authEmail?.split("@")[0] ||
               "Roommate";
+            let authRole: "admin" | "member" =
+              (session.user.user_metadata?.role as "admin" | "member") || "member";
+            let isRoommate = session.user.user_metadata?.is_roommate !== false;
+
+            try {
+              const { data: dbProfile } = await supabase
+                .from("profiles")
+                .select("name, role, is_roommate, accent_color")
+                .eq("id", session.user.id)
+                .maybeSingle();
+
+              if (dbProfile) {
+                if (dbProfile.name) authName = dbProfile.name;
+                if (dbProfile.role) authRole = dbProfile.role as "admin" | "member";
+                if (dbProfile.is_roommate !== undefined) isRoommate = dbProfile.is_roommate;
+              }
+            } catch (profileErr) {
+              console.warn("Could not fetch DB profile during initAuth:", profileErr);
+            }
 
             setCurrentUser({
               id: session.user.id,
               name: authName,
               email: authEmail,
               accent_color: "user-1",
-              role: (session.user.user_metadata?.role as "admin" | "member") || "member",
-              is_roommate: session.user.user_metadata?.is_roommate !== false,
+              role: authRole,
+              is_roommate: isRoommate,
             });
             setIsLoading(false);
             return;
@@ -90,19 +109,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (supabase && isSupabaseConfigured()) {
       const {
         data: { subscription },
-      } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
+      } = supabase.auth.onAuthStateChange(async (_event: any, session: any) => {
         if (session?.user) {
           const email = session.user.email;
+          let authName =
+            session.user.user_metadata?.name ||
+            email?.split("@")[0] ||
+            "Roommate";
+          let authRole: "admin" | "member" =
+            (session.user.user_metadata?.role as "admin" | "member") || "member";
+          let isRoommate = session.user.user_metadata?.is_roommate !== false;
+
+          try {
+            const { data: dbProfile } = await supabase
+              .from("profiles")
+              .select("name, role, is_roommate, accent_color")
+              .eq("id", session.user.id)
+              .maybeSingle();
+
+            if (dbProfile) {
+              if (dbProfile.name) authName = dbProfile.name;
+              if (dbProfile.role) authRole = dbProfile.role as "admin" | "member";
+              if (dbProfile.is_roommate !== undefined) isRoommate = dbProfile.is_roommate;
+            }
+          } catch (err) {
+            console.warn("Error fetching profile on auth change:", err);
+          }
+
           setCurrentUser({
             id: session.user.id,
-            name:
-              session.user.user_metadata?.name ||
-              email?.split("@")[0] ||
-              "Roommate",
+            name: authName,
             email,
             accent_color: "user-1",
-            role: (session.user.user_metadata?.role as "admin" | "member") || "member",
-            is_roommate: session.user.user_metadata?.is_roommate !== false,
+            role: authRole,
+            is_roommate: isRoommate,
           });
         }
       });

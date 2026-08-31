@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -18,7 +19,8 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "HouseMint — Shared Roommate Expense Tracker",
-  description: "Lightweight shared grocery and household expense tracker for roommates",
+  description:
+    "Lightweight shared grocery and household expense tracker for roommates",
 };
 
 import { ThemeProvider } from "@/components/theme-provider";
@@ -47,6 +49,7 @@ export default function RootLayout({
         >
           <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );

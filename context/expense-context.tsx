@@ -209,6 +209,17 @@ export function ExpenseProvider({ children }: { children: React.ReactNode }) {
             ? [authUser]
             : [];
         setUsers(resolvedUsers);
+
+        // If the logged-in auth user exists in cloud profiles, ensure their active role & details sync
+        if (authUser) {
+          const matchingCloudProfile = cloudData.users.find(
+            (u) => u.id === authUser.id || (authUser.email && u.email?.toLowerCase() === authUser.email.toLowerCase())
+          );
+          if (matchingCloudProfile && (matchingCloudProfile.role !== authUser.role || matchingCloudProfile.name !== authUser.name)) {
+            setAuthUser(matchingCloudProfile);
+          }
+        }
+
         setExpenses(cloudData.expenses);
         setSettlements(cloudData.settlements);
         setRecurringBills(cloudData.recurringBills);
@@ -329,6 +340,11 @@ export function ExpenseProvider({ children }: { children: React.ReactNode }) {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "profiles" },
+        () => syncWithSupabase()
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "households" },
         () => syncWithSupabase()
       )
       .on(
@@ -896,6 +912,12 @@ export function ExpenseProvider({ children }: { children: React.ReactNode }) {
       if (normalized === validKey.toUpperCase()) {
         if (currentUser) {
           updateUserRole(currentUser.id, "admin");
+          if (setAuthUser) {
+            setAuthUser({ ...currentUser, role: "admin" });
+          }
+          if (isSupabaseConfigured()) {
+            updateUserRoleInDb(currentUser.id, "admin");
+          }
           addNotification({
             action_type: "admin_claimed",
             title: "Admin Access Claimed",
@@ -906,7 +928,7 @@ export function ExpenseProvider({ children }: { children: React.ReactNode }) {
       }
       return false;
     },
-    [householdSettings.adminInviteCode, currentUser, updateUserRole, addNotification]
+    [householdSettings.adminInviteCode, currentUser, setAuthUser, updateUserRole, addNotification]
   );
 
   const resetToDefaults = React.useCallback(() => {

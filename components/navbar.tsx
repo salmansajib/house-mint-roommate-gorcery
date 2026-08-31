@@ -21,6 +21,8 @@ import { navVariants, navItemVariants } from "@/lib/animations";
 import { NotificationPopover } from "@/components/notifications/notification-popover";
 import { ThemeToggle } from "@/components/theme-toggle";
 
+import { UserAvatar } from "@/components/ui/user-avatar";
+
 interface NavbarProps {
   onOpenAdminSettings?: () => void;
   onOpenClaimAdmin?: () => void;
@@ -66,7 +68,7 @@ export function Navbar({
     >
       <div className="max-w-6xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-2 sm:gap-4">
         {/* Brand Logo */}
-        <motion.div variants={navItemVariants} className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+        <motion.div variants={navItemVariants} className="flex items-center gap-2 sm:gap-3 shrink-0">
           <motion.div
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
@@ -74,57 +76,44 @@ export function Navbar({
           >
             <Sparkles className="size-4 sm:size-5" />
           </motion.div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <span className="font-extrabold text-base sm:text-lg tracking-tight bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent truncate">
-                HouseMint
-              </span>
-              <Badge
-                variant="outline"
-                className="text-[9px] sm:text-[10px] px-1.5 py-0 border-primary/30 text-primary/90"
-              >
-                {users.length} Roommates
-              </Badge>
-            </div>
-            <p className="text-[10px] sm:text-[11px] text-muted-foreground hidden sm:block truncate">
-              {householdSettings.householdName || "Equal Split Household Tracker"}
-            </p>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <span className="font-extrabold text-base sm:text-lg tracking-tight bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent shrink-0 select-none">
+              HouseMint
+            </span>
+            <Badge
+              variant="outline"
+              className="hidden min-[420px]:inline-flex text-[9px] sm:text-[10px] px-1.5 py-0 border-primary/30 text-primary/90 whitespace-nowrap shrink-0"
+            >
+              {users.length} {users.length === 1 ? "Roommate" : "Roommates"}
+            </Badge>
           </div>
         </motion.div>
 
         {/* Right side controls */}
-        <motion.div variants={navItemVariants} className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-          {/* Admin Hub Direct Button (Desktop) */}
+        <motion.div variants={navItemVariants} className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+          {/* Admin Hub Direct Button */}
           {isAdmin && (
             <Button
               variant="outline"
               size="sm"
               onClick={onOpenAdminSettings}
-              className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 h-8 bg-primary/10 border-primary/30 text-primary hover:bg-primary/20 text-xs font-semibold rounded-xl cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 h-8 bg-primary/10 border-primary/30 text-primary hover:bg-primary/20 text-xs font-semibold rounded-xl cursor-pointer shrink-0 transition-colors"
+              title="Open Apartment Admin Hub"
             >
-              <ShieldCheck className="size-3.5 text-primary" />
-              <span>Admin Hub</span>
+              <ShieldCheck className="size-3.5 text-primary shrink-0" />
+              <span className="hidden sm:inline">Admin Hub</span>
             </Button>
           )}
 
-          {/* Cloud Sync Status Pill */}
-          {isCloudConnected ? (
+          {/* Show Offline Pill ONLY if connection is lost */}
+          {!isCloudConnected && (
             <Badge
               variant="outline"
-              className="hidden sm:inline-flex items-center gap-1.5 px-2 py-1 text-[10px] font-semibold border-positive/30 bg-positive/10 text-positive"
-              title="Connected to Supabase Realtime WebSockets"
-            >
-              <span className="size-1.5 rounded-full bg-positive animate-pulse" />
-              <span>{isSyncing ? "Syncing..." : "Cloud Live"}</span>
-            </Badge>
-          ) : (
-            <Badge
-              variant="outline"
-              className="hidden sm:inline-flex items-center gap-1.5 px-2 py-1 text-[10px] font-medium border-border/80 bg-background/50 text-muted-foreground"
+              className="inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-medium border-warning/30 bg-warning/10 text-warning shrink-0"
               title="Running locally with offline cache"
             >
-              <span className="size-1.5 rounded-full bg-muted-foreground/60" />
-              <span>Offline Mode</span>
+              <span className="size-1.5 rounded-full bg-warning/80" />
+              <span>Offline</span>
             </Badge>
           )}
 
@@ -150,7 +139,7 @@ export function Navbar({
 
           {/* Roommate Switcher Dropdown or Sign In */}
           {!isLoaded ? (
-            <Skeleton className="h-8 w-28 sm:w-36 rounded-xl" />
+            <Skeleton className="h-8 w-20 sm:w-28 rounded-xl" />
           ) : users.length === 0 ? (
             <a
               href="/login"
@@ -163,39 +152,48 @@ export function Navbar({
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setIsOpenMenu((prev) => !prev)}
-                className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 bg-card border border-border rounded-xl text-xs font-semibold hover:bg-accent hover:border-border/90 active:bg-accent/80 transition-colors duration-200 cursor-pointer select-none shadow-xs"
+                className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1 bg-card border border-border rounded-xl text-xs font-semibold hover:bg-accent hover:border-border/90 active:bg-accent/80 transition-colors duration-200 cursor-pointer select-none shadow-xs h-8 shrink-0"
+                aria-label="Roommate Switcher Menu"
               >
-                <div className="size-5 rounded-full bg-primary/20 text-primary flex items-center justify-center text-[11px] font-bold">
-                  {currentUser?.name ? currentUser.name[0] : "U"}
-                </div>
-                <span className="text-foreground hidden xs:inline">
+                <UserAvatar user={currentUser} size="xs" />
+                <span className="text-foreground hidden md:inline truncate max-w-[80px]">
                   {currentUser?.name || "Roommate"}
                 </span>
                 {currentUser?.role === "admin" && (
-                  <Badge className="bg-primary/20 text-primary border-primary/30 text-[9px] px-1 py-0 font-semibold flex items-center gap-0.5">
+                  <span className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-md bg-primary/15 text-primary text-[9px] font-semibold border border-primary/30">
                     <ShieldCheck className="size-2.5" />
                     <span>Admin</span>
-                  </Badge>
+                  </span>
                 )}
-                <span className="text-[10px] text-muted-foreground hidden sm:inline">
-                  (Viewing)
-                </span>
                 <ChevronDown
-                  className={`size-3 text-muted-foreground transition-transform duration-200 ease-out ${
+                  className={`size-3 text-muted-foreground transition-transform duration-200 ease-out shrink-0 ${
                     isOpenMenu ? "rotate-180" : "rotate-0"
                   }`}
                 />
               </button>
 
+              {/* Mobile Backdrop */}
+              <AnimatePresence>
+                {isOpenMenu && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => setIsOpenMenu(false)}
+                    className="sm:hidden fixed inset-0 bg-background/60 backdrop-blur-xs z-40"
+                  />
+                )}
+              </AnimatePresence>
+
               {/* Dropdown Menu with Smooth Slide & Fade */}
               <AnimatePresence>
                 {isOpenMenu && (
                   <motion.div
-                    initial={{ opacity: 0, y: -4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -4 }}
+                    initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -6, scale: 0.98 }}
                     transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-                    className="absolute right-0 mt-2 w-52 bg-card/95 backdrop-blur-md border border-border rounded-xl shadow-xl py-1.5 z-50 overflow-hidden"
+                    className="fixed inset-x-3 top-[68px] sm:top-auto sm:inset-x-auto sm:absolute sm:right-0 sm:mt-2 w-auto sm:w-60 max-w-sm max-h-[calc(100dvh-5.5rem)] overflow-y-auto bg-card/95 backdrop-blur-xl border border-border rounded-2xl shadow-2xl py-1.5 z-50"
                   >
                     <div className="px-3 py-2 border-b border-border/50 bg-background/50">
                       <div className="flex items-center justify-between gap-1">
@@ -216,7 +214,7 @@ export function Navbar({
                         {currentUser?.email || "Local account"}
                       </div>
                       <div className="mt-1 flex items-center justify-between text-[9px] font-semibold text-primary">
-                        <span className="truncate max-w-[100px]">{householdSettings.householdName}</span>
+                        <span className="truncate max-w-[120px]">{householdSettings.householdName}</span>
                         <span className="font-mono bg-primary/10 px-1 py-0.2 rounded border border-primary/20 shrink-0">
                           {householdSettings.inviteCode}
                         </span>
@@ -231,9 +229,9 @@ export function Navbar({
                             setIsOpenMenu(false);
                             onOpenAdminSettings?.();
                           }}
-                          className="w-full px-2.5 py-1.5 text-xs flex items-center gap-2 font-semibold text-primary bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors cursor-pointer text-left"
+                          className="w-full px-2.5 py-1.5 text-xs flex items-center gap-2 font-semibold text-primary bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors cursor-pointer text-left"
                         >
-                          <ShieldCheck className="size-3.5" />
+                          <ShieldCheck className="size-3.5 shrink-0" />
                           <span>Apartment Admin Hub</span>
                         </button>
                       ) : (
@@ -242,56 +240,50 @@ export function Navbar({
                             setIsOpenMenu(false);
                             onOpenClaimAdmin?.();
                           }}
-                          className="w-full px-2.5 py-1.5 text-xs flex items-center gap-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-colors cursor-pointer text-left"
+                          className="w-full px-2.5 py-1.5 text-xs flex items-center gap-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-xl transition-colors cursor-pointer text-left"
                         >
-                          <Key className="size-3.5 text-primary" />
+                          <Key className="size-3.5 text-primary shrink-0" />
                           <span>Claim Admin Rights</span>
                         </button>
                       )}
                     </div>
 
-                    <div className="px-3 py-1 text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+                    <div className="px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
                       Switch Roommate
                     </div>
 
-                    {users.map((user) => {
-                      const isSelected = currentUser?.id === user.id;
-                      return (
-                        <button
-                          key={user.id}
-                          onClick={() => {
-                            setCurrentUser(user);
-                            setIsOpenMenu(false);
-                          }}
-                          className={`w-full px-3 py-1.5 text-xs flex items-center justify-between text-left hover:bg-accent transition-colors cursor-pointer ${
-                            isSelected
-                              ? "bg-primary/10 text-primary font-bold"
-                              : "text-foreground font-medium"
-                          }`}
-                        >
-                          <div className="flex items-center gap-2 min-w-0">
-                            <div
-                              className={`size-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
-                                isSelected
-                                  ? "bg-primary text-primary-foreground"
-                                  : "bg-accent text-foreground"
-                              }`}
-                            >
-                              {user.name[0]}
+                    <div className="space-y-0.5 px-1 max-h-48 overflow-y-auto custom-scrollbar">
+                      {users.map((user) => {
+                        const isSelected = currentUser?.id === user.id;
+                        return (
+                          <button
+                            key={user.id}
+                            onClick={() => {
+                              setCurrentUser(user);
+                              setIsOpenMenu(false);
+                            }}
+                            className={`w-full px-2.5 py-1.5 text-xs flex items-center justify-between rounded-lg transition-colors cursor-pointer ${
+                              isSelected
+                                ? "bg-primary/10 text-primary font-bold"
+                                : "text-foreground font-medium hover:bg-accent"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 min-w-0">
+                              <UserAvatar user={user} size="xs" />
+                              <span className="truncate">{user.name}</span>
+                              {user.role === "admin" && (
+                                <span className="text-[9px] text-primary font-normal">
+                                  (Admin)
+                                </span>
+                              )}
                             </div>
-                            <span className="truncate">{user.name}</span>
-                            {user.role === "admin" && (
-                              <span className="text-[9px] text-primary font-normal">
-                                (Admin)
-                              </span>
+                            {isSelected && (
+                              <span className="text-primary text-[11px] shrink-0 font-bold">✓</span>
                             )}
-                          </div>
-                          {isSelected && (
-                            <span className="text-primary text-[11px] shrink-0">✓</span>
-                          )}
-                        </button>
-                      );
-                    })}
+                          </button>
+                        );
+                      })}
+                    </div>
 
                     <div className="border-t border-border/50 pt-1 mt-1 space-y-0.5">
                       <button
@@ -304,21 +296,23 @@ export function Navbar({
                         className="w-full px-3 py-1.5 text-xs flex items-center justify-between text-muted-foreground hover:text-foreground hover:bg-accent transition-colors cursor-pointer text-left"
                       >
                         <div className="flex items-center gap-2">
-                          <Share2 className="size-3.5 text-primary" />
+                          <Share2 className="size-3.5 text-primary shrink-0" />
                           <span>
                             {copiedInvite ? "Copied Invite Link!" : "Copy Roommate Link"}
                           </span>
                         </div>
-                        {copiedInvite && <Check className="size-3 text-positive" />}
+                        {copiedInvite && <Check className="size-3 text-positive shrink-0" />}
                       </button>
 
-                      <a
-                        href="/login"
-                        className="w-full px-3 py-1.5 text-xs flex items-center gap-2 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-                      >
-                        <LogIn className="size-3.5" />
-                        <span>Sign In / Register</span>
-                      </a>
+                      {(!currentUser || !currentUser.email) && (
+                        <a
+                          href="/login"
+                          className="w-full px-3 py-1.5 text-xs flex items-center gap-2 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                        >
+                          <LogIn className="size-3.5 shrink-0" />
+                          <span>Sign In / Register</span>
+                        </a>
+                      )}
                       <button
                         onClick={async () => {
                           setIsOpenMenu(false);
@@ -327,7 +321,7 @@ export function Navbar({
                         }}
                         className="w-full px-3 py-1.5 text-xs flex items-center gap-2 text-destructive/80 hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer text-left"
                       >
-                        <LogOut className="size-3.5" />
+                        <LogOut className="size-3.5 shrink-0" />
                         <span>Sign Out</span>
                       </button>
                     </div>
@@ -336,9 +330,8 @@ export function Navbar({
               </AnimatePresence>
             </div>
           )}
-
-          </motion.div>
-        </div>
-      </motion.header>
-    );
+        </motion.div>
+      </div>
+    </motion.header>
+  );
 }

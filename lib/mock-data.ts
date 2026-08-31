@@ -317,8 +317,8 @@ export const INITIAL_HOUSEHOLD_SETTINGS: HouseholdSettings = {
   landlordPaymentMethod: "bKash (01711234567) / City Bank A/C 204128912",
   electricityMeterNo: "DESCO Pre-paid #1420993821",
   internetClientId: "Carnival Broadband User ID: DH-DHM-402",
-  emergencyFundEnabled: true,
-  emergencyFundBalance: 3500,
+  emergencyFundEnabled: false,
+  emergencyFundBalance: 0,
   lockedMonths: ["2026-07"],
 };
 
