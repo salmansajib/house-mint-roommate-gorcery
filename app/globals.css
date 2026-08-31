@@ -1,26 +1,352 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+:root,
+.dark {
+  /* Default: Dark Obsidian Mint */
+  --background: #080c0a;
+  --foreground: #f2f7f4;
+
+  --card: #0f1614;
+  --card-foreground: #f2f7f4;
+
+  --popover: #16211e;
+  --popover-foreground: #f2f7f4;
+
+  --primary: #10b981;
+  --primary-foreground: #042416;
+
+  --secondary: #16211e;
+  --secondary-foreground: #a7f3d0;
+
+  --muted: #131c19;
+  --muted-foreground: #879a93;
+
+  --accent: #1e2c28;
+  --accent-foreground: #f2f7f4;
+
+  --destructive: #f43f5e;
+  --destructive-foreground: #ffffff;
+
+  --positive: #10b981;
+  --positive-foreground: #042416;
+
+  --warning: #fbbf24;
+  --warning-foreground: #451a03;
+
+  --border: #1d2d27;
+  --input: #1e2c28;
+  --ring: #10b981;
+
+  --radius: 0.75rem;
+
+  /* Category colors */
+  --cat-groceries: #10b981;
+  --cat-rent: #818cf8;
+  --cat-electricity: #fbbf24;
+  --cat-gas: #fb923c;
+  --cat-internet: #38bdf8;
+  --cat-other: #a1a1aa;
+
+  /* Roommate Identity Accents & Scalable OKLCH Base */
+  --user-l: 72%;
+  --user-1: #06b6d4;
+  --user-2: #a855f7;
+  --user-3: #f59e0b;
+  --user-4: #10b981;
+  --user-5: #ec4899;
+  --user-6: #6366f1;
+  --user-7: #14b8a6;
+  --user-8: #f97316;
+}
+
+.light {
+  --background: #f8faf9;
+  --foreground: #0f172a;
+
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+
+  --primary: #059669;
+  --primary-foreground: #ffffff;
+
+  --secondary: #ecfdf5;
+  --secondary-foreground: #065f46;
+
+  --muted: #f1f5f3;
+  --muted-foreground: #64748b;
+
+  --accent: #e6f7f0;
+  --accent-foreground: #0f172a;
+
+  --destructive: #e11d48;
+  --destructive-foreground: #ffffff;
+
+  --positive: #059669;
+  --positive-foreground: #ffffff;
+
+  --warning: #d97706;
+  --warning-foreground: #ffffff;
+
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #059669;
+
+  --radius: 0.75rem;
+
+  /* Category colors */
+  --cat-groceries: #059669;
+  --cat-rent: #6366f1;
+  --cat-electricity: #d97706;
+  --cat-gas: #ea580c;
+  --cat-internet: #0284c7;
+  --cat-other: #71717a;
+
+  /* Roommate Identity Accents & Scalable OKLCH Base */
+  --user-l: 42%;
+  --user-1: #0891b2;
+  --user-2: #9333ea;
+  --user-3: #d97706;
+  --user-4: #059669;
+  --user-5: #db2777;
+  --user-6: #4f46e5;
+  --user-7: #0d9488;
+  --user-8: #ea580c;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-positive: var(--positive);
+  --color-positive-foreground: var(--positive-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-cat-groceries: var(--cat-groceries);
+  --color-cat-rent: var(--cat-rent);
+  --color-cat-electricity: var(--cat-electricity);
+  --color-cat-gas: var(--cat-gas);
+  --color-cat-internet: var(--cat-internet);
+  --color-cat-other: var(--cat-other);
+
+  --color-user-1: var(--user-1);
+  --color-user-2: var(--user-2);
+  --color-user-3: var(--user-3);
+  --color-user-4: var(--user-4);
+  --color-user-5: var(--user-5);
+  --color-user-6: var(--user-6);
+  --color-user-7: var(--user-7);
+  --color-user-8: var(--user-8);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* ==========================================================================
+   Typography Base & Rendering
+   ========================================================================== */
 body {
-  background: var(--background);
+  font-family:
+    var(--font-sans),
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* Headings: Balanced text wrapping & tracking */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-wrap: balance;
+  letter-spacing: -0.025em;
+  color: var(--foreground);
+}
+
+p {
+  text-wrap: pretty;
+}
+
+/* ==========================================================================
+   Fintech & Financial Numeral Typography Utilities
+   ========================================================================== */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.font-numeral {
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.03em;
+}
+
+/* ==========================================================================
+   Standard Semantic Typography Scale
+   ========================================================================== */
+@utility text-display {
+  font-size: clamp(2rem, 1.5rem + 2.5vw, 3.25rem);
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+@utility text-h1 {
+  font-size: clamp(1.625rem, 1.3rem + 1.6vw, 2.25rem);
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+@utility text-h2 {
+  font-size: clamp(1.35rem, 1.15rem + 1vw, 1.75rem);
+  line-height: 1.25;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+@utility text-h3 {
+  font-size: 1.25rem;
+  line-height: 1.35;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+@utility text-h4 {
+  font-size: 1.0625rem;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+@utility text-body-lg {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+@utility text-body {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  font-weight: 400;
+}
+
+@utility text-body-sm {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+@utility text-label {
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ==========================================================================
+   Custom Modern Scrollbars
+   ========================================================================== */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 9999px;
+  border: 1px solid transparent;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.light * {
+  scrollbar-color: rgba(0, 0, 0, 0.18) transparent;
+}
+
+.light ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.light ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.32);
+}
+
+/* Utility classes for specific scrollbar needs */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(16, 185, 129, 0.25) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.5);
 }
