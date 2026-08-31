@@ -294,26 +294,26 @@ export function AdminSettingsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="w-[calc(100%-1.25rem)] sm:w-full sm:max-w-3xl max-h-[92dvh] sm:max-h-[88vh] flex flex-col bg-card border-border shadow-2xl p-0 rounded-2xl overflow-hidden">
+      <DialogContent className="w-[calc(100%-1.25rem)] sm:w-full sm:max-w-3xl max-h-[92dvh] sm:max-h-[88vh] flex flex-col bg-card border-border shadow-2xl p-0 rounded-xl overflow-hidden">
         {/* Header */}
-        <DialogHeader className="p-4 sm:p-5 pb-3 sm:pb-4 border-b border-border/80 bg-muted/20 shrink-0 pr-11 sm:pr-6 text-left">
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            <div className="size-9 sm:size-10 rounded-xl sm:rounded-2xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shadow-xs shrink-0">
-              <ShieldCheck className="size-4.5 sm:size-5" />
+        <DialogHeader className="p-4 sm:p-5 pb-3 sm:pb-4 border-b border-border bg-card shrink-0 text-left">
+          <div className="flex items-center gap-2.5 sm:gap-3 pr-8 sm:pr-0">
+            <div className="size-10 sm:size-11 rounded-lg sm:rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shadow-xs shrink-0">
+              <ShieldCheck className="size-5 sm:size-5.5" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                <DialogTitle className="text-base sm:text-lg font-bold text-foreground truncate">
+                <DialogTitle className="text-lg sm:text-xl font-bold text-foreground tracking-tight truncate">
                   Apartment Admin Hub
                 </DialogTitle>
                 <Badge
                   variant="outline"
-                  className="border-primary/40 text-primary bg-primary/10 text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0 font-semibold shrink-0"
+                  className="border-primary/40 text-primary bg-primary/10 text-[10px] sm:text-xs px-2 py-0.5 font-semibold shrink-0"
                 >
                   Administrator
                 </Badge>
               </div>
-              <DialogDescription className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 line-clamp-1 sm:line-clamp-none">
+              <DialogDescription className="text-xs sm:text-sm text-muted-foreground mt-1 line-clamp-1 sm:line-clamp-none">
                 Manage household members, invite keys, utility credentials & policies for{" "}
                 <span className="font-semibold text-foreground">
                   {householdSettings.householdName}
@@ -323,47 +323,47 @@ export function AdminSettingsModal({
           </div>
 
           {/* Navigation Tabs */}
-          <div className="pt-3 sm:pt-4 -mr-4 sm:mr-0 pr-4 sm:pr-0">
+          <div className="pt-3 sm:pt-4 w-full">
             <Tabs
               value={activeTab}
               onValueChange={(val) => setActiveTab(val as any)}
               className="w-full"
             >
-              <TabsList className="flex sm:grid sm:grid-cols-5 w-full h-auto p-1 bg-muted/40 border border-border/80 rounded-xl gap-1 overflow-x-auto no-scrollbar touch-pan-x">
+              <TabsList className="grid grid-cols-5 w-full h-auto p-1.5 bg-muted/60 border border-border rounded-lg gap-1 sm:gap-1.5">
                 <TabsTrigger
                   value="members"
-                  className="shrink-0 flex-1 min-w-[95px] sm:min-w-0 text-xs font-semibold gap-1.5 py-1.5 sm:py-2 rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all"
+                  className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 px-1 sm:px-3 rounded-md text-xs sm:text-sm font-bold data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all cursor-pointer select-none focus-visible:ring-1 focus-visible:ring-primary/40"
                 >
-                  <Users className="size-3.5 shrink-0" />
-                  <span className="truncate">Members</span>
+                  <Users className="size-4 shrink-0" />
+                  <span className="whitespace-nowrap tracking-tight">Members</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="catalog"
-                  className="shrink-0 flex-1 min-w-[95px] sm:min-w-0 text-xs font-semibold gap-1.5 py-1.5 sm:py-2 rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all"
+                  className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 px-1 sm:px-3 rounded-md text-xs sm:text-sm font-bold data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all cursor-pointer select-none focus-visible:ring-1 focus-visible:ring-primary/40"
                 >
-                  <ShoppingBag className="size-3.5 shrink-0" />
-                  <span className="truncate">Catalog</span>
+                  <ShoppingBag className="size-4 shrink-0" />
+                  <span className="whitespace-nowrap tracking-tight">Catalog</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="vault"
-                  className="shrink-0 flex-1 min-w-[95px] sm:min-w-0 text-xs font-semibold gap-1.5 py-1.5 sm:py-2 rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all"
+                  className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 px-1 sm:px-3 rounded-md text-xs sm:text-sm font-bold data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all cursor-pointer select-none focus-visible:ring-1 focus-visible:ring-primary/40"
                 >
-                  <Building className="size-3.5 shrink-0" />
-                  <span className="truncate">Vault</span>
+                  <Building className="size-4 shrink-0" />
+                  <span className="whitespace-nowrap tracking-tight">Vault</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="policies"
-                  className="shrink-0 flex-1 min-w-[95px] sm:min-w-0 text-xs font-semibold gap-1.5 py-1.5 sm:py-2 rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all"
+                  className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 px-1 sm:px-3 rounded-md text-xs sm:text-sm font-bold data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all cursor-pointer select-none focus-visible:ring-1 focus-visible:ring-primary/40"
                 >
-                  <Sliders className="size-3.5 shrink-0" />
-                  <span className="truncate">Policies</span>
+                  <Sliders className="size-4 shrink-0" />
+                  <span className="whitespace-nowrap tracking-tight">Policies</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="audit"
-                  className="shrink-0 flex-1 min-w-[95px] sm:min-w-0 text-xs font-semibold gap-1.5 py-1.5 sm:py-2 rounded-lg data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all"
+                  className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 px-1 sm:px-3 rounded-md text-xs sm:text-sm font-bold data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all cursor-pointer select-none focus-visible:ring-1 focus-visible:ring-primary/40"
                 >
-                  <Lock className="size-3.5 shrink-0" />
-                  <span className="truncate">Lock & Audit</span>
+                  <Lock className="size-4 shrink-0" />
+                  <span className="whitespace-nowrap tracking-tight">Audit</span>
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -388,7 +388,7 @@ export function AdminSettingsModal({
                       Roommates
                     </Badge>
                   </div>
-                  <div className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-card border border-border/60 font-mono text-sm tracking-wider font-bold text-foreground">
+                  <div className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-card border border-border/60 font-mono text-base tracking-wider font-bold text-foreground">
                     <span>{householdSettings.inviteCode}</span>
                     <Button
                       size="icon"
@@ -406,7 +406,7 @@ export function AdminSettingsModal({
                       )}
                     </Button>
                   </div>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     Share with new roommates moving into Flat 4B to join grocery splits.
                   </p>
                 </div>
@@ -420,12 +420,12 @@ export function AdminSettingsModal({
                     </span>
                     <Badge
                       variant="outline"
-                      className="text-[10px] px-1.5 py-0 border-primary/30 text-primary bg-primary/5"
+                      className="text-xs px-2 py-0.5 border-primary/30 text-primary bg-primary/5"
                     >
                       Secret Key
                     </Badge>
                   </div>
-                  <div className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-card border border-border/60 font-mono text-sm tracking-wider font-bold text-foreground">
+                  <div className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-card border border-border/60 font-mono text-base tracking-wider font-bold text-foreground">
                     <span>
                       {showAdminKey
                         ? householdSettings.adminInviteCode
@@ -465,7 +465,7 @@ export function AdminSettingsModal({
                       </Button>
                     </div>
                   </div>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     Private secret key used to grant Administrator privileges upon registration.
                   </p>
                 </div>

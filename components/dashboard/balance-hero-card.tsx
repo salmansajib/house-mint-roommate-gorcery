@@ -8,6 +8,7 @@ import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getUserDebts } from "@/lib/balance";
+import { UserBadge } from "@/components/ui/user-badge";
 import { PlusCircle, HandCoins, ArrowUpRight, ArrowDownLeft, CheckCircle2 } from "lucide-react";
 import {
   heroContentVariants,
@@ -123,13 +124,22 @@ export function BalanceHeroCard({
           <div className="flex-1 space-y-3">
             <motion.div
               variants={heroItemVariants}
-              className="flex items-center gap-2 text-[11px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider"
+              className="flex flex-wrap items-center justify-between gap-y-1.5 gap-x-2 text-[11px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider"
             >
-              <span>Personal Balance</span>
-              <span>•</span>
-              <span className="text-primary font-bold">{currentUser.name}&apos;s View</span>
-              <span>•</span>
-              <span className="text-muted-foreground">{users.length} in Household</span>
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                <span className="text-foreground/90 whitespace-nowrap">Personal Balance</span>
+                <span className="text-muted-foreground/40">•</span>
+                <span className="text-muted-foreground/80 whitespace-nowrap">
+                  {users.length} {users.length === 1 ? "Roommate" : "Roommates"}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-1.5 shrink-0 tracking-normal normal-case">
+                <span className="text-[10px] text-muted-foreground uppercase tracking-wider hidden sm:inline">
+                  Viewing:
+                </span>
+                <UserBadge user={currentUser} size="sm" showDot />
+              </div>
             </motion.div>
 
             {/* Dynamic Status Headline */}
