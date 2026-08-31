@@ -194,9 +194,9 @@ export function Navbar({
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -6, scale: 0.98 }}
                     transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-                    className="fixed inset-x-3 top-[68px] sm:top-auto sm:inset-x-auto sm:absolute sm:right-0 sm:mt-2 w-auto sm:w-60 max-w-sm max-h-[calc(100dvh-5.5rem)] overflow-y-auto bg-card/95 backdrop-blur-xl border border-border rounded-2xl shadow-2xl py-1.5 z-50"
+                    className="fixed inset-x-3 top-[68px] sm:top-auto sm:inset-x-auto sm:absolute sm:right-0 sm:mt-2 w-auto sm:w-60 max-w-sm max-h-[calc(100dvh-5.5rem)] overflow-y-auto bg-card border border-border rounded-2xl shadow-2xl py-1.5 z-50"
                   >
-                    <div className="px-3 py-2 border-b border-border/50 bg-background/50">
+                    <div className="px-3 py-2 border-b border-border bg-muted/40">
                       <div className="flex items-center justify-between gap-1">
                         <div className="text-xs font-bold text-foreground truncate">
                           {currentUser?.name || "Roommate"}

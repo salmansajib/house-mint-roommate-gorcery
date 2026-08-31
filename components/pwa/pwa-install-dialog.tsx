@@ -56,7 +56,7 @@ export function PwaInstallDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-md bg-card/95 border-border backdrop-blur-xl">
+      <DialogContent className="max-w-md bg-card border-border">
         <DialogHeader className="text-center sm:text-left">
           <div className="flex items-center gap-3 mb-1">
             <div className="size-12 rounded-2xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shadow-inner shrink-0 overflow-hidden relative">

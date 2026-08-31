@@ -197,10 +197,10 @@ export function NotificationPopover() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.97 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-x-3 top-[70px] sm:top-auto sm:inset-x-auto sm:absolute sm:right-0 sm:mt-2.5 w-auto sm:w-96 max-w-md mx-auto sm:mx-0 max-h-[calc(100dvh-5.5rem)] sm:max-h-[520px] flex flex-col bg-card/95 backdrop-blur-xl border border-border rounded-2xl shadow-2xl z-50 overflow-hidden"
+            className="fixed inset-x-3 top-[70px] sm:top-auto sm:inset-x-auto sm:absolute sm:right-0 sm:mt-2.5 w-auto sm:w-96 max-w-md mx-auto sm:mx-0 max-h-[calc(100dvh-5.5rem)] sm:max-h-[520px] flex flex-col bg-card border border-border rounded-2xl shadow-2xl z-50 overflow-hidden"
           >
             {/* Header */}
-            <div className="p-3 sm:p-3.5 border-b border-border/60 bg-background/50 flex items-center justify-between gap-2 shrink-0">
+            <div className="p-3 sm:p-3.5 border-b border-border bg-card flex items-center justify-between gap-2 shrink-0">
               <div className="flex items-center gap-2 min-w-0">
                 <div className="size-7 rounded-lg bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shrink-0">
                   <Bell className="size-3.5" />
@@ -251,7 +251,7 @@ export function NotificationPopover() {
             </div>
 
             {/* Filter Pills */}
-            <div className="px-3 py-1.5 border-b border-border/40 flex items-center justify-between text-xs bg-muted/20">
+            <div className="px-3 py-1.5 border-b border-border flex items-center justify-between text-xs bg-muted/40">
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => setFilter("all")}
@@ -346,11 +346,10 @@ export function NotificationPopover() {
                           prev.filter((id) => id !== notification.id)
                         );
                       }}
-                      whileHover={{ backgroundColor: "var(--accent)" }}
-                      className={`p-3 transition-colors cursor-pointer relative flex items-start gap-2.5 ${
+                      className={`p-3 transition-colors duration-150 cursor-pointer relative flex items-start gap-2.5 ${
                         isUnread
                           ? "bg-primary/5 hover:bg-primary/10"
-                          : "hover:bg-accent/50"
+                          : "hover:bg-accent/60"
                       }`}
                     >
                       {/* Avatar with mini action badge overlay */}

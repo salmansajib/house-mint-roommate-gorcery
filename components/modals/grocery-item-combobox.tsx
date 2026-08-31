@@ -114,7 +114,7 @@ export function GroceryItemCombobox({
 
       {/* Suggestion Popover */}
       {isOpen && suggestions.length > 0 && (
-        <div className="absolute left-0 top-full mt-1.5 w-full min-w-[260px] z-[100] bg-popover/95 backdrop-blur-md border border-border rounded-xl shadow-2xl overflow-hidden py-1 divide-y divide-border/40 animate-in fade-in-0 zoom-in-95 duration-100">
+        <div className="absolute left-0 top-full mt-1.5 w-full min-w-[260px] z-[100] bg-popover border border-border rounded-xl shadow-2xl overflow-hidden py-1 divide-y divide-border/40 animate-in fade-in-0 zoom-in-95 duration-100">
           <div className="px-2.5 py-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
             <span className="flex items-center gap-1">
               <Sparkles className="size-2.5 text-primary" />
