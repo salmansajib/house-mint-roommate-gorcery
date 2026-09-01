@@ -87,7 +87,7 @@ export function Navbar({
             </span>
             <Badge
               variant="outline"
-              className="hidden min-[420px]:inline-flex text-[9px] sm:text-[10px] px-1.5 py-0 border-primary/30 text-primary/90 whitespace-nowrap shrink-0"
+              className="hidden min-[420px]:inline-flex items-center text-[10px] font-semibold px-2 py-0.5 border-primary/30 text-primary/90 rounded-full whitespace-nowrap shrink-0"
             >
               {users.length} {users.length === 1 ? "Roommate" : "Roommates"}
             </Badge>
@@ -95,27 +95,26 @@ export function Navbar({
         </motion.div>
 
         {/* Right side controls */}
-        <motion.div variants={navItemVariants} className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+        <motion.div variants={navItemVariants} className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {/* Admin Hub Direct Button */}
           {isAdmin && (
             <Button
               variant="outline"
               size="sm"
               onClick={onOpenAdminSettings}
-              className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 h-8 bg-primary/10 border-primary/30 text-primary hover:bg-primary/20 text-xs font-semibold rounded-xl cursor-pointer shrink-0 transition-colors"
+              className="inline-flex items-center justify-center gap-1.5 w-8 sm:w-auto h-8 sm:h-9 px-0 sm:px-3 bg-primary/10 border-primary/30 text-primary hover:bg-primary/20 text-xs font-semibold rounded-full cursor-pointer shrink-0 transition-colors"
               title="Open Apartment Admin Hub"
             >
-              <ShieldCheck className="size-3.5 text-primary shrink-0" />
+              <ShieldCheck className="size-3.5 sm:size-4 text-primary shrink-0" />
               <span className="hidden sm:inline">Admin Hub</span>
             </Button>
           )}
 
-
           {/* Household Total Pill (Desktop/Tablet) */}
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card border border-border text-xs transition-colors hover:border-border/80 min-h-[34px]">
+          <div className="hidden md:flex items-center gap-2 px-3.5 h-9 rounded-full bg-card border border-border text-xs transition-colors hover:border-border/80 shrink-0">
             <span className="text-muted-foreground">Household Spent:</span>
             {!isLoaded ? (
-              <Skeleton className="h-4 w-16" />
+              <Skeleton className="h-4 w-16 rounded-full" />
             ) : (
               <CurrencyAmount
                 amount={ledger.total_household_spent}
@@ -133,11 +132,11 @@ export function Navbar({
 
           {/* Roommate Switcher Dropdown or Sign In */}
           {!isLoaded ? (
-            <Skeleton className="h-8 w-20 sm:w-28 rounded-xl" />
+            <Skeleton className="h-8 sm:h-9 w-20 sm:w-28 rounded-full" />
           ) : users.length === 0 ? (
             <a
               href="/login"
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground rounded-xl text-xs font-semibold hover:opacity-90 transition-opacity shadow-xs"
+              className="flex items-center gap-1.5 px-3.5 h-8 sm:h-9 bg-primary text-primary-foreground rounded-full text-xs font-semibold hover:opacity-90 transition-opacity shadow-xs"
             >
               <LogIn className="size-3.5" />
               <span>Join / Register</span>
@@ -146,7 +145,7 @@ export function Navbar({
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setIsOpenMenu((prev) => !prev)}
-                className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1 bg-card border border-border rounded-xl text-xs font-semibold hover:bg-accent hover:border-border/90 active:bg-accent/80 transition-colors duration-200 cursor-pointer select-none shadow-xs h-8 shrink-0"
+                className="flex items-center gap-1.5 sm:gap-2 pl-1 sm:pl-1.5 pr-2 sm:pr-2.5 bg-card border border-border rounded-full text-xs font-semibold hover:bg-accent hover:border-border/90 active:bg-accent/80 transition-colors duration-200 cursor-pointer select-none shadow-xs h-8 sm:h-9 shrink-0"
                 aria-label="Roommate Switcher Menu"
               >
                 <UserAvatar user={currentUser} size="xs" />
@@ -154,7 +153,7 @@ export function Navbar({
                   {currentUser?.name || "Roommate"}
                 </span>
                 {currentUser?.role === "admin" && (
-                  <span className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-md bg-primary/15 text-primary text-[9px] font-semibold border border-primary/30">
+                  <span className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-primary/15 text-primary text-[9px] font-semibold border border-primary/30">
                     <ShieldCheck className="size-2.5" />
                     <span>Admin</span>
                   </span>

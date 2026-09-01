@@ -166,9 +166,9 @@ export function NotificationPopover() {
         onClick={() => setIsOpen((prev) => !prev)}
         aria-label={`Notifications (${unreadNotificationCount} unread)`}
         aria-expanded={isOpen}
-        className="relative p-2 rounded-xl bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-accent hover:border-border/90 active:bg-accent/80 transition-colors duration-200 cursor-pointer select-none shadow-xs flex items-center justify-center"
+        className="relative size-8 sm:size-9 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-accent hover:border-border/90 active:bg-accent/80 transition-colors duration-200 cursor-pointer select-none shadow-xs flex items-center justify-center shrink-0"
       >
-        <Bell className="size-4.5 sm:size-5 transition-transform duration-200" />
+        <Bell className="size-4 sm:size-4.5 transition-transform duration-200" />
 
         {/* Dynamic Unread Counter Badge */}
         {unreadNotificationCount > 0 && !isOpen && (

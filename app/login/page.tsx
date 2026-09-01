@@ -527,7 +527,7 @@ export default function LoginPage() {
                           setVerificationSentEmail(null);
                           handleTabChange("signin");
                         }}
-                        className="w-full bg-primary text-primary-foreground font-semibold text-xs h-9 cursor-pointer gap-2"
+                        className="w-full bg-primary text-primary-foreground font-semibold text-sm h-10 rounded-xl cursor-pointer gap-2"
                       >
                         <span>Proceed to Sign In</span>
                         <ArrowRight className="size-3.5" />

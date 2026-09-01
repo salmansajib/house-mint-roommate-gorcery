@@ -380,7 +380,7 @@ export function EditExpenseModal({
                     placeholder="e.g. 5"
                     value={singleQuantity}
                     onChange={(e) => setSingleQuantity(e.target.value)}
-                    className="h-9 text-xs bg-accent/20 border-border rounded-lg text-center focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                    className="h-10 text-xs bg-accent/20 border-border rounded-xl text-center focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                   />
                 </div>
 
@@ -388,7 +388,7 @@ export function EditExpenseModal({
                   <select
                     value={singleUnit}
                     onChange={(e) => setSingleUnit(e.target.value)}
-                    className="w-full h-9 bg-accent/20 border border-border rounded-lg pl-3 pr-8 text-xs font-medium focus:ring-2 focus:ring-primary/40 focus:border-primary focus:outline-none transition-all cursor-pointer appearance-none"
+                    className="w-full h-10 bg-accent/20 border border-border rounded-xl pl-3.5 pr-8 text-xs font-medium focus:ring-2 focus:ring-primary/40 focus:border-primary focus:outline-none transition-all cursor-pointer appearance-none"
                   >
                     {COMMON_QUANTITY_UNITS.map((u) => (
                       <option key={u.value} value={u.value}>
@@ -406,7 +406,7 @@ export function EditExpenseModal({
                     key={chip}
                     type="button"
                     onClick={() => setSingleUnit(singleUnit === chip ? "" : chip)}
-                    className={`text-[10px] px-2 py-0.5 rounded-md border font-medium transition-all cursor-pointer ${
+                    className={`h-6 px-2.5 text-[10px] rounded-full border font-semibold inline-flex items-center justify-center transition-all cursor-pointer ${
                       singleUnit === chip
                         ? "bg-primary text-primary-foreground border-primary"
                         : "bg-card text-muted-foreground border-border hover:text-foreground hover:bg-accent"
@@ -625,16 +625,16 @@ export function EditExpenseModal({
             <Button
               type="button"
               variant="outline"
-              size="sm"
+              size="lg"
               onClick={onClose}
-              className="h-10 rounded-xl cursor-pointer"
+              className="h-11 sm:h-12 rounded-xl cursor-pointer"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              size="sm"
-              className="h-10 rounded-xl bg-primary text-primary-foreground font-semibold shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
+              size="lg"
+              className="h-11 sm:h-12 rounded-xl bg-primary text-primary-foreground font-semibold shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
             >
               Update Expense
             </Button>

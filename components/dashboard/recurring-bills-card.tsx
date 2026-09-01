@@ -175,9 +175,9 @@ export function RecurringBillsCard({
             </div>
           </div>
 
-          {/* Quick Metrics & Manage Button */}
+            {/* Quick Metrics & Manage Button */}
           <div className="flex items-center gap-2 self-end sm:self-auto">
-            <div className="hidden md:flex items-center gap-2 text-xs text-muted-foreground bg-background/50 px-2.5 py-1 rounded-lg border border-border/60">
+            <div className="hidden md:flex items-center h-8 rounded-full px-3 gap-2 text-xs text-muted-foreground bg-background/50 border border-border/60">
               <span>Paid:</span>
               <span className="font-semibold text-positive">
                 {recurringMetrics.paidCount}/{recurringMetrics.totalBills}
@@ -204,7 +204,7 @@ export function RecurringBillsCard({
         </div>
       </CardHeader>
 
-      <CardContent className="p-3 sm:p-4 pt-3">
+      <CardContent className="p-4 sm:p-5 pt-1">
         <motion.div
           initial="hidden"
           animate="show"
@@ -223,7 +223,7 @@ export function RecurringBillsCard({
                 layout="position"
                 variants={listItemVariants}
                 transition={smoothLayoutTransition}
-                className={`p-3 rounded-xl border transition-[background-color,border-color] duration-150 ease-out flex flex-col justify-between gap-3 ${
+                className={`p-3.5 rounded-xl border transition-[background-color,border-color] duration-150 ease-out flex flex-col justify-between gap-3 ${
                   status === "overdue"
                     ? "border-destructive/40 bg-destructive/5 hover:border-destructive/60"
                     : status === "due_today" || status === "due_soon"

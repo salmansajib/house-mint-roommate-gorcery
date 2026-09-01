@@ -68,7 +68,7 @@ function DashboardContent() {
           {/* Left Column: Category Spending Distribution */}
           <motion.div
             variants={sectionRevealVariants}
-            className="lg:col-span-4 order-2 lg:order-1"
+            className="lg:col-span-4"
           >
             <CategoryBreakdown />
           </motion.div>
@@ -76,7 +76,7 @@ function DashboardContent() {
           {/* Right Column: Full Expense History Ledger */}
           <motion.div
             variants={sectionRevealVariants}
-            className="lg:col-span-8 order-1 lg:order-2"
+            className="lg:col-span-8"
           >
             <ExpenseList />
           </motion.div>
