@@ -205,7 +205,7 @@ export function ExpenseList() {
   return (
     <>
       <Card className="h-full flex flex-col border-border bg-card">
-        <CardHeader className="p-4 sm:p-5 pb-3 sm:pb-4 space-y-3">
+        <CardHeader className="p-4 sm:p-5 pb-3 space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <div className="flex items-center gap-2">
@@ -228,7 +228,7 @@ export function ExpenseList() {
                 <select
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(e.target.value)}
-                  className="bg-card text-foreground border border-border rounded-lg pl-3 pr-8 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer appearance-none font-medium transition-colors hover:border-border/80"
+                  className="h-8 bg-card text-foreground border border-border rounded-lg pl-3 pr-8 text-xs focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer appearance-none font-medium transition-colors hover:border-border/80 flex items-center"
                 >
                   <option value="all">All Months</option>
                   {monthlySummaries.map((m) => (
@@ -246,7 +246,7 @@ export function ExpenseList() {
           <div className="flex items-center gap-1.5 overflow-x-auto pt-1 pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar">
             <button
               onClick={() => setSelectedCategory("all")}
-              className={`relative px-3 py-1.5 text-xs rounded-xl font-semibold whitespace-nowrap transition-colors shrink-0 cursor-pointer ${
+              className={`relative h-8 px-3 text-xs rounded-full font-semibold whitespace-nowrap transition-colors shrink-0 cursor-pointer inline-flex items-center justify-center ${
                 selectedCategory === "all"
                   ? "text-primary-foreground font-bold"
                   : "bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/50"
@@ -255,7 +255,7 @@ export function ExpenseList() {
               {selectedCategory === "all" && (
                 <motion.span
                   layoutId="activeExpenseCategoryPill"
-                  className="absolute inset-0 bg-primary rounded-xl z-0"
+                  className="absolute inset-0 bg-primary rounded-full z-0"
                   transition={pillSlideTransition}
                 />
               )}
@@ -268,7 +268,7 @@ export function ExpenseList() {
                   <button
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
-                    className={`relative px-3 py-1.5 text-xs rounded-xl font-semibold whitespace-nowrap transition-colors shrink-0 cursor-pointer ${
+                    className={`relative h-8 px-3 text-xs rounded-full font-semibold whitespace-nowrap transition-colors shrink-0 cursor-pointer inline-flex items-center justify-center ${
                       isSelected
                         ? "text-primary-foreground font-bold"
                         : "bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/50"
@@ -277,7 +277,7 @@ export function ExpenseList() {
                     {isSelected && (
                       <motion.span
                         layoutId="activeExpenseCategoryPill"
-                        className="absolute inset-0 bg-primary rounded-xl z-0"
+                        className="absolute inset-0 bg-primary rounded-full z-0"
                         transition={pillSlideTransition}
                       />
                     )}
@@ -289,7 +289,7 @@ export function ExpenseList() {
           </div>
         </CardHeader>
 
-        <CardContent className="flex-1 overflow-y-auto space-y-3 p-3 sm:p-5 pt-0">
+        <CardContent className="flex-1 overflow-y-auto space-y-3 p-4 sm:p-5 pt-0">
           {/* Settlements records */}
           {settlements.length > 0 && selectedCategory === "all" && (
             <div className="space-y-2 mb-4">
@@ -310,10 +310,10 @@ export function ExpenseList() {
                       variants={listItemVariants}
                       exit="exit"
                       transition={smoothLayoutTransition}
-                      className="p-3 rounded-xl border border-emerald-500/20 bg-emerald-950/20 flex flex-col xs:flex-row xs:items-center justify-between gap-2 text-xs transition-[background-color,border-color] duration-150 ease-out hover:bg-emerald-950/35 hover:border-emerald-500/35"
+                      className="p-3.5 rounded-xl border border-emerald-500/20 bg-emerald-950/20 flex flex-col xs:flex-row xs:items-center justify-between gap-2 text-xs transition-[background-color,border-color] duration-150 ease-out hover:bg-emerald-950/35 hover:border-emerald-500/35"
                     >
                       <div className="flex items-center gap-2.5">
-                        <div className="size-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold shrink-0">
+                        <div className="size-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold shrink-0">
                           ✓
                         </div>
                         <div className="min-w-0">
@@ -394,10 +394,10 @@ export function ExpenseList() {
                           : "border-border/70 hover:border-border hover:bg-accent/30"
                       }`}
                     >
-                      <div className="p-3 sm:p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         {/* Left: Icon and Details */}
                         <div className="flex items-start gap-2.5 sm:gap-3 min-w-0 flex-1">
-                          <div className="size-8 sm:size-9 rounded-xl bg-accent/60 border border-border/80 flex items-center justify-center text-foreground shrink-0 mt-0.5 sm:mt-0">
+                          <div className="size-9 rounded-xl bg-accent/60 border border-border/80 flex items-center justify-center text-foreground shrink-0 mt-0.5 sm:mt-0">
                             <Icon className="size-4" />
                           </div>
                           <div className="min-w-0 flex-1">

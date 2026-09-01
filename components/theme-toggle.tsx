@@ -13,10 +13,9 @@ interface ThemeToggleProps {
 
 /**
  * Circular Reveal Animation Settings:
- * Adjust THEME_TRANSITION_DURATION_MS to control the speed (in milliseconds).
- * Higher = slower & more cinematic, Lower = faster.
+ * Optimized for silky 60/120fps mobile PWA & desktop performance.
  */
-export const THEME_TRANSITION_DURATION_MS = 1200;
+export const THEME_TRANSITION_DURATION_MS = 400;
 export const THEME_TRANSITION_EASING = "cubic-bezier(0.16, 1, 0.3, 1)";
 
 export function ThemeToggle({ className }: ThemeToggleProps) {
@@ -32,7 +31,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
     return (
       <div
         className={cn(
-          "size-8 sm:size-9 rounded-xl bg-card border border-border flex items-center justify-center opacity-70 cursor-default",
+          "size-8 sm:size-9 rounded-full bg-card border border-border flex items-center justify-center opacity-70 cursor-default shrink-0",
           className,
         )}
         aria-hidden="true"
@@ -68,10 +67,20 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
     const y =
       rect.height > 0 ? rect.top + rect.height / 2 : window.innerHeight / 2;
 
-    const endRadius = Math.hypot(
-      Math.max(x, window.innerWidth - x),
-      Math.max(y, window.innerHeight - y),
-    );
+    // Viewport dimensions accounting for mobile PWA dynamic toolbars & safe areas
+    const viewportWidth =
+      typeof window !== "undefined"
+        ? Math.max(window.innerWidth, document.documentElement.clientWidth || 0)
+        : 800;
+    const viewportHeight =
+      typeof window !== "undefined"
+        ? Math.max(window.innerHeight, document.documentElement.clientHeight || 0)
+        : 600;
+
+    const maxX = Math.max(x, viewportWidth - x);
+    const maxY = Math.max(y, viewportHeight - y);
+    // Add extra padding to guarantee the circle completely clears the screen corners
+    const endRadius = Math.hypot(maxX, maxY) + 24;
 
     const transition = document.startViewTransition(() => {
       flushSync(() => {
@@ -81,21 +90,29 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
       });
     });
 
-    transition.ready.then(() => {
-      document.documentElement.animate(
-        {
-          clipPath: [
-            `circle(0px at ${x}px ${y}px)`,
-            `circle(${endRadius}px at ${x}px ${y}px)`,
-          ],
-        },
-        {
-          duration: THEME_TRANSITION_DURATION_MS,
-          easing: THEME_TRANSITION_EASING,
-          pseudoElement: "::view-transition-new(root)",
-        },
-      );
-    });
+    transition.ready
+      .then(() => {
+        try {
+          document.documentElement.animate(
+            {
+              clipPath: [
+                `circle(0px at ${x}px ${y}px)`,
+                `circle(${endRadius}px at ${x}px ${y}px)`,
+              ],
+            },
+            {
+              duration: THEME_TRANSITION_DURATION_MS,
+              easing: THEME_TRANSITION_EASING,
+              pseudoElement: "::view-transition-new(root)",
+            },
+          );
+        } catch {
+          // Gracefully fallback if WAAPI pseudoElement fails
+        }
+      })
+      .catch(() => {
+        // Transition skipped or aborted
+      });
   };
 
   return (
@@ -107,7 +124,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       title={isDark ? "Switch to light mode" : "Switch to dark mode"}
       className={cn(
-        "relative size-8 sm:size-9 rounded-xl bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-accent hover:border-border/90 active:bg-accent/80 transition-colors duration-200 cursor-pointer select-none flex items-center justify-center focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
+        "relative size-8 sm:size-9 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-accent hover:border-border/90 active:bg-accent/80 transition-colors duration-200 cursor-pointer select-none flex items-center justify-center shrink-0 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
         className,
       )}
     >

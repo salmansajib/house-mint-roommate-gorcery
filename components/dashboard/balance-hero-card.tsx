@@ -55,8 +55,8 @@ export function BalanceHeroCardSkeleton() {
 
         {/* Action Buttons Row */}
         <div className="flex flex-wrap gap-2.5 pt-2 border-t border-border/60">
-          <Skeleton className="h-10 w-36 rounded-xl" />
-          <Skeleton className="h-10 w-32 rounded-xl" />
+          <Skeleton className="h-12 w-36 rounded-xl" />
+          <Skeleton className="h-12 w-32 rounded-xl" />
         </div>
 
         {/* Peer Debts Row */}
@@ -119,7 +119,7 @@ export function BalanceHeroCard({
         }`}
       />
 
-      <CardContent className="p-4 sm:p-6 lg:p-8 space-y-6 relative z-10">
+      <CardContent className="p-4 sm:p-6 lg:p-7 space-y-6 relative z-10">
         <motion.div
           initial="hidden"
           animate="show"
@@ -225,7 +225,7 @@ export function BalanceHeroCard({
                 <Button
                   onClick={onOpenAddExpense}
                   size="lg"
-                  className="w-full sm:w-auto h-11 sm:h-12 bg-primary text-primary-foreground font-semibold shadow-lg shadow-primary/20 hover:bg-primary/90 gap-2 justify-center cursor-pointer"
+                  className="w-full sm:w-auto h-12 rounded-xl bg-primary text-primary-foreground font-semibold shadow-lg shadow-primary/20 hover:bg-primary/90 gap-2 justify-center cursor-pointer"
                 >
                   <PlusCircle className="size-5" />
                   <span>Add Expense</span>
@@ -241,7 +241,7 @@ export function BalanceHeroCard({
                   onClick={onOpenSettleUp}
                   variant="outline"
                   size="lg"
-                  className="w-full sm:w-auto h-11 sm:h-12 border-border hover:bg-accent hover:text-accent-foreground font-semibold gap-2 justify-center cursor-pointer"
+                  className="w-full sm:w-auto h-12 rounded-xl border-border hover:bg-accent hover:text-accent-foreground font-semibold gap-2 justify-center cursor-pointer"
                 >
                   <HandCoins className="size-5 text-emerald-400" />
                   <span>Settle Up</span>
@@ -271,10 +271,10 @@ export function BalanceHeroCard({
                 <motion.div
                   key={`${debt.from_user_id}-${debt.to_user_id}`}
                   variants={listItemVariants}
-                  className="p-2.5 rounded-xl bg-emerald-950/20 border border-emerald-500/25 flex items-center justify-between gap-2 text-xs transition-[background-color,border-color] duration-150 ease-out hover:bg-emerald-950/35 hover:border-emerald-500/40"
+                  className="p-3 rounded-xl bg-emerald-950/20 border border-emerald-500/25 flex items-center justify-between gap-2 text-xs transition-[background-color,border-color] duration-150 ease-out hover:bg-emerald-950/35 hover:border-emerald-500/40"
                 >
-                  <div className="flex items-center gap-2 min-w-0">
-                    <div className="size-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-[10px] shrink-0">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="size-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-[11px] shrink-0">
                       {getUserName(debt.from_user_id)[0]}
                     </div>
                     <span className="font-semibold text-emerald-300 truncate">
@@ -290,10 +290,10 @@ export function BalanceHeroCard({
                 <motion.div
                   key={`${debt.from_user_id}-${debt.to_user_id}`}
                   variants={listItemVariants}
-                  className="p-2.5 rounded-xl bg-rose-950/20 border border-rose-500/25 flex items-center justify-between gap-2 text-xs transition-[background-color,border-color] duration-150 ease-out hover:bg-rose-950/35 hover:border-rose-500/40"
+                  className="p-3 rounded-xl bg-rose-950/20 border border-rose-500/25 flex items-center justify-between gap-2 text-xs transition-[background-color,border-color] duration-150 ease-out hover:bg-rose-950/35 hover:border-rose-500/40"
                 >
-                  <div className="flex items-center gap-2 min-w-0">
-                    <div className="size-6 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold text-[10px] shrink-0">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="size-7 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold text-[11px] shrink-0">
                       {getUserName(debt.to_user_id)[0]}
                     </div>
                     <span className="font-semibold text-rose-300 truncate">

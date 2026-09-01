@@ -387,4 +387,5 @@ p {
 
 ::view-transition-new(root) {
   z-index: 9999;
+  will-change: clip-path;
 }

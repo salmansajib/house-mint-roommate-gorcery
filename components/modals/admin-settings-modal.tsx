@@ -379,38 +379,38 @@ export function AdminSettingsModal({
               onValueChange={(val) => setActiveTab(val as any)}
               className="w-full"
             >
-              <TabsList className="grid grid-cols-5 w-full h-auto p-1.5 bg-muted/60 border border-border rounded-lg gap-1 sm:gap-1.5">
+              <TabsList className="grid grid-cols-5 w-full h-auto p-1.5 bg-muted/60 border border-border rounded-xl gap-1 sm:gap-1.5">
                 <TabsTrigger
                   value="members"
-                  className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 px-1 sm:px-3 rounded-md text-xs sm:text-sm font-bold data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all cursor-pointer select-none focus-visible:ring-1 focus-visible:ring-primary/40"
+                  className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 px-1 sm:px-3 rounded-lg text-xs sm:text-sm font-bold data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all cursor-pointer select-none focus-visible:ring-1 focus-visible:ring-primary/40"
                 >
                   <Users className="size-4 shrink-0" />
                   <span className="whitespace-nowrap tracking-tight">Members</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="catalog"
-                  className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 px-1 sm:px-3 rounded-md text-xs sm:text-sm font-bold data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all cursor-pointer select-none focus-visible:ring-1 focus-visible:ring-primary/40"
+                  className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 px-1 sm:px-3 rounded-lg text-xs sm:text-sm font-bold data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all cursor-pointer select-none focus-visible:ring-1 focus-visible:ring-primary/40"
                 >
                   <ShoppingBag className="size-4 shrink-0" />
                   <span className="whitespace-nowrap tracking-tight">Catalog</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="vault"
-                  className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 px-1 sm:px-3 rounded-md text-xs sm:text-sm font-bold data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all cursor-pointer select-none focus-visible:ring-1 focus-visible:ring-primary/40"
+                  className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 px-1 sm:px-3 rounded-lg text-xs sm:text-sm font-bold data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all cursor-pointer select-none focus-visible:ring-1 focus-visible:ring-primary/40"
                 >
                   <Building className="size-4 shrink-0" />
                   <span className="whitespace-nowrap tracking-tight">Vault</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="policies"
-                  className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 px-1 sm:px-3 rounded-md text-xs sm:text-sm font-bold data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all cursor-pointer select-none focus-visible:ring-1 focus-visible:ring-primary/40"
+                  className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 px-1 sm:px-3 rounded-lg text-xs sm:text-sm font-bold data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all cursor-pointer select-none focus-visible:ring-1 focus-visible:ring-primary/40"
                 >
                   <Sliders className="size-4 shrink-0" />
                   <span className="whitespace-nowrap tracking-tight">Policies</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="audit"
-                  className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 px-1 sm:px-3 rounded-md text-xs sm:text-sm font-bold data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all cursor-pointer select-none focus-visible:ring-1 focus-visible:ring-primary/40"
+                  className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 px-1 sm:px-3 rounded-lg text-xs sm:text-sm font-bold data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all cursor-pointer select-none focus-visible:ring-1 focus-visible:ring-primary/40"
                 >
                   <Lock className="size-4 shrink-0" />
                   <span className="whitespace-nowrap tracking-tight">Audit</span>
@@ -869,7 +869,7 @@ export function AdminSettingsModal({
                         <select
                           value={itemUnit}
                           onChange={(e) => setItemUnit(e.target.value)}
-                          className="w-full h-8.5 bg-background border border-border rounded-md px-2.5 text-xs font-medium focus:ring-1 focus:ring-primary focus:outline-none cursor-pointer"
+                          className="w-full h-10 bg-background border border-border rounded-xl px-3 text-xs font-medium focus:ring-2 focus:ring-primary/40 focus:border-primary focus:outline-none cursor-pointer"
                         >
                           <option value="কেজি">কেজি (kg)</option>
                           <option value="গ্রাম">গ্রাম (gm)</option>
@@ -890,7 +890,7 @@ export function AdminSettingsModal({
                         <select
                           value={itemCategory}
                           onChange={(e) => setItemCategory(e.target.value)}
-                          className="w-full h-8.5 bg-background border border-border rounded-md px-2.5 text-xs font-medium focus:ring-1 focus:ring-primary focus:outline-none cursor-pointer"
+                          className="w-full h-10 bg-background border border-border rounded-xl px-3 text-xs font-medium focus:ring-2 focus:ring-primary/40 focus:border-primary focus:outline-none cursor-pointer"
                         >
                           <option value="staples">Staples & Grains (চাল, ডাল, আটা)</option>
                           <option value="vegetables">Vegetables (শাকসবজি)</option>
@@ -1396,7 +1396,7 @@ export function AdminSettingsModal({
                             ((Number(prev) || 0) + 500).toString()
                           )
                         }
-                        className="px-2 py-0.5 rounded-md bg-accent/80 hover:bg-accent text-[10px] font-mono font-semibold text-foreground border border-border/60 cursor-pointer transition-colors"
+                        className="h-6 px-2.5 rounded-full bg-accent/80 hover:bg-accent text-[10px] font-mono font-semibold text-foreground border border-border/60 cursor-pointer inline-flex items-center transition-colors"
                       >
                         +৳500
                       </button>
@@ -1407,7 +1407,7 @@ export function AdminSettingsModal({
                             ((Number(prev) || 0) + 1000).toString()
                           )
                         }
-                        className="px-2 py-0.5 rounded-md bg-accent/80 hover:bg-accent text-[10px] font-mono font-semibold text-foreground border border-border/60 cursor-pointer transition-colors"
+                        className="h-6 px-2.5 rounded-full bg-accent/80 hover:bg-accent text-[10px] font-mono font-semibold text-foreground border border-border/60 cursor-pointer inline-flex items-center transition-colors"
                       >
                         +৳1,000
                       </button>
@@ -1418,14 +1418,14 @@ export function AdminSettingsModal({
                             ((Number(prev) || 0) + 2000).toString()
                           )
                         }
-                        className="px-2 py-0.5 rounded-md bg-accent/80 hover:bg-accent text-[10px] font-mono font-semibold text-foreground border border-border/60 cursor-pointer transition-colors"
+                        className="h-6 px-2.5 rounded-full bg-accent/80 hover:bg-accent text-[10px] font-mono font-semibold text-foreground border border-border/60 cursor-pointer inline-flex items-center transition-colors"
                       >
                         +৳2,000
                       </button>
                       <button
                         type="button"
                         onClick={() => setEmergencyBalance("0")}
-                        className="px-2 py-0.5 rounded-md text-[10px] font-mono text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer ml-auto transition-colors"
+                        className="h-6 px-2.5 rounded-full text-[10px] font-mono text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer ml-auto inline-flex items-center transition-colors"
                       >
                         Reset to ৳0
                       </button>

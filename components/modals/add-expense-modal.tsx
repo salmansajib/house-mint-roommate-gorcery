@@ -481,7 +481,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                 <div className="grid grid-cols-12 gap-2.5">
                   <div className="col-span-5">
                     <div className="relative">
-                      <span className="absolute left-2.5 top-2.5 text-[10px] text-muted-foreground font-semibold">Qty:</span>
+                      <span className="absolute left-3 top-3 text-[10px] text-muted-foreground font-semibold">Qty:</span>
                       <Input
                         type="number"
                         inputMode="decimal"
@@ -489,7 +489,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                         placeholder="e.g. 2.5"
                         value={singleQuantity}
                         onChange={(e) => setSingleQuantity(e.target.value)}
-                        className="h-9 pl-10 text-xs font-numeral bg-card rounded-lg border-border focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                        className="h-10 pl-10 text-xs font-numeral bg-card rounded-xl border-border focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                       />
                     </div>
                   </div>
@@ -499,7 +499,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                       <select
                         value={singleUnit}
                         onChange={(e) => setSingleUnit(e.target.value)}
-                        className="w-full h-9 bg-card border border-border rounded-lg pl-3 pr-8 text-xs font-medium focus:ring-2 focus:ring-primary/40 focus:border-primary focus:outline-none transition-all cursor-pointer appearance-none"
+                        className="w-full h-10 bg-card border border-border rounded-xl pl-3.5 pr-8 text-xs font-medium focus:ring-2 focus:ring-primary/40 focus:border-primary focus:outline-none transition-all cursor-pointer appearance-none"
                       >
                         {COMMON_QUANTITY_UNITS.map((u) => (
                           <option key={u.value} value={u.value}>
@@ -520,7 +520,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                       key={chip}
                       type="button"
                       onClick={() => setSingleUnit(chip)}
-                      className={`px-2 py-0.5 text-[10px] rounded-md font-semibold border transition-all cursor-pointer shrink-0 ${
+                      className={`h-6 px-2.5 text-[10px] rounded-full font-semibold border inline-flex items-center justify-center transition-all cursor-pointer shrink-0 ${
                         singleUnit === chip
                           ? "bg-primary text-primary-foreground border-primary"
                           : "bg-card text-muted-foreground border-border hover:text-foreground hover:bg-accent"
@@ -644,10 +644,10 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
               )}
 
               <DialogFooter className="pt-3 pb-1 gap-2 flex-col-reverse sm:flex-row">
-                <Button type="button" variant="outline" size="sm" onClick={onClose} className="h-10 rounded-xl">
+                <Button type="button" variant="outline" size="lg" onClick={onClose} className="h-11 sm:h-12 rounded-xl">
                   Cancel
                 </Button>
-                <Button type="submit" size="sm" className="h-10 rounded-xl bg-primary text-primary-foreground font-semibold shadow-sm hover:opacity-90 transition-opacity">
+                <Button type="submit" size="lg" className="h-11 sm:h-12 rounded-xl bg-primary text-primary-foreground font-semibold shadow-sm hover:opacity-90 transition-opacity">
                   Save Expense
                 </Button>
               </DialogFooter>
@@ -797,7 +797,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                         setComposerUnit(stdUnit);
                       }
                     }}
-                    className="h-9 text-xs bg-card border-border rounded-lg"
+                    className="h-10 text-xs bg-card border-border rounded-xl"
                   />
                 </div>
 
@@ -805,7 +805,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                 <div className="grid grid-cols-12 gap-2 items-center">
                   <div className="col-span-3 sm:col-span-3">
                     <div className="relative">
-                      <span className="absolute left-2.5 top-2.5 text-[9px] text-muted-foreground font-semibold">Qty:</span>
+                      <span className="absolute left-2.5 top-3 text-[9px] text-muted-foreground font-semibold">Qty:</span>
                       <Input
                         type="number"
                         inputMode="decimal"
@@ -819,7 +819,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                             handleAddOrUpdateItem();
                           }
                         }}
-                        className="h-9 pl-9 text-xs bg-card font-numeral rounded-lg text-center border-border focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                        className="h-10 pl-9 text-xs bg-card font-numeral rounded-xl text-center border-border focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                         min="0.01"
                       />
                     </div>
@@ -830,7 +830,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                       <select
                         value={composerUnit}
                         onChange={(e) => setComposerUnit(e.target.value)}
-                        className="w-full h-9 bg-card border border-border rounded-lg pl-2.5 pr-7 text-xs font-medium focus:ring-2 focus:ring-primary/40 focus:border-primary focus:outline-none transition-all cursor-pointer appearance-none"
+                        className="w-full h-10 bg-card border border-border rounded-xl pl-2.5 pr-7 text-xs font-medium focus:ring-2 focus:ring-primary/40 focus:border-primary focus:outline-none transition-all cursor-pointer appearance-none"
                       >
                         {COMMON_QUANTITY_UNITS.map((u) => (
                           <option key={u.value} value={u.value}>
@@ -844,7 +844,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
 
                   <div className="col-span-5 sm:col-span-3">
                     <div className="relative">
-                      <span className="absolute left-2.5 top-2 text-[10px] text-muted-foreground font-semibold">৳</span>
+                      <span className="absolute left-2.5 top-2.5 text-[10px] text-muted-foreground font-semibold">৳</span>
                       <Input
                         type="number"
                         inputMode="decimal"
@@ -858,7 +858,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                             handleAddOrUpdateItem();
                           }
                         }}
-                        className="h-9 pl-6 text-xs bg-card font-numeral font-bold rounded-lg border-border focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                        className="h-10 pl-6 text-xs bg-card font-numeral font-bold rounded-xl border-border focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                       />
                     </div>
                   </div>
@@ -868,7 +868,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                       type="button"
                       onClick={handleAddOrUpdateItem}
                       disabled={!composerName.trim() || !(parseFloat(composerPrice) > 0)}
-                      className="w-full h-9 text-xs font-semibold rounded-lg bg-primary text-primary-foreground shadow-xs hover:opacity-90 transition-opacity cursor-pointer flex items-center justify-center gap-1.5"
+                      className="w-full h-10 text-xs font-semibold rounded-xl bg-primary text-primary-foreground shadow-xs hover:opacity-90 transition-opacity cursor-pointer flex items-center justify-center gap-1.5"
                     >
                       {editingItemId ? (
                         <>
@@ -1010,14 +1010,14 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
               </div>
 
               <DialogFooter className="pt-2 pb-1 gap-2 flex-col-reverse sm:flex-row">
-                <Button type="button" variant="outline" size="sm" onClick={onClose} className="h-10 rounded-xl">
+                <Button type="button" variant="outline" size="lg" onClick={onClose} className="h-11 sm:h-12 rounded-xl">
                   Cancel
                 </Button>
                 <Button
                   type="submit"
-                  size="sm"
+                  size="lg"
                   disabled={groceryTotal <= 0}
-                  className="h-10 rounded-xl bg-primary text-primary-foreground font-semibold shadow-sm hover:opacity-90 transition-opacity"
+                  className="h-11 sm:h-12 rounded-xl bg-primary text-primary-foreground font-semibold shadow-sm hover:opacity-90 transition-opacity"
                 >
                   Save Grocery Trip
                 </Button>

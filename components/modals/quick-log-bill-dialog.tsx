@@ -138,7 +138,7 @@ export function QuickLogBillDialog({
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0"
-                className="pl-8 text-base font-numeral font-bold tracking-tight bg-background border-border"
+                className="h-10 pl-8 text-sm font-numeral font-bold tracking-tight bg-background border-border rounded-xl"
                 autoFocus
               />
             </div>
@@ -157,7 +157,7 @@ export function QuickLogBillDialog({
                     key={u.id}
                     type="button"
                     onClick={() => setPayerId(u.id)}
-                    className={`flex items-center gap-2 p-2 rounded-xl border text-xs font-medium transition-colors text-left cursor-pointer ${
+                    className={`flex items-center gap-2 p-2.5 rounded-xl border text-xs font-medium transition-colors text-left cursor-pointer ${
                       isSelected
                         ? "bg-accent border-primary text-foreground ring-1 ring-primary"
                         : "bg-background/60 border-border/80 text-muted-foreground hover:bg-muted"
@@ -182,7 +182,7 @@ export function QuickLogBillDialog({
               required
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="bg-background border-border text-xs"
+              className="h-10 bg-background border-border text-xs rounded-xl"
             />
           </div>
 
@@ -204,19 +204,21 @@ export function QuickLogBillDialog({
             </div>
           </div>
 
-          <DialogFooter className="gap-2 sm:gap-0 pt-2">
+          <DialogFooter className="gap-2 sm:gap-2 pt-2 flex-col-reverse sm:flex-row">
             <Button
               type="button"
               variant="outline"
+              size="lg"
               onClick={onClose}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto h-11 sm:h-12 rounded-xl"
             >
               Cancel
             </Button>
             <Button
               type="submit"
+              size="lg"
               disabled={isSubmitting || numAmount <= 0}
-              className="w-full sm:w-auto gap-2 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold cursor-pointer"
+              className="w-full sm:w-auto h-11 sm:h-12 rounded-xl gap-2 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold cursor-pointer"
             >
               <CheckCircle2 className="size-4" />
               <span>Confirm & Log Expense</span>

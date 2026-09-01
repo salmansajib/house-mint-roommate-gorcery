@@ -22,13 +22,13 @@ const ICON_MAP: Record<string, React.ElementType> = {
 export function CategoryBreakdownSkeleton() {
   return (
     <Card className="h-full border-border bg-card">
-      <CardHeader className="pb-3">
+      <CardHeader className="p-4 sm:p-5 pb-3">
         <div className="space-y-1.5">
           <Skeleton className="h-5 w-40" />
           <Skeleton className="h-3 w-52" />
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="p-4 sm:p-5 pt-0 space-y-3">
         {[1, 2, 3, 4, 5].map((i) => (
           <div key={i} className="space-y-2 p-2 rounded-xl bg-card/60 border border-border/50">
             <div className="flex items-center justify-between">
@@ -56,7 +56,7 @@ export function CategoryBreakdown() {
 
   return (
     <Card className="h-full border-border bg-card">
-      <CardHeader className="pb-3">
+      <CardHeader className="p-4 sm:p-5 pb-3">
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-base font-bold">Category Breakdown</CardTitle>
@@ -76,7 +76,7 @@ export function CategoryBreakdown() {
           )}
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="p-4 sm:p-5 pt-0 space-y-3">
         {categoryBreakdown.length === 0 ? (
           <div className="py-8 text-center text-xs text-muted-foreground">
             No expenses logged for this filter.
@@ -102,7 +102,7 @@ export function CategoryBreakdown() {
                       selectedCategory === item.category ? "all" : item.category
                     )
                   }
-                  className={`group p-2.5 rounded-xl border cursor-pointer select-none transition-[background-color,border-color,box-shadow] duration-150 ease-out ${
+                  className={`group p-3 rounded-xl border cursor-pointer select-none transition-[background-color,border-color,box-shadow] duration-150 ease-out ${
                     isSelected
                       ? "bg-primary/10 border-primary ring-1 ring-primary/30"
                       : "bg-accent/20 border-border/40 hover:bg-accent/40 hover:border-border/80"
@@ -111,13 +111,13 @@ export function CategoryBreakdown() {
                   <div className="flex items-center justify-between gap-3 mb-2">
                     <div className="flex items-center gap-2.5">
                       <div
-                        className={`size-7 rounded-lg border flex items-center justify-center transition-colors duration-150 ${
+                        className={`size-8 rounded-lg border flex items-center justify-center transition-colors duration-150 ${
                           isSelected
                             ? "bg-primary text-primary-foreground border-primary"
                             : "bg-card border-border/80 text-muted-foreground group-hover:text-foreground group-hover:border-border"
                         }`}
                       >
-                        <Icon className="size-3.5" />
+                        <Icon className="size-4" />
                       </div>
                       <div>
                         <span

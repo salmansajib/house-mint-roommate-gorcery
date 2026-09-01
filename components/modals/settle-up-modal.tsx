@@ -113,7 +113,7 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="w-[95vw] sm:max-w-md bg-card border-border rounded-2xl p-4 sm:p-6 shadow-2xl">
+      <DialogContent className="w-[calc(100%-1.25rem)] sm:max-w-md bg-card border-border rounded-2xl p-4 sm:p-6 shadow-2xl">
         <DialogHeader className="text-left">
           <div className="flex items-center gap-2 text-emerald-400 mb-1">
             <HandCoins className="size-5" />
@@ -223,13 +223,13 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
           </div>
 
           <DialogFooter className="pt-2 gap-2 flex-col-reverse sm:flex-row">
-            <Button type="button" variant="outline" size="sm" onClick={onClose} className="h-10 rounded-xl">
+            <Button type="button" variant="outline" size="lg" onClick={onClose} className="h-11 sm:h-12 rounded-xl">
               Cancel
             </Button>
             <Button
               type="submit"
-              size="sm"
-              className="h-10 rounded-xl bg-primary text-primary-foreground font-semibold shadow-sm hover:opacity-90 transition-opacity"
+              size="lg"
+              className="h-11 sm:h-12 rounded-xl bg-primary text-primary-foreground font-semibold shadow-sm hover:opacity-90 transition-opacity"
             >
               Record Payment
             </Button>

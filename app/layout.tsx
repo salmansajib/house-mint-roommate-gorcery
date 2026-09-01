@@ -20,7 +20,7 @@ const jetbrainsMono = JetBrains_Mono({
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: dark)", color: "#080c0a" },
-    { media: "(prefers-color-scheme: light)", color: "#f8faf9" },
+    { media: "(prefers-color-scheme: light)", color: "#f6f7f4" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -76,9 +76,8 @@ export default function RootLayout({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="system"
           enableSystem
-          disableTransitionOnChange
         >
           <AuthProvider>
             {children}

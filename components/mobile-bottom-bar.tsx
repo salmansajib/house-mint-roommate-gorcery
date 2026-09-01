@@ -26,7 +26,7 @@ export function MobileBottomBar({
         <motion.div whileTap={{ scale: 0.96 }}>
           <Button
             onClick={onOpenAddExpense}
-            className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-bold shadow-md shadow-primary/20 gap-2 justify-center text-xs cursor-pointer"
+            className="w-full h-12 rounded-full bg-primary text-primary-foreground font-bold shadow-md shadow-primary/20 gap-2 justify-center text-xs cursor-pointer"
           >
             <PlusCircle className="size-4" />
             <span>Add Expense</span>
@@ -36,7 +36,7 @@ export function MobileBottomBar({
           <Button
             onClick={onOpenSettleUp}
             variant="outline"
-            className="w-full h-11 rounded-xl border-border bg-card/90 font-bold gap-2 justify-center text-xs text-foreground cursor-pointer"
+            className="w-full h-12 rounded-full border-border bg-card/90 font-bold gap-2 justify-center text-xs text-foreground cursor-pointer"
           >
             <HandCoins className="size-4 text-emerald-400" />
             <span>Settle Up</span>
