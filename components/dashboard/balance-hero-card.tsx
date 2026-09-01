@@ -25,7 +25,7 @@ interface BalanceHeroCardProps {
 
 export function BalanceHeroCardSkeleton() {
   return (
-    <Card className="relative overflow-hidden border-border/80 bg-gradient-to-b from-card via-card to-card/70 shadow-xl">
+    <Card className="relative overflow-hidden border-border bg-card">
       <CardContent className="p-4 sm:p-6 lg:p-7 space-y-5">
         {/* Top Header Strip Skeleton */}
         <div className="flex items-center justify-between gap-3">
@@ -104,7 +104,7 @@ export function BalanceHeroCard({
   }
 
   return (
-    <Card className="relative overflow-hidden border-border/80 bg-gradient-to-b from-card via-card to-card/70 shadow-xl">
+    <Card className="relative overflow-hidden border-border bg-card">
       {/* Dynamic ambient gradient glow */}
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
@@ -190,7 +190,7 @@ export function BalanceHeroCard({
                 variants={heroItemVariants}
                 className="pt-1 grid grid-cols-1 xs:grid-cols-2 gap-2.5 sm:gap-4 max-w-xl"
               >
-                <div className="flex items-center gap-2.5 bg-accent/40 border border-border/70 p-2.5 sm:p-3 rounded-xl transition-[transform,background-color,border-color] duration-200 ease-out hover:bg-accent/60 hover:border-border hover:-translate-y-0.5">
+                <div className="flex items-center gap-2.5 bg-accent/40 border border-border/70 p-2.5 sm:p-3 rounded-xl transition-[background-color,border-color] duration-150 ease-out hover:bg-accent/60 hover:border-border">
                   <div className="size-7 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
                     <ArrowUpRight className="size-4" />
                   </div>
@@ -200,7 +200,7 @@ export function BalanceHeroCard({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2.5 bg-accent/40 border border-border/70 p-2.5 sm:p-3 rounded-xl transition-[transform,background-color,border-color] duration-200 ease-out hover:bg-accent/60 hover:border-border hover:-translate-y-0.5">
+                <div className="flex items-center gap-2.5 bg-accent/40 border border-border/70 p-2.5 sm:p-3 rounded-xl transition-[background-color,border-color] duration-150 ease-out hover:bg-accent/60 hover:border-border">
                   <div className="size-7 rounded-lg bg-rose-500/15 text-rose-400 flex items-center justify-center shrink-0">
                     <ArrowDownLeft className="size-4" />
                   </div>
@@ -271,7 +271,7 @@ export function BalanceHeroCard({
                 <motion.div
                   key={`${debt.from_user_id}-${debt.to_user_id}`}
                   variants={listItemVariants}
-                  className="p-2.5 rounded-xl bg-emerald-950/20 border border-emerald-500/25 flex items-center justify-between gap-2 text-xs transition-[transform,background-color,border-color] duration-200 ease-out hover:bg-emerald-950/35 hover:border-emerald-500/40 hover:-translate-y-0.5"
+                  className="p-2.5 rounded-xl bg-emerald-950/20 border border-emerald-500/25 flex items-center justify-between gap-2 text-xs transition-[background-color,border-color] duration-150 ease-out hover:bg-emerald-950/35 hover:border-emerald-500/40"
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <div className="size-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-[10px] shrink-0">
@@ -290,7 +290,7 @@ export function BalanceHeroCard({
                 <motion.div
                   key={`${debt.from_user_id}-${debt.to_user_id}`}
                   variants={listItemVariants}
-                  className="p-2.5 rounded-xl bg-rose-950/20 border border-rose-500/25 flex items-center justify-between gap-2 text-xs transition-[transform,background-color,border-color] duration-200 ease-out hover:bg-rose-950/35 hover:border-rose-500/40 hover:-translate-y-0.5"
+                  className="p-2.5 rounded-xl bg-rose-950/20 border border-rose-500/25 flex items-center justify-between gap-2 text-xs transition-[background-color,border-color] duration-150 ease-out hover:bg-rose-950/35 hover:border-rose-500/40"
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <div className="size-6 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold text-[10px] shrink-0">

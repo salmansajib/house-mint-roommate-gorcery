@@ -394,7 +394,7 @@ export default function LoginPage() {
         {/* Main Card with Spring Height Morphing & Segmented Slider */}
         <motion.div
           variants={cardContainerVariants}
-          className="border border-border/80 bg-card/90 backdrop-blur-md shadow-xl rounded-xl overflow-hidden"
+          className="border border-border bg-card rounded-xl overflow-hidden"
         >
           <CardHeader className="p-5 pb-3">
             {isInviteMode && (

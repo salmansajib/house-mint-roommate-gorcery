@@ -25,7 +25,11 @@ import {
   ArrowRight,
   Plus,
 } from "lucide-react";
-import { listItemVariants, listContainerVariants } from "@/lib/animations";
+import {
+  listItemVariants,
+  listContainerVariants,
+  smoothLayoutTransition,
+} from "@/lib/animations";
 
 interface RecurringBillsCardProps {
   onOpenManager: () => void;
@@ -43,7 +47,7 @@ const CATEGORY_ICONS = {
 
 export function RecurringBillsCardSkeleton() {
   return (
-    <Card className="border-border/80 shadow-md">
+    <Card className="border-border bg-card">
       <CardHeader className="p-4 sm:p-5 pb-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
@@ -109,7 +113,7 @@ export function RecurringBillsCard({
 
   if (recurringBillStatuses.length === 0) {
     return (
-      <Card className="border-dashed border-border/80 bg-card/60 p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+      <Card className="border-dashed border-border bg-card/60 p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="size-9 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shrink-0">
             <CalendarClock className="size-4" />
@@ -136,7 +140,7 @@ export function RecurringBillsCard({
   }
 
   return (
-    <Card className="border-border/80 bg-gradient-to-b from-card via-card to-card/90 shadow-md overflow-hidden">
+    <Card className="border-border bg-card overflow-hidden">
       <CardHeader className="p-4 sm:p-5 pb-3 border-b border-border/60">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex items-center gap-2.5">
@@ -216,8 +220,10 @@ export function RecurringBillsCard({
             return (
               <motion.div
                 key={bill.id}
+                layout="position"
                 variants={listItemVariants}
-                className={`p-3 rounded-xl border transition-all flex flex-col justify-between gap-3 ${
+                transition={smoothLayoutTransition}
+                className={`p-3 rounded-xl border transition-[background-color,border-color] duration-150 ease-out flex flex-col justify-between gap-3 ${
                   status === "overdue"
                     ? "border-destructive/40 bg-destructive/5 hover:border-destructive/60"
                     : status === "due_today" || status === "due_soon"

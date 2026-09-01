@@ -21,7 +21,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
 
 export function CategoryBreakdownSkeleton() {
   return (
-    <Card className="h-full border-border/80">
+    <Card className="h-full border-border bg-card">
       <CardHeader className="pb-3">
         <div className="space-y-1.5">
           <Skeleton className="h-5 w-40" />
@@ -55,7 +55,7 @@ export function CategoryBreakdown() {
   }
 
   return (
-    <Card className="h-full border-border/80">
+    <Card className="h-full border-border bg-card">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div>
@@ -102,19 +102,31 @@ export function CategoryBreakdown() {
                       selectedCategory === item.category ? "all" : item.category
                     )
                   }
-                  className={`group p-2.5 rounded-xl border cursor-pointer select-none transition-[transform,background-color,border-color] duration-200 ease-out hover:translate-x-1 hover:bg-accent/40 hover:border-border/80 ${
+                  className={`group p-2.5 rounded-xl border cursor-pointer select-none transition-[background-color,border-color,box-shadow] duration-150 ease-out ${
                     isSelected
-                      ? "bg-accent/60 border-primary/40 shadow-xs"
-                      : "bg-accent/20 border-border/40"
+                      ? "bg-primary/10 border-primary ring-1 ring-primary/30"
+                      : "bg-accent/20 border-border/40 hover:bg-accent/40 hover:border-border/80"
                   }`}
                 >
                   <div className="flex items-center justify-between gap-3 mb-2">
                     <div className="flex items-center gap-2.5">
-                      <div className="size-7 rounded-lg bg-card border border-border/80 flex items-center justify-center text-muted-foreground group-hover:text-foreground transition-colors">
+                      <div
+                        className={`size-7 rounded-lg border flex items-center justify-center transition-colors duration-150 ${
+                          isSelected
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-card border-border/80 text-muted-foreground group-hover:text-foreground group-hover:border-border"
+                        }`}
+                      >
                         <Icon className="size-3.5" />
                       </div>
                       <div>
-                        <span className="text-xs font-semibold text-foreground">
+                        <span
+                          className={`text-xs ${
+                            isSelected
+                              ? "font-bold text-foreground"
+                              : "font-semibold text-foreground"
+                          }`}
+                        >
                           {item.label}
                         </span>
                         <span className="text-[11px] text-muted-foreground ml-2">

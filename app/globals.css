@@ -60,60 +60,60 @@
 }
 
 .light {
-  --background: #f8faf9;
-  --foreground: #0f172a;
+  --background: #f6f7f4;
+  --foreground: #18221d;
 
   --card: #ffffff;
-  --card-foreground: #0f172a;
+  --card-foreground: #18221d;
 
   --popover: #ffffff;
-  --popover-foreground: #0f172a;
+  --popover-foreground: #18221d;
 
-  --primary: #059669;
+  --primary: #137847;
   --primary-foreground: #ffffff;
 
-  --secondary: #ecfdf5;
-  --secondary-foreground: #065f46;
+  --secondary: #edf4ee;
+  --secondary-foreground: #14532d;
 
-  --muted: #f1f5f3;
-  --muted-foreground: #64748b;
+  --muted: #eff2ed;
+  --muted-foreground: #5e6e65;
 
-  --accent: #e6f7f0;
-  --accent-foreground: #0f172a;
+  --accent: #e7eee8;
+  --accent-foreground: #18221d;
 
-  --destructive: #e11d48;
+  --destructive: #c93434;
   --destructive-foreground: #ffffff;
 
-  --positive: #059669;
+  --positive: #137847;
   --positive-foreground: #ffffff;
 
-  --warning: #d97706;
+  --warning: #b86e08;
   --warning-foreground: #ffffff;
 
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #059669;
+  --border: #e0e5de;
+  --input: #e0e5de;
+  --ring: #137847;
 
   --radius: 0.75rem;
 
   /* Category colors */
-  --cat-groceries: #059669;
-  --cat-rent: #6366f1;
-  --cat-electricity: #d97706;
-  --cat-gas: #ea580c;
-  --cat-internet: #0284c7;
-  --cat-other: #71717a;
+  --cat-groceries: #137847;
+  --cat-rent: #4b5e99;
+  --cat-electricity: #b86e08;
+  --cat-gas: #be5527;
+  --cat-internet: #157e9b;
+  --cat-other: #64726b;
 
   /* Roommate Identity Accents & Scalable OKLCH Base */
-  --user-l: 42%;
-  --user-1: #0891b2;
-  --user-2: #9333ea;
-  --user-3: #d97706;
-  --user-4: #059669;
-  --user-5: #db2777;
-  --user-6: #4f46e5;
-  --user-7: #0d9488;
-  --user-8: #ea580c;
+  --user-l: 40%;
+  --user-1: #0e7490;
+  --user-2: #7e22ce;
+  --user-3: #a16207;
+  --user-4: #15803d;
+  --user-5: #be185d;
+  --user-6: #4338ca;
+  --user-7: #0f766e;
+  --user-8: #c2410c;
 }
 
 @theme inline {
@@ -309,15 +309,15 @@ p {
 }
 
 .light * {
-  scrollbar-color: rgba(0, 0, 0, 0.18) transparent;
+  scrollbar-color: rgba(24, 34, 29, 0.18) transparent;
 }
 
 .light ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.18);
+  background: rgba(24, 34, 29, 0.18);
 }
 
 .light ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.32);
+  background: rgba(24, 34, 29, 0.32);
 }
 
 /* Utility classes for specific scrollbar needs */
@@ -350,4 +350,41 @@ p {
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(16, 185, 129, 0.5);
+}
+
+/* ==========================================================================
+   Smooth Micro-Interactions & Ambient Highlight Pulse
+   ========================================================================== */
+@keyframes rowPulseHighlight {
+  0% {
+    background-color: color-mix(in oklch, var(--primary) 16%, transparent);
+    border-color: color-mix(in oklch, var(--primary) 45%, transparent);
+    box-shadow: 0 0 16px -4px color-mix(in oklch, var(--primary) 20%, transparent);
+  }
+  100% {
+    background-color: transparent;
+    border-color: var(--border);
+    box-shadow: none;
+  }
+}
+
+.animate-row-highlight {
+  animation: rowPulseHighlight 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ==========================================================================
+   Circular Reveal View Transition for Theme Toggle
+   ========================================================================== */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
 }

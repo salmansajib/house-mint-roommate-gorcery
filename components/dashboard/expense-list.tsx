@@ -21,6 +21,7 @@ import {
 import { CATEGORY_META } from "@/lib/balance";
 import { Expense } from "@/types";
 import { toast } from "@/components/ui/sonner";
+import { cn } from "@/lib/utils";
 import {
   ShoppingBag,
   Home,
@@ -85,12 +86,15 @@ const ICON_MAP: Record<string, React.ElementType> = {
 import {
   listContainerVariants,
   listItemVariants,
+  listExitVariants,
+  smoothLayoutTransition,
+  pillSlideTransition,
   premiumEase,
 } from "@/lib/animations";
 
 export function ExpenseListSkeleton() {
   return (
-    <Card className="border-border/80">
+    <Card className="border-border bg-card">
       <CardHeader className="pb-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="space-y-1.5">
@@ -154,6 +158,15 @@ export function ExpenseList() {
   // State for edit and delete dialogs
   const [expenseToDelete, setExpenseToDelete] = React.useState<Expense | null>(null);
   const [expenseToEdit, setExpenseToEdit] = React.useState<Expense | null>(null);
+  const [recentlyUpdatedId, setRecentlyUpdatedId] = React.useState<string | null>(null);
+
+  const handleExpenseUpdated = React.useCallback((id: string) => {
+    setRecentlyUpdatedId(id);
+    const timer = setTimeout(() => {
+      setRecentlyUpdatedId((curr) => (curr === id ? null : curr));
+    }, 1400);
+    return () => clearTimeout(timer);
+  }, []);
 
   const toggleExpand = (id: string) => {
     setExpandedExpenseIds((prev) => ({
@@ -191,7 +204,7 @@ export function ExpenseList() {
 
   return (
     <>
-      <Card className="h-full flex flex-col border-border/80">
+      <Card className="h-full flex flex-col border-border bg-card">
         <CardHeader className="p-4 sm:p-5 pb-3 sm:pb-4 space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
@@ -233,13 +246,20 @@ export function ExpenseList() {
           <div className="flex items-center gap-1.5 overflow-x-auto pt-1 pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar">
             <button
               onClick={() => setSelectedCategory("all")}
-              className={`px-3 py-1.5 text-xs rounded-xl font-semibold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
+              className={`relative px-3 py-1.5 text-xs rounded-xl font-semibold whitespace-nowrap transition-colors shrink-0 cursor-pointer ${
                 selectedCategory === "all"
-                  ? "bg-primary text-primary-foreground shadow-xs"
-                  : "bg-accent/40 text-muted-foreground hover:text-foreground hover:bg-accent/70"
+                  ? "text-primary-foreground font-bold"
+                  : "bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/50"
               }`}
             >
-              All Categories
+              {selectedCategory === "all" && (
+                <motion.span
+                  layoutId="activeExpenseCategoryPill"
+                  className="absolute inset-0 bg-primary rounded-xl z-0"
+                  transition={pillSlideTransition}
+                />
+              )}
+              <span className="relative z-10">All Categories</span>
             </button>
             {(Object.keys(CATEGORY_META) as (keyof typeof CATEGORY_META)[]).map(
               (cat) => {
@@ -248,13 +268,20 @@ export function ExpenseList() {
                   <button
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
-                    className={`px-3 py-1.5 text-xs rounded-xl font-semibold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
+                    className={`relative px-3 py-1.5 text-xs rounded-xl font-semibold whitespace-nowrap transition-colors shrink-0 cursor-pointer ${
                       isSelected
-                        ? "bg-primary text-primary-foreground shadow-xs"
-                        : "bg-accent/40 text-muted-foreground hover:text-foreground hover:bg-accent/70"
+                        ? "text-primary-foreground font-bold"
+                        : "bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/50"
                     }`}
                   >
-                    {CATEGORY_META[cat].label}
+                    {isSelected && (
+                      <motion.span
+                        layoutId="activeExpenseCategoryPill"
+                        className="absolute inset-0 bg-primary rounded-xl z-0"
+                        transition={pillSlideTransition}
+                      />
+                    )}
+                    <span className="relative z-10">{CATEGORY_META[cat].label}</span>
                   </button>
                 );
               }
@@ -275,39 +302,44 @@ export function ExpenseList() {
                 variants={listContainerVariants}
                 className="space-y-2"
               >
-                {settlements.map((s) => (
-                  <motion.div
-                    key={s.id}
-                    variants={listItemVariants}
-                    className="p-3 rounded-xl border border-emerald-500/20 bg-emerald-950/20 flex flex-col xs:flex-row xs:items-center justify-between gap-2 text-xs transition-[background-color,border-color,transform] duration-200 ease-out hover:bg-emerald-950/35 hover:border-emerald-500/35 hover:-translate-y-0.5"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <div className="size-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold shrink-0">
-                        ✓
+                <AnimatePresence mode="popLayout" initial={false}>
+                  {settlements.map((s) => (
+                    <motion.div
+                      key={s.id}
+                      layout="position"
+                      variants={listItemVariants}
+                      exit="exit"
+                      transition={smoothLayoutTransition}
+                      className="p-3 rounded-xl border border-emerald-500/20 bg-emerald-950/20 flex flex-col xs:flex-row xs:items-center justify-between gap-2 text-xs transition-[background-color,border-color] duration-150 ease-out hover:bg-emerald-950/35 hover:border-emerald-500/35"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div className="size-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold shrink-0">
+                          ✓
+                        </div>
+                        <div className="min-w-0">
+                          <span className="font-semibold text-emerald-300 block truncate">
+                            {getUserName(s.payer_id)} paid {getUserName(s.receiver_id)}
+                          </span>
+                          <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
+                            {(() => {
+                              const dt = formatExpenseDateTime(s.date, s.created_at);
+                              return (
+                                <span>
+                                  {dt.date}
+                                  {dt.time ? ` at ${dt.time}` : ""}
+                                </span>
+                              );
+                            })()}
+                            {s.notes && <span>• {s.notes}</span>}
+                          </p>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <span className="font-semibold text-emerald-300 block truncate">
-                          {getUserName(s.payer_id)} paid {getUserName(s.receiver_id)}
-                        </span>
-                        <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
-                          {(() => {
-                            const dt = formatExpenseDateTime(s.date, s.created_at);
-                            return (
-                              <span>
-                                {dt.date}
-                                {dt.time ? ` at ${dt.time}` : ""}
-                              </span>
-                            );
-                          })()}
-                          {s.notes && <span>• {s.notes}</span>}
-                        </p>
+                      <div className="self-end xs:self-center">
+                        <CurrencyAmount amount={s.amount} intent="positive" size="sm" className="font-bold" />
                       </div>
-                    </div>
-                    <div className="self-end xs:self-center">
-                      <CurrencyAmount amount={s.amount} intent="positive" size="sm" className="font-bold" />
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </motion.div>
             </div>
           )}
@@ -315,9 +347,9 @@ export function ExpenseList() {
           {/* Expenses List */}
           {expenses.length === 0 ? (
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.22, ease: premiumEase }}
               className="py-12 text-center text-muted-foreground text-xs space-y-2"
             >
               <Receipt className="size-8 mx-auto opacity-40" />
@@ -331,121 +363,131 @@ export function ExpenseList() {
               variants={listContainerVariants}
               className="space-y-2.5"
             >
-              {expenses.map((expense) => {
-                const meta = CATEGORY_META[expense.category];
-                const Icon = ICON_MAP[meta?.icon || "Tag"] || Tag;
-                const isPayer = expense.paid_by === currentUser.id;
-                const canManage = isPayer || currentUser.role === "admin";
-                const payerName = getUserName(expense.paid_by);
-                const isItemized =
-                  Boolean(expense.items && expense.items.length > 0);
-                const isExpanded = expandedExpenseIds[expense.id];
+              <AnimatePresence mode="popLayout" initial={false}>
+                {expenses.map((expense) => {
+                  const meta = CATEGORY_META[expense.category];
+                  const Icon = ICON_MAP[meta?.icon || "Tag"] || Tag;
+                  const isPayer = expense.paid_by === currentUser.id;
+                  const canManage = isPayer || currentUser.role === "admin";
+                  const payerName = getUserName(expense.paid_by);
+                  const isItemized =
+                    Boolean(expense.items && expense.items.length > 0);
+                  const isExpanded = expandedExpenseIds[expense.id];
+                  const isHighlighted = recentlyUpdatedId === expense.id;
 
-                // Current user's split share
-                const userSplit = expense.splits.find(
-                  (s) => s.user_id === currentUser.id
-                );
-                const userShareAmount = userSplit?.amount || 0;
+                  // Current user's split share
+                  const userSplit = expense.splits.find(
+                    (s) => s.user_id === currentUser.id
+                  );
+                  const userShareAmount = userSplit?.amount || 0;
 
-                return (
-                  <motion.div
-                    key={expense.id}
-                    variants={listItemVariants}
-                    className="rounded-xl border border-border/70 bg-card hover:border-border hover:bg-accent/15 hover:shadow-md transition-[background-color,border-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5 overflow-hidden"
-                  >
-                    <div className="p-3 sm:p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                      {/* Left: Icon and Details */}
-                      <div className="flex items-start gap-2.5 sm:gap-3 min-w-0 flex-1">
-                        <div className="size-8 sm:size-9 rounded-xl bg-accent/60 border border-border/80 flex items-center justify-center text-foreground shrink-0 mt-0.5 sm:mt-0">
-                          <Icon className="size-4" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                            <span className="font-semibold text-xs sm:text-sm text-foreground truncate max-w-[200px] sm:max-w-none">
-                              {expense.title}
-                            </span>
-                            <Badge variant={meta?.badgeVariant || "default"} className="text-[9px] sm:text-[10px] py-0 px-1.5">
-                              {meta?.label || expense.category}
-                            </Badge>
-                            {!isItemized && (expense.quantity || expense.unit) && (
-                              <Badge variant="outline" className="text-[9px] sm:text-[10px] py-0 px-1.5 border-border">
-                                {expense.quantity ? expense.quantity : ""} {expense.unit || ""}
-                              </Badge>
-                            )}
-                            {isItemized && (
-                              <Badge variant="secondary" className="text-[9px] sm:text-[10px] py-0 px-1.5 gap-1">
-                                <Layers className="size-2.5" />
-                                {expense.items?.length} items
-                              </Badge>
-                            )}
+                  return (
+                    <motion.div
+                      key={expense.id}
+                      layout="position"
+                      variants={listItemVariants}
+                      exit="exit"
+                      transition={smoothLayoutTransition}
+                      className={`rounded-xl border bg-card overflow-hidden transition-[background-color,border-color,box-shadow] duration-200 ease-out ${
+                        isHighlighted
+                          ? "animate-row-highlight"
+                          : "border-border/70 hover:border-border hover:bg-accent/30"
+                      }`}
+                    >
+                      <div className="p-3 sm:p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        {/* Left: Icon and Details */}
+                        <div className="flex items-start gap-2.5 sm:gap-3 min-w-0 flex-1">
+                          <div className="size-8 sm:size-9 rounded-xl bg-accent/60 border border-border/80 flex items-center justify-center text-foreground shrink-0 mt-0.5 sm:mt-0">
+                            <Icon className="size-4" />
                           </div>
-                          <div className="text-[11px] sm:text-xs text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1">
-                            {(() => {
-                              const dt = formatExpenseDateTime(expense.date, expense.created_at);
-                              return (
-                                <span className="inline-flex items-center gap-1 font-medium text-foreground/90">
-                                  <Calendar className="size-3 text-muted-foreground shrink-0" />
-                                  <span>{dt.date}</span>
-                                  {dt.time && (
-                                    <>
-                                      <span className="text-muted-foreground">•</span>
-                                      <Clock className="size-3 text-muted-foreground shrink-0" />
-                                      <span>{dt.time}</span>
-                                    </>
-                                  )}
-                                </span>
-                              );
-                            })()}
-                            <span>•</span>
-                            <span>
-                              Paid by <strong className="text-foreground font-medium">{isPayer ? "You" : payerName}</strong>
-                            </span>
-                            <span className="hidden xs:inline">•</span>
-                            <span className="text-[11px]">
-                              Your share: <strong className="text-foreground">৳{userShareAmount}</strong>
-                            </span>
-                            {expense.updated_at && (
-                              <>
-                                <span className="text-muted-foreground">•</span>
-                                <span
-                                  className="text-[10px] text-muted-foreground italic font-normal"
-                                  title={`Edited on ${format(new Date(expense.updated_at), "MMM dd, yyyy 'at' h:mm a")}`}
-                                >
-                                  (edited)
-                                </span>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Right: Amount & Actions */}
-                      <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-border/50">
-                        <div className="text-left sm:text-right">
-                          <CurrencyAmount amount={expense.amount} size="md" className="font-bold block" />
-                          <span className="text-[10px] text-muted-foreground">
-                            {expense.split_type === "equal"
-                              ? `Split ${expense.splits.length} ways (Equal)`
-                              : expense.split_type}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-0.5 sm:gap-1">
-                          {isItemized && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => toggleExpand(expense.id)}
-                              className="size-8 text-muted-foreground hover:text-foreground cursor-pointer"
-                              title="View itemized breakdown"
-                            >
-                              {isExpanded ? (
-                                <ChevronUp className="size-4" />
-                              ) : (
-                                <ChevronDown className="size-4" />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                              <span className="font-semibold text-xs sm:text-sm text-foreground truncate max-w-[200px] sm:max-w-none">
+                                {expense.title}
+                              </span>
+                              <Badge variant={meta?.badgeVariant || "default"} className="text-[9px] sm:text-[10px] py-0 px-1.5">
+                                {meta?.label || expense.category}
+                              </Badge>
+                              {!isItemized && (expense.quantity || expense.unit) && (
+                                <Badge variant="outline" className="text-[9px] sm:text-[10px] py-0 px-1.5 border-border">
+                                  {expense.quantity ? expense.quantity : ""} {expense.unit || ""}
+                                </Badge>
                               )}
-                            </Button>
-                          )}
+                              {isItemized && (
+                                <Badge variant="secondary" className="text-[9px] sm:text-[10px] py-0 px-1.5 gap-1">
+                                  <Layers className="size-2.5" />
+                                  {expense.items?.length} items
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="text-[11px] sm:text-xs text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1">
+                              {(() => {
+                                const dt = formatExpenseDateTime(expense.date, expense.created_at);
+                                return (
+                                  <span className="inline-flex items-center gap-1 font-medium text-foreground/90">
+                                    <Calendar className="size-3 text-muted-foreground shrink-0" />
+                                    <span>{dt.date}</span>
+                                    {dt.time && (
+                                      <>
+                                        <span className="text-muted-foreground">•</span>
+                                        <Clock className="size-3 text-muted-foreground shrink-0" />
+                                        <span>{dt.time}</span>
+                                      </>
+                                    )}
+                                  </span>
+                                );
+                              })()}
+                              <span>•</span>
+                              <span>
+                                Paid by <strong className="text-foreground font-medium">{isPayer ? "You" : payerName}</strong>
+                              </span>
+                              <span className="hidden xs:inline">•</span>
+                              <span className="text-[11px]">
+                                Your share: <strong className="text-foreground">৳{userShareAmount}</strong>
+                              </span>
+                              {expense.updated_at && (
+                                <>
+                                  <span className="text-muted-foreground">•</span>
+                                  <span
+                                    className="text-[10px] text-muted-foreground italic font-normal"
+                                    title={`Edited on ${format(new Date(expense.updated_at), "MMM dd, yyyy 'at' h:mm a")}`}
+                                  >
+                                    (edited)
+                                  </span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Right: Amount & Actions */}
+                        <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-border/50">
+                          <div className="text-left sm:text-right">
+                            <CurrencyAmount amount={expense.amount} size="md" className="font-bold block" />
+                            <span className="text-[10px] text-muted-foreground">
+                              {expense.split_type === "equal"
+                                ? `Split ${expense.splits.length} ways (Equal)`
+                                : expense.split_type}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-0.5 sm:gap-1">
+                            {isItemized && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => toggleExpand(expense.id)}
+                                className="size-8 text-muted-foreground hover:text-foreground cursor-pointer"
+                                title="View itemized breakdown"
+                              >
+                                <ChevronDown
+                                  className={cn(
+                                    "size-4 transition-transform duration-200 ease-out",
+                                    isExpanded && "rotate-180"
+                                  )}
+                                />
+                              </Button>
+                            )}
 
                           {/* Permissions: Only Payer or Admin can edit & delete this expense */}
                           {canManage ? (
@@ -518,6 +560,7 @@ export function ExpenseList() {
                   </motion.div>
                 );
               })}
+              </AnimatePresence>
             </motion.div>
           )}
         </CardContent>
@@ -560,6 +603,7 @@ export function ExpenseList() {
         isOpen={Boolean(expenseToEdit)}
         expense={expenseToEdit}
         onClose={() => setExpenseToEdit(null)}
+        onUpdated={handleExpenseUpdated}
       />
     </>
   );
