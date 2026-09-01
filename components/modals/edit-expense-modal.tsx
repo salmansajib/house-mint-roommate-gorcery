@@ -48,12 +48,14 @@ interface EditExpenseModalProps {
   expense: Expense | null;
   isOpen: boolean;
   onClose: () => void;
+  onUpdated?: (expenseId: string) => void;
 }
 
 export function EditExpenseModal({
   expense,
   isOpen,
   onClose,
+  onUpdated,
 }: EditExpenseModalProps) {
   const { users, currentUser, editExpense } = useExpenses();
   const { recordUsage } = useGroceryCatalog();
@@ -253,6 +255,7 @@ export function EditExpenseModal({
       description: `${title.trim()} (৳${numAmount.toFixed(2)})`,
     });
 
+    onUpdated?.(expense.id);
     onClose();
   };
 
