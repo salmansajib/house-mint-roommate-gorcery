@@ -60,60 +60,60 @@
 }
 
 .light {
-  --background: #f6f7f4;
-  --foreground: #18221d;
+  --background: #f7f5f0;
+  --foreground: #1f2722;
 
   --card: #ffffff;
-  --card-foreground: #18221d;
+  --card-foreground: #1f2722;
 
   --popover: #ffffff;
-  --popover-foreground: #18221d;
+  --popover-foreground: #1f2722;
 
-  --primary: #137847;
+  --primary: #2d6347;
   --primary-foreground: #ffffff;
 
-  --secondary: #edf4ee;
-  --secondary-foreground: #14532d;
+  --secondary: #ebe6dd;
+  --secondary-foreground: #204533;
 
-  --muted: #eff2ed;
-  --muted-foreground: #5e6e65;
+  --muted: #f0ece4;
+  --muted-foreground: #68746c;
 
-  --accent: #e7eee8;
-  --accent-foreground: #18221d;
+  --accent: #e7e3d8;
+  --accent-foreground: #1f2722;
 
-  --destructive: #c93434;
+  --destructive: #c0392b;
   --destructive-foreground: #ffffff;
 
-  --positive: #137847;
+  --positive: #2d6347;
   --positive-foreground: #ffffff;
 
-  --warning: #b86e08;
+  --warning: #b47820;
   --warning-foreground: #ffffff;
 
-  --border: #e0e5de;
-  --input: #e0e5de;
-  --ring: #137847;
+  --border: #ded7cc;
+  --input: #ded7cc;
+  --ring: #2d6347;
 
   --radius: 0.75rem;
 
-  /* Category colors */
-  --cat-groceries: #137847;
-  --cat-rent: #4b5e99;
-  --cat-electricity: #b86e08;
-  --cat-gas: #be5527;
-  --cat-internet: #157e9b;
-  --cat-other: #64726b;
+  /* Category colors - Earthy & Harmonious */
+  --cat-groceries: #2d6347;
+  --cat-rent: #4a5874;
+  --cat-electricity: #b47820;
+  --cat-gas: #b85834;
+  --cat-internet: #28707a;
+  --cat-other: #6e736b;
 
   /* Roommate Identity Accents & Scalable OKLCH Base */
-  --user-l: 40%;
-  --user-1: #0e7490;
-  --user-2: #7e22ce;
-  --user-3: #a16207;
-  --user-4: #15803d;
-  --user-5: #be185d;
-  --user-6: #4338ca;
-  --user-7: #0f766e;
-  --user-8: #c2410c;
+  --user-l: 42%;
+  --user-1: #1f6f82;
+  --user-2: #6b439c;
+  --user-3: #946316;
+  --user-4: #256b46;
+  --user-5: #a82e5d;
+  --user-6: #42499e;
+  --user-7: #1f7067;
+  --user-8: #a8471b;
 }
 
 @theme inline {
@@ -186,6 +186,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  transition: background-color 300ms ease, color 300ms ease;
 }
 
 /* Headings: Balanced text wrapping & tracking */
@@ -309,15 +310,15 @@ p {
 }
 
 .light * {
-  scrollbar-color: rgba(24, 34, 29, 0.18) transparent;
+  scrollbar-color: rgba(31, 39, 34, 0.18) transparent;
 }
 
 .light ::-webkit-scrollbar-thumb {
-  background: rgba(24, 34, 29, 0.18);
+  background: rgba(31, 39, 34, 0.18);
 }
 
 .light ::-webkit-scrollbar-thumb:hover {
-  background: rgba(24, 34, 29, 0.32);
+  background: rgba(31, 39, 34, 0.32);
 }
 
 /* Utility classes for specific scrollbar needs */
@@ -373,19 +374,27 @@ p {
 }
 
 /* ==========================================================================
-   Circular Reveal View Transition for Theme Toggle
+   Smooth Theme Transition
    ========================================================================== */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation: none;
-  mix-blend-mode: normal;
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition:
+    background-color 300ms ease,
+    border-color 300ms ease,
+    color 300ms ease,
+    fill 300ms ease,
+    stroke 300ms ease,
+    box-shadow 300ms ease !important;
+  transition-delay: 0s !important;
 }
 
-::view-transition-old(root) {
-  z-index: 1;
-}
-
-::view-transition-new(root) {
-  z-index: 9999;
-  will-change: clip-path;
+@media (prefers-reduced-motion: reduce) {
+  html.theme-transition,
+  html.theme-transition *,
+  html.theme-transition *::before,
+  html.theme-transition *::after {
+    transition: none !important;
+  }
 }

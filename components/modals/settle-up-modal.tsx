@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { HandCoins, ArrowRight, ChevronDown } from "lucide-react";
+import { HandCoins, ArrowRight, ChevronDown, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "@/components/ui/sonner";
 
@@ -25,6 +25,7 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
   const { users, currentUser, ledger, addSettlement } = useExpenses();
 
   const otherUsers = users.filter((u) => u.id !== currentUser?.id);
+  const hasMultipleUsers = users.length >= 2;
   const defaultOtherUser = otherUsers[0] || users[0] || currentUser;
 
   // Find if currentUser owes anyone or is owed by anyone
@@ -56,11 +57,12 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
         setAmount(debt.amount.toString());
       } else {
         setPayerId(currentUser.id);
-        setReceiverId(defaultOtherUser.id);
+        const other = users.find((u) => u.id !== currentUser.id);
+        setReceiverId(other ? other.id : currentUser.id);
         setAmount("1000");
       }
     }
-  }, [isOpen, currentUser.id, ledger.debts, defaultOtherUser.id]);
+  }, [isOpen, currentUser.id, ledger.debts, users]);
 
   const handlePayerChange = (newPayerId: string) => {
     setPayerId(newPayerId);
@@ -90,11 +92,34 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
 
   const payerName = users.find((u) => u.id === payerId)?.name || "Payer";
   const receiverName = users.find((u) => u.id === receiverId)?.name || "Receiver";
+  const isSamePerson = payerId === receiverId;
+  const numAmount = parseFloat(amount);
+  const isAmountValid = !isNaN(numAmount) && numAmount > 0;
+  const isFormValid = hasMultipleUsers && !isSamePerson && isAmountValid;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const numAmount = parseFloat(amount);
-    if (isNaN(numAmount) || numAmount <= 0 || payerId === receiverId) return;
+
+    if (!hasMultipleUsers) {
+      toast.error("Cannot record settlement", {
+        description: "You need at least two roommates in your household to settle debts.",
+      });
+      return;
+    }
+
+    if (isSamePerson) {
+      toast.error("Invalid settlement", {
+        description: "Payer and recipient cannot be the same person.",
+      });
+      return;
+    }
+
+    if (!isAmountValid) {
+      toast.error("Invalid amount", {
+        description: "Please enter an amount greater than ৳0.",
+      });
+      return;
+    }
 
     addSettlement({
       payer_id: payerId,
@@ -115,7 +140,7 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="w-[calc(100%-1.25rem)] sm:max-w-md bg-card border-border rounded-2xl p-4 sm:p-6 shadow-2xl">
         <DialogHeader className="text-left">
-          <div className="flex items-center gap-2 text-emerald-400 mb-1">
+          <div className="flex items-center gap-2 text-primary mb-1">
             <HandCoins className="size-5" />
             <span className="text-xs font-semibold uppercase tracking-wider">
               Debt Repayment
@@ -127,6 +152,19 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
           </DialogDescription>
         </DialogHeader>
 
+        {/* Informational banner when there is only one user */}
+        {!hasMultipleUsers && (
+          <div className="p-3.5 rounded-xl bg-warning/10 border border-warning/25 flex items-start gap-2.5">
+            <AlertCircle className="size-4 text-warning shrink-0 mt-0.5" />
+            <div className="text-xs space-y-0.5">
+              <p className="font-semibold text-foreground">Need at least 2 roommates</p>
+              <p className="text-muted-foreground leading-relaxed">
+                Settling up logs direct payments between two roommates to balance debts. Add or invite roommates in Settings to record payments.
+              </p>
+            </div>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-3.5 pt-2">
           {/* Payment Transfer Summary Bar */}
           <div className="p-3 rounded-xl bg-accent/40 border border-border/80 flex items-center justify-between">
@@ -136,7 +174,7 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
               </span>
               <span className="text-xs sm:text-sm font-bold text-foreground truncate block">{payerName}</span>
             </div>
-            <ArrowRight className="size-4 text-emerald-400 shrink-0 mx-2" />
+            <ArrowRight className="size-4 text-primary shrink-0 mx-2" />
             <div className="text-center flex-1 min-w-0">
               <span className="text-[10px] uppercase font-bold text-muted-foreground block">
                 Recipient
@@ -152,7 +190,8 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
                 <select
                   value={payerId}
                   onChange={(e) => handlePayerChange(e.target.value)}
-                  className="w-full h-10 bg-accent/30 border border-border rounded-xl pl-3.5 pr-10 text-xs font-medium focus:ring-2 focus:ring-primary/40 focus:border-primary focus:outline-none transition-all cursor-pointer appearance-none"
+                  disabled={!hasMultipleUsers}
+                  className="w-full h-10 bg-accent/30 border border-border rounded-xl pl-3.5 pr-10 text-xs font-medium focus:ring-2 focus:ring-primary/40 focus:border-primary focus:outline-none transition-all cursor-pointer appearance-none disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {users.map((u) => (
                     <option key={u.id} value={u.id}>
@@ -170,7 +209,8 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
                 <select
                   value={receiverId}
                   onChange={(e) => handleReceiverChange(e.target.value)}
-                  className="w-full h-10 bg-accent/30 border border-border rounded-xl pl-3.5 pr-10 text-xs font-medium focus:ring-2 focus:ring-primary/40 focus:border-primary focus:outline-none transition-all cursor-pointer appearance-none"
+                  disabled={!hasMultipleUsers}
+                  className="w-full h-10 bg-accent/30 border border-border rounded-xl pl-3.5 pr-10 text-xs font-medium focus:ring-2 focus:ring-primary/40 focus:border-primary focus:outline-none transition-all cursor-pointer appearance-none disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {users.map((u) => (
                     <option key={u.id} value={u.id}>
@@ -183,6 +223,12 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
             </div>
           </div>
 
+          {hasMultipleUsers && isSamePerson && (
+            <p className="text-[11px] text-destructive font-medium">
+              Payer and recipient cannot be the same person.
+            </p>
+          )}
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-foreground">Amount (৳)</label>
@@ -194,7 +240,8 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
                   step="any"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="h-10 pl-7 text-xs font-numeral font-bold bg-accent/20 border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                  disabled={!hasMultipleUsers}
+                  className="h-10 pl-7 text-xs font-numeral font-bold bg-accent/20 border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all disabled:opacity-60"
                   required
                 />
               </div>
@@ -206,7 +253,8 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="h-10 text-xs bg-accent/20 border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                disabled={!hasMultipleUsers}
+                className="h-10 text-xs bg-accent/20 border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all disabled:opacity-60"
                 required
               />
             </div>
@@ -218,7 +266,8 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
               placeholder="e.g. Sent via bKash / Nagad / Cash"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="h-10 text-xs bg-accent/20 border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+              disabled={!hasMultipleUsers}
+              className="h-10 text-xs bg-accent/20 border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all disabled:opacity-60"
             />
           </div>
 
@@ -229,7 +278,8 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
             <Button
               type="submit"
               size="lg"
-              className="h-11 sm:h-12 rounded-xl bg-primary text-primary-foreground font-semibold shadow-sm hover:opacity-90 transition-opacity"
+              disabled={!isFormValid}
+              className="h-11 sm:h-12 rounded-xl bg-primary text-primary-foreground font-semibold shadow-sm hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Record Payment
             </Button>

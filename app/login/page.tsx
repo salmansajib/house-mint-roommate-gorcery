@@ -3,15 +3,12 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
-import { User } from "@/types";
 import {
   validateHouseholdInviteCode,
-  fetchHouseholdData,
   APARTMENT_ADMIN_KEY,
 } from "@/lib/supabase/db";
-import { UserAvatar } from "@/components/ui/user-avatar";
 import { HouseMintLogo } from "@/components/ui/house-mint-logo";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -109,43 +106,6 @@ const formFieldItemVariants: Variants = {
   },
 };
 
-const roommateGridVariants: Variants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.04,
-      delayChildren: 0.08,
-    },
-  },
-};
-
-const roommateChipVariants: Variants = {
-  hidden: { opacity: 0, scale: 0.93, y: 8 },
-  show: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: {
-      type: "spring",
-      stiffness: 380,
-      damping: 26,
-    },
-  },
-};
-
-const footerVariants: Variants = {
-  hidden: { opacity: 0, y: 10 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.45,
-      ease: premiumEase,
-    },
-  },
-};
-
 export default function LoginPage() {
   const router = useRouter();
   const {
@@ -153,7 +113,6 @@ export default function LoginPage() {
     signUpWithEmail,
     sendPasswordResetEmail,
     updateUserPassword,
-    quickSignIn,
   } = useAuth();
 
   const [activeTab, setActiveTab] = React.useState<
@@ -189,17 +148,6 @@ export default function LoginPage() {
   const [resetSuccess, setResetSuccess] = React.useState(false);
   const [resetError, setResetError] = React.useState<string | null>(null);
 
-  // Dynamic real roommates from database
-  const [householdUsers, setHouseholdUsers] = React.useState<User[]>([]);
-
-  React.useEffect(() => {
-    fetchHouseholdData().then((data) => {
-      if (data?.users) {
-        setHouseholdUsers(data.users);
-      }
-    });
-  }, []);
-
   const [isInviteMode, setIsInviteMode] = React.useState(false);
 
   // Check URL query parameters for invite link or password reset
@@ -208,11 +156,14 @@ export default function LoginPage() {
       const params = new URLSearchParams(window.location.search);
       const codeParam = params.get("code") || params.get("invite");
       const modeParam = params.get("mode");
+      const tabParam = params.get("tab");
 
       if (codeParam) {
         setRegHouseholdCode(codeParam.toUpperCase());
         setActiveTab("register");
         setIsInviteMode(true);
+      } else if (modeParam === "register" || tabParam === "register") {
+        setActiveTab("register");
       }
 
       if (modeParam === "reset") {
@@ -334,11 +285,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleQuickLogin = (userId: string) => {
-    quickSignIn(userId);
-    window.location.href = "/";
-  };
-
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col justify-center items-center px-4 py-8 relative overflow-hidden">
       {/* Top right theme toggle */}
@@ -396,7 +342,7 @@ export default function LoginPage() {
           variants={cardContainerVariants}
           className="border border-border bg-card rounded-xl overflow-hidden"
         >
-          <CardHeader className="p-5 pb-3">
+          <CardHeader className="p-5 sm:p-6">
             {isInviteMode && (
               <motion.div
                 initial={{ opacity: 0, y: -10, scale: 0.96 }}
@@ -939,69 +885,6 @@ export default function LoginPage() {
               </div>
             </motion.div>
           </CardHeader>
-
-          {/* QUICK 1-CLICK DEMO LOGIN FOR SEEDED ROOMMATES */}
-          <CardContent className="p-5 pt-3 border-t border-border/60 bg-background/40 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                <ShieldCheck className="size-3.5 text-primary" />
-                <span>1-Click Roommate Access</span>
-              </span>
-              <span className="text-[10px] text-muted-foreground">Flat 4B</span>
-            </div>
-
-            {householdUsers.length > 0 ? (
-              <motion.div
-                variants={roommateGridVariants}
-                initial="hidden"
-                animate="show"
-                className="grid grid-cols-2 gap-2"
-              >
-                {householdUsers.map((user) => (
-                  <motion.button
-                    key={user.id}
-                    variants={roommateChipVariants}
-                    whileHover={{ scale: 1.02, y: -1 }}
-                    whileTap={{ scale: 0.98 }}
-                    type="button"
-                    onClick={() => handleQuickLogin(user.id)}
-                    className="flex items-center gap-2 p-2.5 rounded-xl border border-border bg-card hover:bg-accent hover:border-primary/50 transition-colors text-left cursor-pointer group shadow-xs"
-                  >
-                    <UserAvatar user={user} size="xs" />
-                    <div className="min-w-0 flex-1">
-                      <div className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors truncate">
-                        {user.name}
-                      </div>
-                      <div className="text-[10px] text-muted-foreground truncate">
-                        {user.email || "Roommate"}
-                      </div>
-                    </div>
-                  </motion.button>
-                ))}
-              </motion.div>
-            ) : (
-              <div className="p-3 rounded-xl bg-background/50 border border-border/80 text-center space-y-1">
-                <p className="text-xs font-medium text-foreground">
-                  Clean Slate Apartment
-                </p>
-                <p className="text-[11px] text-muted-foreground">
-                  No roommates registered in Flat 4B yet. Fill out the
-                  &quot;Join Apartment&quot; form above to create your account!
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </motion.div>
-
-        {/* Security / Strict Ownership Notice */}
-        <motion.div
-          variants={footerVariants}
-          className="text-center text-xs text-muted-foreground flex items-center justify-center gap-1.5"
-        >
-          <ShieldCheck className="size-4 text-primary" />
-          <span>
-            Strict Ownership active: roommates only manage their own expenses.
-          </span>
         </motion.div>
       </motion.div>
     </div>
