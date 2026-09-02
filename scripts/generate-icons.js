@@ -2,115 +2,191 @@ const fs = require('fs');
 const path = require('path');
 const sharp = require('sharp');
 
-// 1. Standard Vector SVG for HouseMint
+// 1. Standard Vector SVG for HouseMint: Concept 1 The Minted Token
 const svgStandard = `
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <radialGradient id="bgGlow" cx="50%" cy="30%" r="70%">
-      <stop offset="0%" stop-color="#162c24"/>
-      <stop offset="60%" stop-color="#0d1814"/>
-      <stop offset="100%" stop-color="#080c0a"/>
+    <radialGradient id="hmBgGrad" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#162e24" />
+      <stop offset="60%" stop-color="#0e1a15" />
+      <stop offset="100%" stop-color="#080c0a" />
     </radialGradient>
-    <linearGradient id="mintGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#34d399"/>
-      <stop offset="50%" stop-color="#10b981"/>
-      <stop offset="100%" stop-color="#059669"/>
+
+    <linearGradient id="hmTokenGrad" x1="64" y1="64" x2="448" y2="448" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="30%" stop-color="#34d399" />
+      <stop offset="70%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#059669" />
     </linearGradient>
-    <linearGradient id="accentGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#22d3ee"/>
-      <stop offset="100%" stop-color="#34d399"/>
+
+    <radialGradient id="hmCoinFace" cx="50%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.16" />
+      <stop offset="100%" stop-color="#080c0a" stop-opacity="0.85" />
+    </radialGradient>
+
+    <linearGradient id="hmHighlight" x1="140" y1="126" x2="370" y2="230" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
     </linearGradient>
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="16" result="blur" />
+
+    <filter id="hmGlow" x="15%" y="15%" width="70%" height="70%" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="8" result="blur" />
       <feComposite in="SourceGraphic" in2="blur" operator="over" />
     </filter>
   </defs>
 
-  <!-- Background Base -->
-  <rect width="512" height="512" rx="112" fill="url(#bgGlow)"/>
-  <rect width="508" height="508" x="2" y="2" rx="110" stroke="#10b981" stroke-opacity="0.3" stroke-width="3"/>
+  <!-- Container Squircle Base -->
+  <rect width="512" height="512" rx="116" fill="url(#hmBgGrad)" />
+  <rect width="508" height="508" x="2" y="2" rx="114" stroke="#10b981" stroke-opacity="0.25" stroke-width="2.5" />
 
-  <!-- Centered House + Mint Emblem -->
-  <g transform="translate(96, 96)" filter="url(#glow)">
-    <!-- House Roof / Mint Leaf Peak -->
-    <path d="M160 32 L280 144 C280 144 260 216 192 248 C124 280 48 248 40 180 C32 112 112 48 160 32 Z" 
-          fill="url(#mintGrad)" />
-    
-    <!-- Secondary Leaf / House Wing -->
-    <path d="M160 32 L40 144 C40 144 60 216 128 248 C196 280 272 248 280 180 C288 112 208 48 160 32 Z" 
-          fill="url(#accentGrad)" 
-          opacity="0.85" />
-    
-    <!-- Center Leaf Rib / Roof Crest -->
-    <path d="M160 36 L160 260" stroke="#042416" stroke-width="12" stroke-linecap="round"/>
-    
-    <!-- Sparkle Stars -->
-    <path d="M268 76 Q276 96 296 104 Q276 112 268 132 Q260 112 240 104 Q260 96 268 76 Z" fill="#6ee7b7" />
-    <circle cx="68" cy="80" r="8" fill="#38bdf8" />
-    <circle cx="256" cy="220" r="6" fill="#a7f3d0" />
-  </g>
+  <!-- Outer Minted Coin Ring -->
+  <circle cx="256" cy="256" r="214" fill="url(#hmCoinFace)" stroke="url(#hmTokenGrad)" stroke-width="14" />
+  <circle cx="256" cy="256" r="188" stroke="#10b981" stroke-opacity="0.25" stroke-width="2" stroke-dasharray="6 8" />
 
-  <!-- Clean Bottom Household Foundation -->
-  <g transform="translate(160, 360)">
-    <rect x="0" y="0" width="192" height="20" rx="10" fill="#10b981" opacity="0.8"/>
-    <rect x="36" y="30" width="120" height="12" rx="6" fill="#22d3ee" opacity="0.5"/>
+  <!-- Precision Mint Stamps (Coin Edge Indices) -->
+  <rect x="34" y="250" width="14" height="12" rx="4" fill="#38bdf8" />
+  <rect x="464" y="250" width="14" height="12" rx="4" fill="#10b981" />
+
+  <!-- Architectural House & Vault Artwork with subtle glow -->
+  <g filter="url(#hmGlow)">
+    <!-- Pitched Roof Crest -->
+    <path
+      d="M 256,126
+         L 372,224
+         C 378,229 379,239 373,246
+         C 367,253 357,254 350,248
+         L 256,168
+         L 162,248
+         C 155,254 145,253 139,246
+         C 133,239 134,229 140,224
+         Z"
+      fill="url(#hmTokenGrad)"
+    />
+
+    <!-- Specular highlight on roof slope -->
+    <path
+      d="M 256,134 L 364,226"
+      stroke="url(#hmHighlight)"
+      stroke-width="3.5"
+      stroke-linecap="round"
+    />
+
+    <!-- House Body -->
+    <path
+      d="M 174,258
+         L 338,258
+         C 346,258 352,264 352,272
+         L 352,366
+         C 352,374 346,380 338,380
+         L 174,380
+         C 166,380 160,374 160,366
+         L 160,272
+         C 160,264 166,258 174,258
+         Z"
+      fill="url(#hmTokenGrad)"
+    />
+
+    <!-- Vault Doorway Arch Cutout -->
+    <path
+      d="M 224,380
+         L 224,312
+         C 224,294 238,280 256,280
+         C 274,280 288,294 288,312
+         L 288,380
+         Z"
+      fill="#080c0a"
+    />
+
+    <!-- Equal-Split Balance Ledger (=) inside Vault -->
+    <rect x="238" y="324" width="36" height="7" rx="3.5" fill="url(#hmTokenGrad)" />
+    <rect x="238" y="342" width="36" height="7" rx="3.5" fill="url(#hmTokenGrad)" />
+
+    <!-- Center Minted Coin Disc at Hearth -->
+    <circle cx="256" cy="214" r="18" fill="url(#hmTokenGrad)" />
+    <circle cx="256" cy="214" r="11" fill="#080c0a" />
+    <circle cx="256" cy="214" r="5" fill="#38bdf8" />
   </g>
 </svg>
 `;
 
-// 2. Maskable Icon (safe zone: essential graphic inside center 65% of canvas)
+// 2. Maskable Icon (safe zone: essential graphic inside center 68% of canvas)
 const svgMaskable = `
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <radialGradient id="mBgGlow" cx="50%" cy="40%" r="65%">
-      <stop offset="0%" stop-color="#162c24"/>
-      <stop offset="60%" stop-color="#0d1814"/>
+    <radialGradient id="mBgGlow" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#162e24"/>
+      <stop offset="60%" stop-color="#0e1a15"/>
       <stop offset="100%" stop-color="#080c0a"/>
     </radialGradient>
-    <linearGradient id="mMintGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#34d399"/>
-      <stop offset="50%" stop-color="#10b981"/>
-      <stop offset="100%" stop-color="#059669"/>
+    <linearGradient id="mTokenGrad" x1="64" y1="64" x2="448" y2="448" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="30%" stop-color="#34d399" />
+      <stop offset="70%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#059669" />
     </linearGradient>
-    <linearGradient id="mAccentGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#22d3ee"/>
-      <stop offset="100%" stop-color="#34d399"/>
-    </linearGradient>
-    <filter id="mGlow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="12" result="blur" />
-      <feComposite in="SourceGraphic" in2="blur" operator="over" />
-    </filter>
   </defs>
 
   <!-- Full bleed background for adaptive icon masking -->
   <rect width="512" height="512" fill="url(#mBgGlow)"/>
 
-  <!-- Scaled content within 70% safe viewport -->
-  <g transform="translate(256, 256) scale(0.72) translate(-256, -256)">
-    <g transform="translate(96, 96)" filter="url(#mGlow)">
-      <!-- House Roof / Mint Leaf Peak -->
-      <path d="M160 32 L280 144 C280 144 260 216 192 248 C124 280 48 248 40 180 C32 112 112 48 160 32 Z" 
-            fill="url(#mMintGrad)" />
-      
-      <!-- Secondary Leaf / House Wing -->
-      <path d="M160 32 L40 144 C40 144 60 216 128 248 C196 280 272 248 280 180 C288 112 208 48 160 32 Z" 
-            fill="url(#mAccentGrad)" 
-            opacity="0.85" />
-      
-      <!-- Center Leaf Rib / Roof Crest -->
-      <path d="M160 36 L160 260" stroke="#042416" stroke-width="12" stroke-linecap="round"/>
-      
-      <!-- Sparkle Stars -->
-      <path d="M268 76 Q276 96 296 104 Q276 112 268 132 Q260 112 240 104 Q260 96 268 76 Z" fill="#6ee7b7" />
-      <circle cx="68" cy="80" r="8" fill="#38bdf8" />
-      <circle cx="256" cy="220" r="6" fill="#a7f3d0" />
-    </g>
+  <!-- Scaled content within safe viewport -->
+  <g transform="translate(256, 256) scale(0.76) translate(-256, -256)">
+    <!-- Outer Minted Coin Ring -->
+    <circle cx="256" cy="256" r="214" stroke="url(#mTokenGrad)" stroke-width="14" />
+    <circle cx="256" cy="256" r="188" stroke="#10b981" stroke-opacity="0.25" stroke-width="2" stroke-dasharray="6 8" />
 
-    <!-- Clean Bottom Household Foundation -->
-    <g transform="translate(160, 360)">
-      <rect x="0" y="0" width="192" height="20" rx="10" fill="#10b981" opacity="0.8"/>
-      <rect x="36" y="30" width="120" height="12" rx="6" fill="#22d3ee" opacity="0.5"/>
-    </g>
+    <!-- Precision Mint Stamps -->
+    <rect x="34" y="250" width="14" height="12" rx="4" fill="#38bdf8" />
+    <rect x="464" y="250" width="14" height="12" rx="4" fill="#10b981" />
+
+    <!-- Pitched Roof Crest -->
+    <path
+      d="M 256,126
+         L 372,224
+         C 378,229 379,239 373,246
+         C 367,253 357,254 350,248
+         L 256,168
+         L 162,248
+         C 155,254 145,253 139,246
+         C 133,239 134,229 140,224
+         Z"
+      fill="url(#mTokenGrad)"
+    />
+
+    <!-- House Body -->
+    <path
+      d="M 174,258
+         L 338,258
+         C 346,258 352,264 352,272
+         L 352,366
+         C 352,374 346,380 338,380
+         L 174,380
+         C 166,380 160,374 160,366
+         L 160,272
+         C 160,264 166,258 174,258
+         Z"
+      fill="url(#mTokenGrad)"
+    />
+
+    <!-- Vault Doorway Arch Cutout -->
+    <path
+      d="M 224,380
+         L 224,312
+         C 224,294 238,280 256,280
+         C 274,280 288,294 288,312
+         L 288,380
+         Z"
+      fill="#080c0a"
+    />
+
+    <!-- Equal-Split Balance Ledger (=) inside Vault -->
+    <rect x="238" y="324" width="36" height="7" rx="3.5" fill="url(#mTokenGrad)" />
+    <rect x="238" y="342" width="36" height="7" rx="3.5" fill="url(#mTokenGrad)" />
+
+    <!-- Center Minted Coin Disc at Hearth -->
+    <circle cx="256" cy="214" r="18" fill="url(#mTokenGrad)" />
+    <circle cx="256" cy="214" r="11" fill="#080c0a" />
+    <circle cx="256" cy="214" r="5" fill="#38bdf8" />
   </g>
 </svg>
 `;

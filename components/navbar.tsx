@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { useAuth } from "@/context/auth-context";
 import { useExpenses } from "@/context/expense-context";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,7 @@ export function Navbar({
   onOpenAdminSettings,
   onOpenClaimAdmin,
 }: NavbarProps = {}) {
+  const { signOut } = useAuth();
   const {
     users,
     currentUser,
@@ -320,7 +322,7 @@ export function Navbar({
                       <button
                         onClick={async () => {
                           setIsOpenMenu(false);
-                          localStorage.removeItem("housemint_auth_user_id_v1");
+                          await signOut();
                           window.location.href = "/login";
                         }}
                         className="w-full px-3 py-1.5 text-xs flex items-center gap-2 text-destructive/80 hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer text-left"

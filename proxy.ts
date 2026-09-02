@@ -46,6 +46,19 @@ export async function proxy(request: NextRequest) {
     return supabaseResponse;
   }
 
+  // Support /register route by redirecting to /login with register tab active
+  if (pathname === "/register") {
+    if (user) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/";
+      return NextResponse.redirect(url);
+    }
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    url.searchParams.set("tab", "register");
+    return NextResponse.redirect(url);
+  }
+
   // 1. Unauthenticated visitor trying to view dashboard -> Redirect to /login
   if (!user && !isLoginPage) {
     const url = request.nextUrl.clone();

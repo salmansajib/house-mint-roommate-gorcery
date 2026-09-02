@@ -11,7 +11,8 @@ interface HouseMintLogoProps extends React.SVGProps<SVGSVGElement> {
 
 /**
  * HouseMint Brand Logo & Icon Component
- * Represents Concept 1 (Option B): Geometric house silhouette crowned with a crisp mint leaf crest.
+ * Concept 1: The Minted Token (Fintech Medallion)
+ * Represents household finances, roommate shared expenses, and equal split in mint condition.
  */
 export function HouseMintLogo({
   size = 32,
@@ -19,6 +20,9 @@ export function HouseMintLogo({
   className,
   ...props
 }: HouseMintLogoProps) {
+  const reactId = React.useId();
+  const id = React.useMemo(() => reactId.replace(/[^a-zA-Z0-9]/g, ""), [reactId]);
+
   if (variant === "badge") {
     return (
       <svg
@@ -31,25 +35,32 @@ export function HouseMintLogo({
         {...props}
       >
         <defs>
-          <radialGradient id="hmLogoBg" cx="50%" cy="30%" r="70%">
-            <stop offset="0%" stopColor="var(--popover, #16211e)" />
-            <stop offset="60%" stopColor="var(--card, #0f1614)" />
+          <radialGradient id={`hmBgGrad_${id}`} cx="50%" cy="30%" r="70%">
+            <stop offset="0%" stopColor="var(--popover, #162e24)" />
+            <stop offset="60%" stopColor="var(--card, #0e1a15)" />
             <stop offset="100%" stopColor="var(--background, #080c0a)" />
           </radialGradient>
-          <linearGradient id="hmBadgeMint" x1="256" y1="86" x2="256" y2="432" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#34d399" />
-            <stop offset="45%" stopColor="#10b981" />
+
+          <linearGradient id={`hmTokenGrad_${id}`} x1="64" y1="64" x2="448" y2="448" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#38bdf8" />
+            <stop offset="30%" stopColor="#34d399" />
+            <stop offset="70%" stopColor="#10b981" />
             <stop offset="100%" stopColor="#059669" />
           </linearGradient>
-          <linearGradient id="hmBadgeRoof" x1="120" y1="210" x2="392" y2="432" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.9" />
-            <stop offset="30%" stopColor="#34d399" />
-            <stop offset="100%" stopColor="#10b981" />
+
+          <radialGradient id={`hmCoinFace_${id}`} cx="50%" cy="40%" r="65%">
+            <stop offset="0%" stopColor="#10b981" stopOpacity="0.16" />
+            <stop offset="100%" stopColor="var(--background, #080c0a)" stopOpacity="0.85" />
+          </radialGradient>
+
+          <linearGradient id={`hmHighlight_${id}`} x1="140" y1="126" x2="370" y2="230" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
           </linearGradient>
         </defs>
 
-        {/* Rounded Container */}
-        <rect width="512" height="512" rx="116" fill="url(#hmLogoBg)" />
+        {/* Squircle Container Base */}
+        <rect width="512" height="512" rx="116" fill={`url(#hmBgGrad_${id})`} />
         <rect
           width="508"
           height="508"
@@ -57,48 +68,82 @@ export function HouseMintLogo({
           y="2"
           rx="114"
           stroke="var(--primary, #10b981)"
-          strokeOpacity="0.28"
+          strokeOpacity="0.25"
           strokeWidth="2.5"
         />
 
-        {/* House Foundation & Walls */}
-        <path
-          d="M172 268 L124 306 L154 306 L154 424 C154 428.418 157.582 432 162 432 L350 432 C354.418 432 358 428.418 358 424 L358 306 L388 306 L340 268"
-          fill="url(#hmBadgeMint)"
+        {/* Outer Minted Coin Ring */}
+        <circle cx="256" cy="256" r="214" fill={`url(#hmCoinFace_${id})`} stroke={`url(#hmTokenGrad_${id})`} strokeWidth="14" />
+        <circle
+          cx="256"
+          cy="256"
+          r="188"
+          stroke="var(--primary, #10b981)"
+          strokeOpacity="0.25"
+          strokeWidth="2"
+          strokeDasharray="6 8"
         />
 
-        {/* Door & Window Cutouts */}
-        <rect x="238" y="342" width="36" height="90" rx="4" fill="var(--background, #080c0a)" />
-        <rect x="180" y="324" width="30" height="38" rx="4" fill="var(--background, #080c0a)" />
+        {/* Precision Mint Stamps (Coin Edge Indices) */}
+        <rect x="34" y="250" width="14" height="12" rx="4" fill="#38bdf8" />
+        <rect x="464" y="250" width="14" height="12" rx="4" fill="#10b981" />
 
-        {/* Mint Leaf Crest */}
+        {/* Architectural House Silhouette - Pitched Roof Crest */}
         <path
-          d="M256 86
-             C270 120 292 136 304 150
-             C320 168 322 192 316 216
-             C312 230 300 244 286 256
-             C274 266 264 274 256 288
-             C248 274 238 266 226 256
-             C212 244 200 230 196 216
-             C190 192 192 168 208 150
-             C220 136 242 120 256 86 Z"
-          fill="url(#hmBadgeMint)"
+          d="M 256,126
+             L 372,224
+             C 378,229 379,239 373,246
+             C 367,253 357,254 350,248
+             L 256,168
+             L 162,248
+             C 155,254 145,253 139,246
+             C 133,239 134,229 140,224
+             Z"
+          fill={`url(#hmTokenGrad_${id})`}
         />
 
-        {/* Central Leaf Vein */}
-        <path d="M256 102 L256 272" stroke="var(--background, #080c0a)" strokeWidth="8" strokeLinecap="round" />
+        {/* Specular highlight on roof slope */}
+        <path
+          d="M 256,134 L 364,226"
+          stroke={`url(#hmHighlight_${id})`}
+          strokeWidth="3.5"
+          strokeLinecap="round"
+        />
 
-        {/* Branching Veins */}
-        <path d="M256 142 Q280 156 296 172" stroke="var(--background, #080c0a)" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <path d="M256 142 Q232 156 216 172" stroke="var(--background, #080c0a)" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <path d="M256 190 Q278 206 292 224" stroke="var(--background, #080c0a)" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <path d="M256 190 Q234 206 220 224" stroke="var(--background, #080c0a)" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <path d="M256 236 Q270 248 278 260" stroke="var(--background, #080c0a)" strokeWidth="6" strokeLinecap="round" fill="none" />
-        <path d="M256 236 Q242 248 234 260" stroke="var(--background, #080c0a)" strokeWidth="6" strokeLinecap="round" fill="none" />
+        {/* House Body & Negative Space Vault Archway */}
+        <path
+          d="M 174,258
+             L 338,258
+             C 346,258 352,264 352,272
+             L 352,366
+             C 352,374 346,380 338,380
+             L 174,380
+             C 166,380 160,374 160,366
+             L 160,272
+             C 160,264 166,258 174,258
+             Z"
+          fill={`url(#hmTokenGrad_${id})`}
+        />
 
-        {/* Roof Gable Wings */}
-        <path d="M138 296 L226 230 C222 236 218 244 216 252 L150 302 Z" fill="url(#hmBadgeRoof)" opacity="0.85" />
-        <path d="M374 296 L286 230 C290 236 294 244 296 252 L362 302 Z" fill="url(#hmBadgeRoof)" opacity="0.85" />
+        {/* Vault Doorway Arch Cutout */}
+        <path
+          d="M 224,380
+             L 224,312
+             C 224,294 238,280 256,280
+             C 274,280 288,294 288,312
+             L 288,380
+             Z"
+          fill="var(--background, #080c0a)"
+        />
+
+        {/* Equal-Split Balance Ledger (=) inside Vault */}
+        <rect x="238" y="324" width="36" height="7" rx="3.5" fill={`url(#hmTokenGrad_${id})`} />
+        <rect x="238" y="342" width="36" height="7" rx="3.5" fill={`url(#hmTokenGrad_${id})`} />
+
+        {/* Center Minted Coin Disc at Hearth */}
+        <circle cx="256" cy="214" r="18" fill={`url(#hmTokenGrad_${id})`} />
+        <circle cx="256" cy="214" r="11" fill="var(--background, #080c0a)" />
+        <circle cx="256" cy="214" r="5" fill="#38bdf8" />
       </svg>
     );
   }
@@ -108,61 +153,74 @@ export function HouseMintLogo({
     <svg
       width={size}
       height={size}
-      viewBox="110 70 292 380"
+      viewBox="0 0 512 512"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={cn("shrink-0 select-none", className)}
       {...props}
     >
       <defs>
-        <linearGradient id="hmGlyphMint" x1="256" y1="86" x2="256" y2="432" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#34d399" />
-          <stop offset="50%" stopColor="#10b981" />
+        <linearGradient id={`hmGlyphToken_${id}`} x1="64" y1="64" x2="448" y2="448" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#38bdf8" />
+          <stop offset="30%" stopColor="#34d399" />
+          <stop offset="70%" stopColor="#10b981" />
           <stop offset="100%" stopColor="#059669" />
         </linearGradient>
-        <linearGradient id="hmGlyphRoof" x1="120" y1="210" x2="392" y2="432" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.9" />
-          <stop offset="40%" stopColor="#34d399" />
-          <stop offset="100%" stopColor="#10b981" />
+        <linearGradient id={`hmGlyphHighlight_${id}`} x1="140" y1="126" x2="370" y2="230" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.5" />
+          <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
         </linearGradient>
       </defs>
 
-      {/* House Foundation & Walls */}
-      <path
-        d="M172 268 L124 306 L154 306 L154 424 C154 428.418 157.582 432 162 432 L350 432 C354.418 432 358 428.418 358 424 L358 306 L388 306 L340 268"
-        fill="url(#hmGlyphMint)"
+      {/* Outer Minted Coin Ring */}
+      <circle cx="256" cy="256" r="214" stroke={`url(#hmGlyphToken_${id})`} strokeWidth="16" />
+      <circle
+        cx="256"
+        cy="256"
+        r="188"
+        stroke={`url(#hmGlyphToken_${id})`}
+        strokeOpacity="0.3"
+        strokeWidth="2.5"
+        strokeDasharray="6 8"
       />
 
-      {/* Cutout Door and Window */}
-      <rect x="238" y="342" width="36" height="90" rx="4" fill="var(--card, #0f1614)" />
-      <rect x="180" y="324" width="30" height="38" rx="4" fill="var(--card, #0f1614)" />
+      {/* Precision Mint Stamps */}
+      <rect x="34" y="250" width="14" height="12" rx="4" fill="#38bdf8" />
+      <rect x="464" y="250" width="14" height="12" rx="4" fill="#10b981" />
 
-      {/* Stylized Mint Leaf Crest */}
+      {/* Architectural House Roof */}
       <path
-        d="M256 86
-           C270 120 292 136 304 150
-           C320 168 322 192 316 216
-           C312 230 300 244 286 256
-           C274 266 264 274 256 288
-           C248 274 238 266 226 256
-           C212 244 200 230 196 216
-           C190 192 192 168 208 150
-           C220 136 242 120 256 86 Z"
-        fill="url(#hmGlyphMint)"
+        d="M 256,126
+           L 372,224
+           C 378,229 379,239 373,246
+           C 367,253 357,254 350,248
+           L 256,168
+           L 162,248
+           C 155,254 145,253 139,246
+           C 133,239 134,229 140,224
+           Z"
+        fill={`url(#hmGlyphToken_${id})`}
       />
 
-      {/* Vein Ribs */}
-      <path d="M256 102 L256 272" stroke="var(--card, #0f1614)" strokeWidth="8" strokeLinecap="round" />
-      <path d="M256 142 Q280 156 296 172" stroke="var(--card, #0f1614)" strokeWidth="7" strokeLinecap="round" fill="none" />
-      <path d="M256 142 Q232 156 216 172" stroke="var(--card, #0f1614)" strokeWidth="7" strokeLinecap="round" fill="none" />
-      <path d="M256 190 Q278 206 292 224" stroke="var(--card, #0f1614)" strokeWidth="7" strokeLinecap="round" fill="none" />
-      <path d="M256 190 Q234 206 220 224" stroke="var(--card, #0f1614)" strokeWidth="7" strokeLinecap="round" fill="none" />
-      <path d="M256 236 Q270 248 278 260" stroke="var(--card, #0f1614)" strokeWidth="6" strokeLinecap="round" fill="none" />
-      <path d="M256 236 Q242 248 234 260" stroke="var(--card, #0f1614)" strokeWidth="6" strokeLinecap="round" fill="none" />
+      {/* Roof Highlight Line */}
+      <path d="M 256,134 L 364,226" stroke={`url(#hmGlyphHighlight_${id})`} strokeWidth="3.5" strokeLinecap="round" />
 
-      {/* Roof Wings */}
-      <path d="M138 296 L226 230 C222 236 218 244 216 252 L150 302 Z" fill="url(#hmGlyphRoof)" opacity="0.85" />
-      <path d="M374 296 L286 230 C290 236 294 244 296 252 L362 302 Z" fill="url(#hmGlyphRoof)" opacity="0.85" />
+      {/* House Body with Hollow Vault Archway (Compound Path with Even-Odd Rule) */}
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M 174,258 L 338,258 C 346,258 352,264 352,272 L 352,366 C 352,374 346,380 338,380 L 174,380 C 166,380 160,374 160,366 L 160,272 C 160,264 166,258 174,258 Z
+           M 224,380 L 224,312 C 224,294 238,280 256,280 C 274,280 288,294 288,312 L 288,380 Z"
+        fill={`url(#hmGlyphToken_${id})`}
+      />
+
+      {/* Equal-Split Ledger (=) inside Hollow Vault */}
+      <rect x="238" y="324" width="36" height="7" rx="3.5" fill={`url(#hmGlyphToken_${id})`} />
+      <rect x="238" y="342" width="36" height="7" rx="3.5" fill={`url(#hmGlyphToken_${id})`} />
+
+      {/* Center Minted Coin Medallion Ring & Pip */}
+      <circle cx="256" cy="214" r="18" stroke={`url(#hmGlyphToken_${id})`} strokeWidth="4.5" />
+      <circle cx="256" cy="214" r="4.5" fill="#38bdf8" />
     </svg>
   );
 }

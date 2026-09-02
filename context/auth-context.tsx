@@ -144,6 +144,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             role: authRole,
             is_roommate: isRoommate,
           });
+        } else {
+          setCurrentUser(null);
         }
       });
 
@@ -331,9 +333,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await supabase.auth.signOut();
       } catch (e) {
         console.error("Sign out error:", e);
+        try {
+          await supabase.auth.signOut({ scope: "local" });
+        } catch {
+          // ignore
+        }
       }
     }
+    if (typeof document !== "undefined") {
+      document.cookie.split(";").forEach((c) => {
+        const eqPos = c.indexOf("=");
+        const name = eqPos > -1 ? c.substring(0, eqPos).trim() : c.trim();
+        if (name.startsWith("sb-") && name.includes("-auth-token")) {
+          document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; max-age=0`;
+        }
+      });
+    }
     localStorage.removeItem(AUTH_STORAGE_KEY);
+    localStorage.removeItem("housemint_current_user_v1");
     setCurrentUser(null);
   }, []);
 
