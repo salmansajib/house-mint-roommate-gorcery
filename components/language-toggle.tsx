@@ -74,7 +74,7 @@ export function LanguageToggle({
         aria-checked={locale === "en"}
         onClick={() => setLocale("en")}
         className={cn(
-          "relative z-10 px-2 sm:px-2.5 h-full rounded-full text-xs font-semibold transition-colors duration-200 flex items-center justify-center cursor-pointer",
+          "relative z-10 px-1.5 sm:px-2.5 h-full rounded-full text-[11px] sm:text-xs font-semibold transition-colors duration-200 flex items-center justify-center cursor-pointer",
           locale === "en"
             ? "text-primary-foreground font-bold"
             : "text-muted-foreground hover:text-foreground"
@@ -96,7 +96,7 @@ export function LanguageToggle({
         aria-checked={locale === "bn"}
         onClick={() => setLocale("bn")}
         className={cn(
-          "relative z-10 px-2 sm:px-2.5 h-full rounded-full text-xs font-semibold transition-colors duration-200 flex items-center justify-center cursor-pointer",
+          "relative z-10 px-1.5 sm:px-2.5 h-full rounded-full text-[11px] sm:text-xs font-semibold transition-colors duration-200 flex items-center justify-center cursor-pointer",
           locale === "bn"
             ? "text-primary-foreground font-bold"
             : "text-muted-foreground hover:text-foreground"

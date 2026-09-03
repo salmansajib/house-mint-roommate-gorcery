@@ -20,7 +20,11 @@ import {
   Download,
   RefreshCw,
   WifiOff,
+  Sun,
+  Moon,
+  Languages,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import { navVariants, navItemVariants } from "@/lib/animations";
 import { NotificationPopover } from "@/components/notifications/notification-popover";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -40,7 +44,8 @@ export function Navbar({
   onOpenClaimAdmin,
 }: NavbarProps = {}) {
   const { signOut } = useAuth();
-  const { t, isBangla } = useLanguage();
+  const { t, isBangla, toggleLocale } = useLanguage();
+  const { resolvedTheme, setTheme } = useTheme();
   const {
     users,
     currentUser,
@@ -76,7 +81,7 @@ export function Navbar({
       variants={navVariants}
       className="sticky top-0 z-40 w-full border-b border-border/80 bg-background/90 backdrop-blur-md transition-all"
     >
-      <div className="max-w-6xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-2 sm:gap-4">
+      <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2 sm:gap-4">
         {/* Brand Logo */}
         <motion.div variants={navItemVariants} className="flex items-center gap-2 sm:gap-3 shrink-0">
           <motion.div
@@ -92,7 +97,7 @@ export function Navbar({
             </span>
             <Badge
               variant="outline"
-              className="hidden min-[420px]:inline-flex items-center text-[10px] font-semibold px-2 py-0.5 border-primary/30 text-primary/90 rounded-full whitespace-nowrap shrink-0"
+              className="hidden lg:inline-flex items-center text-[10px] font-semibold px-2 py-0.5 border-primary/30 text-primary/90 rounded-full whitespace-nowrap shrink-0"
             >
               {users.length} {isBangla ? t.nav.roommateCount : (users.length === 1 ? t.common.roommate : t.common.roommates)}
             </Badge>
@@ -100,23 +105,23 @@ export function Navbar({
         </motion.div>
 
         {/* Right side controls */}
-        <motion.div variants={navItemVariants} className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          {/* Admin Hub Direct Button */}
+        <motion.div variants={navItemVariants} className="flex items-center gap-1 sm:gap-2 shrink-0">
+          {/* Admin Hub Direct Button (Tablet / Desktop) */}
           {isAdmin && (
             <Button
               variant="outline"
               size="sm"
               onClick={onOpenAdminSettings}
-              className="inline-flex items-center justify-center gap-1.5 w-8 sm:w-auto h-8 sm:h-9 px-0 sm:px-3 bg-primary/10 border-primary/30 text-primary hover:bg-primary/20 text-xs font-semibold rounded-full cursor-pointer shrink-0 transition-colors"
+              className="hidden md:inline-flex items-center justify-center gap-1.5 h-8 sm:h-9 px-2.5 sm:px-3 bg-primary/10 border-primary/30 text-primary hover:bg-primary/20 text-xs font-semibold rounded-full cursor-pointer shrink-0 transition-colors"
               title={t.admin.modalTitle}
             >
               <ShieldCheck className="size-3.5 sm:size-4 text-primary shrink-0" />
-              <span className="hidden sm:inline">{t.common.admin}</span>
+              <span>{t.common.admin}</span>
             </Button>
           )}
 
-          {/* Household Total Pill (Desktop/Tablet) */}
-          <div className="hidden md:flex items-center gap-2 px-3.5 h-9 rounded-full bg-card border border-border text-xs transition-colors hover:border-border/80 shrink-0">
+          {/* Household Total Pill (Visible only on large desktop screens where ample space exists) */}
+          <div className="hidden lg:flex items-center gap-2 px-3.5 h-9 rounded-full bg-card border border-border text-xs transition-colors hover:border-border/80 shrink-0">
             <span className="text-muted-foreground">{t.dashboard.monthlyTotal}:</span>
             {!isLoaded ? (
               <Skeleton className="h-4 w-16 rounded-full" />
@@ -129,31 +134,31 @@ export function Navbar({
             )}
           </div>
 
-          {/* Language Switcher */}
+          {/* Language Switcher (Always visible across all screen sizes) */}
           <LanguageToggle />
 
-          {/* Theme Mode Toggle (Dark / Light) */}
+          {/* Theme Mode Toggle (Always visible across all screen sizes) */}
           <ThemeToggle />
 
-          {/* In-App Notifications Bell & Popover */}
+          {/* In-App Notifications Bell & Popover (Always visible) */}
           <NotificationPopover />
 
           {/* Roommate Switcher Dropdown or Sign In */}
           {!isLoaded ? (
-            <Skeleton className="h-8 sm:h-9 w-20 sm:w-28 rounded-full" />
+            <Skeleton className="h-8 sm:h-9 w-10 sm:w-28 rounded-full" />
           ) : users.length === 0 ? (
             <a
               href="/login"
-              className="flex items-center gap-1.5 px-3.5 h-8 sm:h-9 bg-primary text-primary-foreground rounded-full text-xs font-semibold hover:opacity-90 transition-opacity shadow-xs"
+              className="flex items-center gap-1.5 px-3 h-8 sm:h-9 bg-primary text-primary-foreground rounded-full text-xs font-semibold hover:opacity-90 transition-opacity shadow-xs shrink-0"
             >
               <LogIn className="size-3.5" />
-              <span>Join / Register</span>
+              <span className="hidden xs:inline">Join / Register</span>
             </a>
           ) : (
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setIsOpenMenu((prev) => !prev)}
-                className="flex items-center gap-1.5 sm:gap-2 pl-1 sm:pl-1.5 pr-2 sm:pr-2.5 bg-card border border-border rounded-full text-xs font-semibold hover:bg-accent hover:border-border/90 active:bg-accent/80 transition-colors duration-200 cursor-pointer select-none shadow-xs h-8 sm:h-9 shrink-0"
+                className="flex items-center gap-1 sm:gap-1.5 pl-0.5 sm:pl-1.5 pr-1 sm:pr-2.5 bg-card border border-border rounded-full text-xs font-semibold hover:bg-accent hover:border-border/90 active:bg-accent/80 transition-colors duration-200 cursor-pointer select-none shadow-xs h-8 sm:h-9 shrink-0"
                 aria-label="Roommate Switcher Menu"
               >
                 <UserAvatar user={currentUser} size="xs" />
@@ -161,7 +166,7 @@ export function Navbar({
                   {currentUser?.name || "Roommate"}
                 </span>
                 {currentUser?.role === "admin" && (
-                  <span className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-primary/15 text-primary text-[9px] font-semibold border border-primary/30">
+                  <span className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-primary/15 text-primary text-[9px] font-semibold border border-primary/30">
                     <ShieldCheck className="size-2.5" />
                     <span>Admin</span>
                   </span>
@@ -194,7 +199,7 @@ export function Navbar({
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -6, scale: 0.98 }}
                     transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-                    className="fixed inset-x-3 top-17 sm:top-auto sm:inset-x-auto sm:absolute sm:right-0 sm:mt-2 w-auto sm:w-60 max-w-sm max-h-[calc(100dvh-5.5rem)] overflow-y-auto bg-card border border-border rounded-2xl shadow-2xl py-1.5 z-50"
+                    className="fixed inset-x-3 top-17 sm:top-auto sm:inset-x-auto sm:absolute sm:right-0 sm:mt-2 w-auto sm:w-64 max-w-sm max-h-[calc(100dvh-5.5rem)] overflow-y-auto bg-card border border-border rounded-2xl shadow-2xl py-1.5 z-50"
                   >
                     <div className="px-3 py-2 border-b border-border bg-muted/40">
                       <div className="flex items-center justify-between gap-1">
@@ -220,6 +225,40 @@ export function Navbar({
                           {householdSettings.inviteCode}
                         </span>
                       </div>
+                    </div>
+
+                    {/* Mobile Quick Preferences: Theme & Language Toggles */}
+                    <div className="sm:hidden p-1.5 border-b border-border/40 grid grid-cols-2 gap-1.5 bg-muted/20">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const nextTheme = resolvedTheme === "dark" ? "light" : "dark";
+                          setTheme(nextTheme);
+                        }}
+                        className="px-2 py-1.5 text-xs flex items-center justify-center gap-1.5 rounded-xl border border-border/60 bg-card hover:bg-accent text-foreground font-medium transition-colors cursor-pointer"
+                      >
+                        {resolvedTheme === "dark" ? (
+                          <>
+                            <Sun className="size-3.5 text-amber-400 shrink-0" />
+                            <span>{isBangla ? "লাইট মোড" : "Light Mode"}</span>
+                          </>
+                        ) : (
+                          <>
+                            <Moon className="size-3.5 text-sky-400 shrink-0" />
+                            <span>{isBangla ? "ডার্ক মোড" : "Dark Mode"}</span>
+                          </>
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          toggleLocale();
+                        }}
+                        className="px-2 py-1.5 text-xs flex items-center justify-center gap-1.5 rounded-xl border border-border/60 bg-card hover:bg-accent text-foreground font-medium transition-colors cursor-pointer"
+                      >
+                        <Languages className="size-3.5 text-primary shrink-0" />
+                        <span className="font-semibold">{isBangla ? "English" : "বাংলা"}</span>
+                      </button>
                     </div>
 
                     {/* Admin Hub Shortcut or Claim Admin */}
@@ -355,7 +394,7 @@ export function Navbar({
             transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             className="overflow-hidden border-t border-warning/20 bg-warning/10 text-warning text-[11px] sm:text-xs font-medium select-none"
           >
-            <div className="max-w-6xl mx-auto px-3 sm:px-6 py-1 flex items-center justify-center gap-2 text-center">
+            <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-1 flex items-center justify-center gap-2 text-center">
               {isSyncing ? (
                 <>
                   <RefreshCw className="size-3 animate-spin text-primary shrink-0" />
