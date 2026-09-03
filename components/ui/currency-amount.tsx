@@ -1,11 +1,14 @@
 import * as React from "react";
 import { cn, formatBDT } from "@/lib/utils";
+import { useLanguage } from "@/context/language-context";
 
 export interface CurrencyAmountProps extends React.HTMLAttributes<HTMLSpanElement> {
   amount: number;
   showSign?: boolean;
   intent?: "positive" | "negative" | "neutral" | "auto";
   size?: "xs" | "sm" | "md" | "lg" | "xl" | "display";
+  forceBengaliNumerals?: boolean;
+  forceEnglishNumerals?: boolean;
 }
 
 export function CurrencyAmount({
@@ -13,9 +16,14 @@ export function CurrencyAmount({
   showSign = false,
   intent = "auto",
   size = "md",
+  forceBengaliNumerals,
+  forceEnglishNumerals,
   className,
   ...props
 }: CurrencyAmountProps) {
+  const { isBangla } = useLanguage();
+  const useBengali = forceBengaliNumerals ?? (forceEnglishNumerals ? false : isBangla);
+
   let colorClass = "text-foreground";
   if (intent === "positive" || (intent === "auto" && amount > 0)) {
     colorClass = "text-positive";
@@ -37,6 +45,7 @@ export function CurrencyAmount({
   const formattedValue = formatBDT(amount, {
     includeSymbol: false,
     showSign: false,
+    useBengaliNumerals: useBengali,
   });
 
   const sign = showSign && amount > 0 ? "+" : amount < 0 ? "-" : "";

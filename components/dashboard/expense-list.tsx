@@ -3,6 +3,7 @@
 import * as React from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useExpenses } from "@/context/expense-context";
+import { useLanguage } from "@/context/language-context";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { Badge } from "@/components/ui/badge";
@@ -21,7 +22,7 @@ import {
 import { CATEGORY_META } from "@/lib/balance";
 import { Expense } from "@/types";
 import { toast } from "@/components/ui/sonner";
-import { cn } from "@/lib/utils";
+import { cn, toBengaliNumerals, formatDateLocalized } from "@/lib/utils";
 import {
   ShoppingBag,
   Home,
@@ -41,19 +42,25 @@ import {
   Edit2,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
+import { bn as bnLocale, enUS as enLocale } from "date-fns/locale";
 import { EditExpenseModal } from "@/components/modals/edit-expense-modal";
 
-function formatExpenseDateTime(dateStr: string, createdAtStr?: string) {
+function formatExpenseDateTime(dateStr: string, createdAtStr?: string, locale: "en" | "bn" = "en") {
   try {
     const rawDate = dateStr.includes("T") ? dateStr.split("T")[0] : dateStr;
-    const formattedDate = format(parseISO(rawDate), "MMM dd, yyyy");
+    const dateObj = parseISO(rawDate);
+    const dateFnsLocale = locale === "bn" ? bnLocale : enLocale;
+    let formattedDate = format(dateObj, "MMM dd, yyyy", { locale: dateFnsLocale });
+    if (locale === "bn") formattedDate = toBengaliNumerals(formattedDate);
 
     if (createdAtStr) {
       const createdDate = new Date(createdAtStr);
       if (!isNaN(createdDate.getTime())) {
+        let formattedTime = format(createdDate, "h:mm a");
+        if (locale === "bn") formattedTime = toBengaliNumerals(formattedTime);
         return {
           date: formattedDate,
-          time: format(createdDate, "h:mm a"),
+          time: formattedTime,
         };
       }
     }
@@ -61,9 +68,11 @@ function formatExpenseDateTime(dateStr: string, createdAtStr?: string) {
     if (dateStr.includes("T")) {
       const parsed = parseISO(dateStr);
       if (!isNaN(parsed.getTime())) {
+        let formattedTime = format(parsed, "h:mm a");
+        if (locale === "bn") formattedTime = toBengaliNumerals(formattedTime);
         return {
           date: formattedDate,
-          time: format(parsed, "h:mm a"),
+          time: formattedTime,
         };
       }
     }
@@ -150,6 +159,7 @@ export function ExpenseList() {
     monthlySummaries,
     isLoaded,
   } = useExpenses();
+  const { t, isBangla, locale } = useLanguage();
 
   const [expandedExpenseIds, setExpandedExpenseIds] = React.useState<
     Record<string, boolean>
@@ -176,7 +186,7 @@ export function ExpenseList() {
   };
 
   const getUserName = (id: string) => {
-    return users.find((u) => u.id === id)?.name || "Roommate";
+    return users.find((u) => u.id === id)?.name || t.common.roommate;
   };
 
   const handleConfirmDelete = () => {
@@ -184,15 +194,19 @@ export function ExpenseList() {
       const canDelete =
         expenseToDelete.paid_by === currentUser.id || currentUser.role === "admin";
       if (!canDelete) {
-        toast.error("Cannot delete expense", {
-          description: "You can only delete your own expenses unless you are an admin.",
+        toast.error(isBangla ? "খরচ মুছে ফেলা সম্ভব নয়" : "Cannot delete expense", {
+          description: isBangla
+            ? "অ্যাডমিন ব্যতীত শুধুমাত্র নিজের যোগ করা খরচ মুছে ফেলা যাবে।"
+            : "You can only delete your own expenses unless you are an admin.",
         });
         setExpenseToDelete(null);
         return;
       }
       deleteExpense(expenseToDelete.id);
-      toast.success("Expense deleted", {
-        description: `"${expenseToDelete.title}" (৳${expenseToDelete.amount.toFixed(2)}) was removed.`,
+      toast.success(t.expenses.expenseDeletedSuccess, {
+        description: isBangla
+          ? `"${expenseToDelete.title}" (৳${expenseToDelete.amount.toFixed(2)}) তালিকা থেকে মুছে ফেলা হয়েছে।`
+          : `"${expenseToDelete.title}" (৳${expenseToDelete.amount.toFixed(2)}) was removed.`,
       });
       setExpenseToDelete(null);
     }
@@ -202,6 +216,10 @@ export function ExpenseList() {
     return <ExpenseListSkeleton />;
   }
 
+  const entryCountText = isBangla
+    ? `${toBengaliNumerals(expenses.length)}টি এন্ট্রি`
+    : `${expenses.length} ${expenses.length === 1 ? "entry" : "entries"}`;
+
   return (
     <>
       <Card className="h-full flex flex-col border-border bg-card">
@@ -210,14 +228,16 @@ export function ExpenseList() {
             <div>
               <div className="flex items-center gap-2">
                 <CardTitle className="text-base sm:text-lg font-bold">
-                  Household Ledger
+                  {t.dashboard.ledgerSummary}
                 </CardTitle>
                 <Badge variant="outline" className="text-[10px] sm:text-xs">
-                  {expenses.length} {expenses.length === 1 ? "entry" : "entries"}
+                  {entryCountText}
                 </Badge>
               </div>
               <CardDescription className="text-xs">
-                Every logged grocery haul, utility bill, and settlement
+                {isBangla
+                  ? "মেসের সকল বাজার, ইউটিলিটি বিল ও দেনা-পাওনার হিসাব"
+                  : "Every logged grocery haul, utility bill, and settlement"}
               </CardDescription>
             </div>
 
@@ -230,10 +250,10 @@ export function ExpenseList() {
                   onChange={(e) => setSelectedMonth(e.target.value)}
                   className="h-8 bg-card text-foreground border border-border rounded-lg pl-3 pr-8 text-xs focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer appearance-none font-medium transition-colors hover:border-border/80 flex items-center"
                 >
-                  <option value="all">All Months</option>
+                  <option value="all">{isBangla ? "সকল মাস" : "All Months"}</option>
                   {monthlySummaries.map((m) => (
                     <option key={m.month} value={m.month}>
-                      {m.formatted_month}
+                      {isBangla ? toBengaliNumerals(m.formatted_month) : m.formatted_month}
                     </option>
                   ))}
                 </select>
@@ -259,11 +279,12 @@ export function ExpenseList() {
                   transition={pillSlideTransition}
                 />
               )}
-              <span className="relative z-10">All Categories</span>
+              <span className="relative z-10">{isBangla ? "সকল ক্যাটাগরি" : "All Categories"}</span>
             </button>
             {(Object.keys(CATEGORY_META) as (keyof typeof CATEGORY_META)[]).map(
               (cat) => {
                 const isSelected = selectedCategory === cat;
+                const catLabel = t.categories[cat as keyof typeof t.categories] || CATEGORY_META[cat].label;
                 return (
                   <button
                     key={cat}
@@ -281,7 +302,7 @@ export function ExpenseList() {
                         transition={pillSlideTransition}
                       />
                     )}
-                    <span className="relative z-10">{CATEGORY_META[cat].label}</span>
+                    <span className="relative z-10">{catLabel}</span>
                   </button>
                 );
               }
@@ -294,7 +315,7 @@ export function ExpenseList() {
           {settlements.length > 0 && selectedCategory === "all" && (
             <div className="space-y-2 mb-4">
               <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                Recent Settlements
+                {isBangla ? "সাম্প্রতিক পরিশোধিত লেনদেন" : "Recent Settlements"}
               </span>
               <motion.div
                 initial="hidden"
@@ -310,23 +331,25 @@ export function ExpenseList() {
                       variants={listItemVariants}
                       exit="exit"
                       transition={smoothLayoutTransition}
-                      className="p-3.5 rounded-xl border border-emerald-500/20 bg-emerald-950/20 flex flex-col xs:flex-row xs:items-center justify-between gap-2 text-xs transition-[background-color,border-color] duration-150 ease-out hover:bg-emerald-950/35 hover:border-emerald-500/35"
+                      className="p-3.5 rounded-xl border border-positive/20 bg-positive/10 flex flex-col xs:flex-row xs:items-center justify-between gap-2 text-xs transition-[background-color,border-color] duration-150 ease-out hover:bg-positive/15 hover:border-positive/35"
                     >
                       <div className="flex items-center gap-2.5">
-                        <div className="size-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold shrink-0">
+                        <div className="size-8 rounded-lg bg-positive/20 text-positive flex items-center justify-center font-bold shrink-0">
                           ✓
                         </div>
                         <div className="min-w-0">
-                          <span className="font-semibold text-emerald-300 block truncate">
-                            {getUserName(s.payer_id)} paid {getUserName(s.receiver_id)}
+                          <span className="font-semibold text-foreground block truncate">
+                            {isBangla
+                              ? `${getUserName(s.payer_id)} ${getUserName(s.receiver_id)}-কে পরিশোধ করেছেন`
+                              : `${getUserName(s.payer_id)} paid ${getUserName(s.receiver_id)}`}
                           </span>
                           <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
                             {(() => {
-                              const dt = formatExpenseDateTime(s.date, s.created_at);
+                              const dt = formatExpenseDateTime(s.date, s.created_at, locale);
                               return (
                                 <span>
                                   {dt.date}
-                                  {dt.time ? ` at ${dt.time}` : ""}
+                                  {dt.time ? (isBangla ? ` সময়: ${dt.time}` : ` at ${dt.time}`) : ""}
                                 </span>
                               );
                             })()}
@@ -353,8 +376,12 @@ export function ExpenseList() {
               className="py-12 text-center text-muted-foreground text-xs space-y-2"
             >
               <Receipt className="size-8 mx-auto opacity-40" />
-              <p className="font-semibold text-foreground text-sm">No expenses found</p>
-              <p className="text-xs">Try clearing filters or adding a new expense.</p>
+              <p className="font-semibold text-foreground text-sm">{t.expenses.noExpensesFound}</p>
+              <p className="text-xs">
+                {isBangla
+                  ? "ফিল্টার পরিবর্তন করুন অথবা একটি নতুন খরচের এন্ট্রি যোগ করুন।"
+                  : "Try clearing filters or adding a new expense."}
+              </p>
             </motion.div>
           ) : (
             <motion.div
@@ -374,6 +401,7 @@ export function ExpenseList() {
                     Boolean(expense.items && expense.items.length > 0);
                   const isExpanded = expandedExpenseIds[expense.id];
                   const isHighlighted = recentlyUpdatedId === expense.id;
+                  const localizedCatLabel = t.categories[expense.category as keyof typeof t.categories] || meta?.label || expense.category;
 
                   // Current user's split share
                   const userSplit = expense.splits.find(
@@ -402,27 +430,27 @@ export function ExpenseList() {
                           </div>
                           <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                              <span className="font-semibold text-xs sm:text-sm text-foreground truncate max-w-[200px] sm:max-w-none">
+                              <span className="font-semibold text-xs sm:text-sm text-foreground truncate max-w-50 sm:max-w-none">
                                 {expense.title}
                               </span>
                               <Badge variant={meta?.badgeVariant || "default"} className="text-[9px] sm:text-[10px] py-0 px-1.5">
-                                {meta?.label || expense.category}
+                                {localizedCatLabel}
                               </Badge>
                               {!isItemized && (expense.quantity || expense.unit) && (
                                 <Badge variant="outline" className="text-[9px] sm:text-[10px] py-0 px-1.5 border-border">
-                                  {expense.quantity ? expense.quantity : ""} {expense.unit || ""}
+                                  {isBangla && expense.quantity ? toBengaliNumerals(expense.quantity) : (expense.quantity || "")} {expense.unit || ""}
                                 </Badge>
                               )}
                               {isItemized && (
                                 <Badge variant="secondary" className="text-[9px] sm:text-[10px] py-0 px-1.5 gap-1">
                                   <Layers className="size-2.5" />
-                                  {expense.items?.length} items
+                                  {isBangla ? `${toBengaliNumerals(expense.items?.length || 0)}টি পণ্য` : `${expense.items?.length} items`}
                                 </Badge>
                               )}
                             </div>
                             <div className="text-[11px] sm:text-xs text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1">
                               {(() => {
-                                const dt = formatExpenseDateTime(expense.date, expense.created_at);
+                                const dt = formatExpenseDateTime(expense.date, expense.created_at, locale);
                                 return (
                                   <span className="inline-flex items-center gap-1 font-medium text-foreground/90">
                                     <Calendar className="size-3 text-muted-foreground shrink-0" />
@@ -439,20 +467,28 @@ export function ExpenseList() {
                               })()}
                               <span>•</span>
                               <span>
-                                Paid by <strong className="text-foreground font-medium">{isPayer ? "You" : payerName}</strong>
+                                {isBangla ? (
+                                  <>পরিশোধ করেছেন: <strong className="text-foreground font-medium">{isPayer ? t.common.you : payerName}</strong></>
+                                ) : (
+                                  <>Paid by <strong className="text-foreground font-medium">{isPayer ? "You" : payerName}</strong></>
+                                )}
                               </span>
                               <span className="hidden xs:inline">•</span>
                               <span className="text-[11px]">
-                                Your share: <strong className="text-foreground">৳{userShareAmount}</strong>
+                                {isBangla ? (
+                                  <>আপনার অংশ: <strong className="text-foreground">৳{toBengaliNumerals(userShareAmount)}</strong></>
+                                ) : (
+                                  <>Your share: <strong className="text-foreground">৳{userShareAmount}</strong></>
+                                )}
                               </span>
                               {expense.updated_at && (
                                 <>
                                   <span className="text-muted-foreground">•</span>
                                   <span
                                     className="text-[10px] text-muted-foreground italic font-normal"
-                                    title={`Edited on ${format(new Date(expense.updated_at), "MMM dd, yyyy 'at' h:mm a")}`}
+                                    title={isBangla ? `সম্পাদিত: ${formatDateLocalized(expense.updated_at, locale)}` : `Edited on ${format(new Date(expense.updated_at), "MMM dd, yyyy 'at' h:mm a")}`}
                                   >
-                                    (edited)
+                                    ({isBangla ? "সম্পাদিত" : "edited"})
                                   </span>
                                 </>
                               )}
@@ -466,7 +502,9 @@ export function ExpenseList() {
                             <CurrencyAmount amount={expense.amount} size="md" className="font-bold block" />
                             <span className="text-[10px] text-muted-foreground">
                               {expense.split_type === "equal"
-                                ? `Split ${expense.splits.length} ways (Equal)`
+                                ? (isBangla
+                                    ? `সমান ${toBengaliNumerals(expense.splits.length)} ভাগে`
+                                    : `Split ${expense.splits.length} ways (Equal)`)
                                 : expense.split_type}
                             </span>
                           </div>
@@ -478,7 +516,7 @@ export function ExpenseList() {
                                 size="icon"
                                 onClick={() => toggleExpand(expense.id)}
                                 className="size-8 text-muted-foreground hover:text-foreground cursor-pointer"
-                                title="View itemized breakdown"
+                                title={isBangla ? "পণ্যের তালিকা দেখুন" : "View itemized breakdown"}
                               >
                                 <ChevronDown
                                   className={cn(
@@ -497,7 +535,7 @@ export function ExpenseList() {
                                 size="icon"
                                 onClick={() => setExpenseToEdit(expense)}
                                 className="size-8 text-muted-foreground hover:text-primary hover:bg-primary/10 cursor-pointer"
-                                title={isPayer ? "Edit expense" : "Edit expense (Admin)"}
+                                title={isPayer ? (isBangla ? "খরচ সম্পাদনা" : "Edit expense") : (isBangla ? "খরচ সম্পাদনা (অ্যাডমিন)" : "Edit expense (Admin)")}
                               >
                                 <Edit2 className="size-3.5" />
                               </Button>
@@ -506,7 +544,7 @@ export function ExpenseList() {
                                 size="icon"
                                 onClick={() => setExpenseToDelete(expense)}
                                 className="size-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer"
-                                title={isPayer ? "Delete expense" : "Delete expense (Admin)"}
+                                title={isPayer ? (isBangla ? "খরচ মুছে ফেলুন" : "Delete expense") : (isBangla ? "খরচ মুছে ফেলুন (অ্যাডমিন)" : "Delete expense (Admin)")}
                               >
                                 <Trash2 className="size-3.5" />
                               </Button>
@@ -514,7 +552,7 @@ export function ExpenseList() {
                           ) : (
                             <div
                               className="size-8 flex items-center justify-center text-muted-foreground/30 hover:text-muted-foreground/60 transition-colors cursor-not-allowed select-none"
-                              title={`Protected: Only ${payerName} or an Admin can edit or delete this expense`}
+                              title={isBangla ? `সুরক্ষিত: শুধুমাত্র ${payerName} বা মেসের অ্যাডমিন এটি পরিবর্তন করতে পারবেন` : `Protected: Only ${payerName} or an Admin can edit or delete this expense`}
                             >
                               <Lock className="size-3.5" />
                             </div>
@@ -534,7 +572,7 @@ export function ExpenseList() {
                           className="overflow-hidden bg-accent/20 border-t border-border/60 p-3 text-xs space-y-1.5"
                         >
                           <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                            Itemized Grocery Haul Breakdown
+                            {isBangla ? "বাজারের পণ্যের বিস্তারিত তালিকা" : "Itemized Grocery Haul Breakdown"}
                           </div>
                           <div className="divide-y divide-border/40">
                             {expense.items.map((item, idx) => (
@@ -546,7 +584,7 @@ export function ExpenseList() {
                                   {item.name}
                                   {(item.quantity || item.unit) ? (
                                     <span className="text-muted-foreground text-[11px] ml-1.5">
-                                      ({item.quantity ? item.quantity : ""} {item.unit || ""} × ৳{item.unit_price})
+                                      ({isBangla && item.quantity ? toBengaliNumerals(item.quantity) : (item.quantity || "")} {item.unit || ""} × ৳{isBangla ? toBengaliNumerals(item.unit_price) : item.unit_price})
                                     </span>
                                   ) : null}
                                 </span>
@@ -574,25 +612,29 @@ export function ExpenseList() {
               <AlertTriangle className="size-5" />
             </div>
             <AlertDialogTitle className="text-lg font-bold text-foreground">
-              Delete This Expense?
+              {t.expenses.deleteExpenseTitle}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-xs text-muted-foreground space-y-1">
-              <span>Are you sure you want to delete </span>
+              <span>{isBangla ? "আপনি কি নিশ্চিতভাবে " : "Are you sure you want to delete "}</span>
               <strong className="text-foreground font-semibold">
-                &ldquo;{expenseToDelete?.title}&rdquo; (৳{expenseToDelete?.amount})
+                &ldquo;{expenseToDelete?.title}&rdquo; (৳{expenseToDelete?.amount ? (isBangla ? toBengaliNumerals(expenseToDelete.amount) : expenseToDelete.amount) : ""})
               </strong>
-              <span>? This will remove the entry from the ledger and immediately recalculate all roommate balances.</span>
+              <span>
+                {isBangla
+                  ? " মুছে ফেলতে চান? এতে মেসের হিসাব থেকে এন্ট্রিটি বাদ যাবে এবং সকল রুমমেটের ব্যালেন্স আপডেট হবে।"
+                  : "? This will remove the entry from the ledger and immediately recalculate all roommate balances."}
+              </span>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="pt-3 gap-2 flex-col-reverse sm:flex-row">
             <AlertDialogCancel className="h-10 rounded-xl border-border hover:bg-accent cursor-pointer">
-              Keep Expense
+              {t.common.cancel}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               className="h-10 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90 font-semibold cursor-pointer shadow-md shadow-destructive/20"
             >
-              Yes, Delete Expense
+              {t.common.delete}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

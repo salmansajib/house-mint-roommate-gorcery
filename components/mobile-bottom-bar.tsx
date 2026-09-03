@@ -5,6 +5,7 @@ import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, HandCoins } from "lucide-react";
 import { bottomBarVariants } from "@/lib/animations";
+import { useLanguage } from "@/context/language-context";
 
 interface MobileBottomBarProps {
   onOpenAddExpense: () => void;
@@ -15,6 +16,8 @@ export function MobileBottomBar({
   onOpenAddExpense,
   onOpenSettleUp,
 }: MobileBottomBarProps) {
+  const { t } = useLanguage();
+
   return (
     <motion.div
       initial="hidden"
@@ -29,7 +32,7 @@ export function MobileBottomBar({
             className="w-full h-12 rounded-full bg-primary text-primary-foreground font-bold shadow-md shadow-primary/20 gap-2 justify-center text-xs cursor-pointer"
           >
             <PlusCircle className="size-4" />
-            <span>Add Expense</span>
+            <span>{t.dashboard.addExpense}</span>
           </Button>
         </motion.div>
         <motion.div whileTap={{ scale: 0.96 }}>
@@ -38,8 +41,8 @@ export function MobileBottomBar({
             variant="outline"
             className="w-full h-12 rounded-full border-border bg-card/90 font-bold gap-2 justify-center text-xs text-foreground cursor-pointer"
           >
-            <HandCoins className="size-4 text-emerald-400" />
-            <span>Settle Up</span>
+            <HandCoins className="size-4 text-primary" />
+            <span>{t.nav.settleUp}</span>
           </Button>
         </motion.div>
       </div>

@@ -3,10 +3,12 @@
 import * as React from "react";
 import { motion } from "motion/react";
 import { useExpenses } from "@/context/expense-context";
+import { useLanguage } from "@/context/language-context";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { CATEGORY_META } from "@/lib/balance";
+import { toBengaliNumerals } from "@/lib/utils";
 import { ShoppingBag, Home, Zap, Flame, Wifi, Tag } from "lucide-react";
 import { listContainerVariants, listItemVariants, premiumEase } from "@/lib/animations";
 
@@ -49,6 +51,7 @@ export function CategoryBreakdownSkeleton() {
 export function CategoryBreakdown() {
   const { categoryBreakdown, selectedCategory, setSelectedCategory, isLoaded } =
     useExpenses();
+  const { t, isBangla } = useLanguage();
 
   if (!isLoaded) {
     return <CategoryBreakdownSkeleton />;
@@ -59,9 +62,9 @@ export function CategoryBreakdown() {
       <CardHeader className="p-4 sm:p-5 pb-3">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-base font-bold">Category Breakdown</CardTitle>
+            <CardTitle className="text-base font-bold">{t.dashboard.breakdownByCategory}</CardTitle>
             <CardDescription className="text-xs">
-              Household spending distribution
+              {isBangla ? "মেসের খাতওয়ারী ব্যয়ের বিন্যাস" : "Household spending distribution"}
             </CardDescription>
           </div>
           {selectedCategory !== "all" && (
@@ -71,7 +74,7 @@ export function CategoryBreakdown() {
               onClick={() => setSelectedCategory("all")}
               className="text-xs text-primary hover:underline font-medium cursor-pointer"
             >
-              Clear filter
+              {t.common.clear}
             </motion.button>
           )}
         </div>
@@ -79,7 +82,7 @@ export function CategoryBreakdown() {
       <CardContent className="p-4 sm:p-5 pt-0 space-y-3">
         {categoryBreakdown.length === 0 ? (
           <div className="py-8 text-center text-xs text-muted-foreground">
-            No expenses logged for this filter.
+            {isBangla ? "এই ফিল্টারে কোনো খরচ পাওয়া যায়নি।" : "No expenses logged for this filter."}
           </div>
         ) : (
           <motion.div
@@ -92,6 +95,15 @@ export function CategoryBreakdown() {
               const meta = CATEGORY_META[item.category];
               const Icon = ICON_MAP[meta?.icon || "Tag"] || Tag;
               const isSelected = selectedCategory === item.category;
+              const localizedLabel = t.categories[item.category as keyof typeof t.categories] || item.label;
+
+              const entryCountText = isBangla
+                ? `(${toBengaliNumerals(item.count)}টি এন্ট্রি)`
+                : `(${item.count} ${item.count === 1 ? "entry" : "entries"})`;
+
+              const percentText = isBangla
+                ? `${toBengaliNumerals(item.percentage)}%`
+                : `${item.percentage}%`;
 
               return (
                 <motion.div
@@ -127,17 +139,17 @@ export function CategoryBreakdown() {
                               : "font-semibold text-foreground"
                           }`}
                         >
-                          {item.label}
+                          {localizedLabel}
                         </span>
                         <span className="text-[11px] text-muted-foreground ml-2">
-                          ({item.count} {item.count === 1 ? "entry" : "entries"})
+                          {entryCountText}
                         </span>
                       </div>
                     </div>
                     <div className="text-right">
                       <CurrencyAmount amount={item.total_amount} size="sm" className="font-bold" />
                       <span className="text-[10px] text-muted-foreground ml-1.5 font-medium">
-                        {item.percentage}%
+                        {percentText}
                       </span>
                     </div>
                   </div>

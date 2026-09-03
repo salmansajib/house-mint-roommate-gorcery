@@ -59,6 +59,8 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useGroceryCatalog } from "@/hooks/use-grocery-catalog";
+import { useLanguage } from "@/context/language-context";
+import { toBengaliNumerals } from "@/lib/utils";
 
 interface AdminSettingsModalProps {
   isOpen: boolean;
@@ -82,6 +84,7 @@ export function AdminSettingsModal({
     ledger,
     expenses,
   } = useExpenses();
+  const { t, isBangla } = useLanguage();
 
   const [activeTab, setActiveTab] = React.useState<
     "members" | "catalog" | "vault" | "policies" | "audit"
@@ -354,20 +357,31 @@ export function AdminSettingsModal({
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                 <DialogTitle className="text-lg sm:text-xl font-bold text-foreground tracking-tight truncate">
-                  Apartment Admin Hub
+                  {isBangla ? "মেস ও ফ্ল্যাট অ্যাডমিন হাব" : "Apartment Admin Hub"}
                 </DialogTitle>
                 <Badge
                   variant="outline"
                   className="border-primary/40 text-primary bg-primary/10 text-[10px] sm:text-xs px-2 py-0.5 font-semibold shrink-0"
                 >
-                  Administrator
+                  {isBangla ? "অ্যাডমিনিস্ট্রেটর" : "Administrator"}
                 </Badge>
               </div>
               <DialogDescription className="text-xs sm:text-sm text-muted-foreground mt-1 line-clamp-1 sm:line-clamp-none">
-                Manage household members, invite keys, utility credentials & policies for{" "}
-                <span className="font-semibold text-foreground">
-                  {householdSettings.householdName}
-                </span>
+                {isBangla ? (
+                  <>
+                    রুমমেট সদস্য, ইনভাইট কোড, বাড়িওয়ালার তথ্য ও মেসের নিয়মাবলী —{" "}
+                    <span className="font-semibold text-foreground">
+                      {householdSettings.householdName}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    Manage household members, invite keys, utility credentials & policies for{" "}
+                    <span className="font-semibold text-foreground">
+                      {householdSettings.householdName}
+                    </span>
+                  </>
+                )}
               </DialogDescription>
             </div>
           </div>
@@ -385,35 +399,45 @@ export function AdminSettingsModal({
                   className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 px-1 sm:px-3 rounded-lg text-xs sm:text-sm font-bold data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all cursor-pointer select-none focus-visible:ring-1 focus-visible:ring-primary/40"
                 >
                   <Users className="size-4 shrink-0" />
-                  <span className="whitespace-nowrap tracking-tight">Members</span>
+                  <span className="whitespace-nowrap tracking-tight">
+                    {isBangla ? "সদস্যগণ" : "Members"}
+                  </span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="catalog"
                   className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 px-1 sm:px-3 rounded-lg text-xs sm:text-sm font-bold data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all cursor-pointer select-none focus-visible:ring-1 focus-visible:ring-primary/40"
                 >
                   <ShoppingBag className="size-4 shrink-0" />
-                  <span className="whitespace-nowrap tracking-tight">Catalog</span>
+                  <span className="whitespace-nowrap tracking-tight">
+                    {isBangla ? "ক্যাটালগ" : "Catalog"}
+                  </span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="vault"
                   className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 px-1 sm:px-3 rounded-lg text-xs sm:text-sm font-bold data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all cursor-pointer select-none focus-visible:ring-1 focus-visible:ring-primary/40"
                 >
                   <Building className="size-4 shrink-0" />
-                  <span className="whitespace-nowrap tracking-tight">Vault</span>
+                  <span className="whitespace-nowrap tracking-tight">
+                    {isBangla ? "ভল্ট" : "Vault"}
+                  </span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="policies"
                   className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 px-1 sm:px-3 rounded-lg text-xs sm:text-sm font-bold data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all cursor-pointer select-none focus-visible:ring-1 focus-visible:ring-primary/40"
                 >
                   <Sliders className="size-4 shrink-0" />
-                  <span className="whitespace-nowrap tracking-tight">Policies</span>
+                  <span className="whitespace-nowrap tracking-tight">
+                    {isBangla ? "নীতিমালা" : "Policies"}
+                  </span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="audit"
                   className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 px-1 sm:px-3 rounded-lg text-xs sm:text-sm font-bold data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all cursor-pointer select-none focus-visible:ring-1 focus-visible:ring-primary/40"
                 >
                   <Lock className="size-4 shrink-0" />
-                  <span className="whitespace-nowrap tracking-tight">Audit</span>
+                  <span className="whitespace-nowrap tracking-tight">
+                    {isBangla ? "অডিট" : "Audit"}
+                  </span>
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -432,10 +456,10 @@ export function AdminSettingsModal({
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                       <Users className="size-3.5 text-primary" />
-                      <span>Roommate Invite Code</span>
+                      <span>{isBangla ? "রুমমেট ইনভাইট কোড" : "Roommate Invite Code"}</span>
                     </span>
                     <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-border">
-                      Roommates
+                      {isBangla ? "রুমমেট" : "Roommates"}
                     </Badge>
                   </div>
                   <div className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-card border border-border/60 font-mono text-base tracking-wider font-bold text-foreground">
@@ -447,7 +471,7 @@ export function AdminSettingsModal({
                       onClick={() =>
                         copyToClipboard(householdSettings.inviteCode, "memberCode")
                       }
-                      title="Copy Roommate Invite Code"
+                      title={isBangla ? "ইনভাইট কোড কপি করুন" : "Copy Roommate Invite Code"}
                     >
                       {copiedField === "memberCode" ? (
                         <Check className="size-3.5 text-positive" />
@@ -457,7 +481,9 @@ export function AdminSettingsModal({
                     </Button>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Share with new roommates moving into Flat 4B to join grocery splits.
+                    {isBangla
+                      ? "মেসে নতুন রুমমেট জয়েন করলে তাদের সাথে এই কোড শেয়ার করুন।"
+                      : "Share with new roommates moving into Flat 4B to join grocery splits."}
                   </p>
                 </div>
 
@@ -466,13 +492,13 @@ export function AdminSettingsModal({
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                       <Key className="size-3.5 text-primary" />
-                      <span>Admin Master Key</span>
+                      <span>{isBangla ? "অ্যাডমিন মাস্টার কি" : "Admin Master Key"}</span>
                     </span>
                     <Badge
                       variant="outline"
                       className="text-xs px-2 py-0.5 border-primary/30 text-primary bg-primary/5"
                     >
-                      Secret Key
+                      {isBangla ? "গোপন চাবি" : "Secret Key"}
                     </Badge>
                   </div>
                   <div className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-card border border-border/60 font-mono text-base tracking-wider font-bold text-foreground">
@@ -487,7 +513,7 @@ export function AdminSettingsModal({
                         variant="ghost"
                         className="size-7 cursor-pointer hover:bg-muted text-muted-foreground hover:text-foreground"
                         onClick={() => setShowAdminKey(!showAdminKey)}
-                        title={showAdminKey ? "Hide key" : "Show key"}
+                        title={showAdminKey ? (isBangla ? "লুকান" : "Hide key") : (isBangla ? "দেখুন" : "Show key")}
                       >
                         {showAdminKey ? (
                           <EyeOff className="size-3.5" />
@@ -505,7 +531,7 @@ export function AdminSettingsModal({
                             "adminKey"
                           )
                         }
-                        title="Copy Master Admin Key"
+                        title={isBangla ? "মাস্টার কি কপি করুন" : "Copy Master Admin Key"}
                       >
                         {copiedField === "adminKey" ? (
                           <Check className="size-3.5 text-positive" />
@@ -516,7 +542,9 @@ export function AdminSettingsModal({
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Private secret key used to grant Administrator privileges upon registration.
+                    {isBangla
+                      ? "অ্যাডমিন প্রিভিলেজ সহ অ্যাকাউন্ট রেজিস্ট্রেশনের জন্য গোপন চাবি।"
+                      : "Private secret key used to grant Administrator privileges upon registration."}
                   </p>
                 </div>
               </div>
@@ -526,10 +554,14 @@ export function AdminSettingsModal({
                 <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2.5">
                   <div>
                     <h3 className="text-sm font-bold text-foreground">
-                      Household Roster ({users.length} Total)
+                      {isBangla
+                        ? `মেসের সদস্য তালিকা (মোট ${toBengaliNumerals(users.length)} জন)`
+                        : `Household Roster (${users.length} Total)`}
                     </h3>
                     <p className="text-xs text-muted-foreground">
-                      Configure administrative roles and resident split participation.
+                      {isBangla
+                        ? "অ্যাডমিন ভূমিকা এবং খরচে অংশগ্রহণের রোল কনফিগার করুন।"
+                        : "Configure administrative roles and resident split participation."}
                     </p>
                   </div>
                   <Button
@@ -538,7 +570,7 @@ export function AdminSettingsModal({
                     className="text-xs font-semibold bg-primary text-primary-foreground gap-1.5 cursor-pointer w-full xs:w-auto shrink-0 justify-center"
                   >
                     <UserPlus className="size-3.5" />
-                    <span>Add Member</span>
+                    <span>{isBangla ? "নতুন সদস্য যোগ" : "Add Member"}</span>
                   </Button>
                 </div>
 
@@ -554,7 +586,7 @@ export function AdminSettingsModal({
                     >
                       <div className="flex items-center justify-between pb-1 border-b border-border/60">
                         <span className="text-xs font-bold text-foreground">
-                          Add New Member or External Manager
+                          {isBangla ? "নতুন সদস্য বা ম্যানেজার যোগ করুন" : "Add New Member or External Manager"}
                         </span>
                         <Button
                           type="button"
@@ -563,26 +595,26 @@ export function AdminSettingsModal({
                           onClick={() => setIsAddUserOpen(false)}
                           className="h-6 text-[11px] text-muted-foreground"
                         >
-                          Cancel
+                          {t.common.cancel}
                         </Button>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1">
                           <label className="text-[11px] font-semibold text-muted-foreground">
-                            Full Name
+                            {isBangla ? "পূর্ণ নাম *" : "Full Name *"}
                           </label>
                           <Input
                             required
                             value={newUserName}
                             onChange={(e) => setNewUserName(e.target.value)}
-                            placeholder="e.g. Tariq / Building Manager"
+                            placeholder={isBangla ? "যেমন: তারিকুল ইসলাম" : "e.g. Tariq / Building Manager"}
                             className="bg-background text-xs h-8"
                           />
                         </div>
                         <div className="space-y-1">
                           <label className="text-[11px] font-semibold text-muted-foreground">
-                            Email (Optional)
+                            {isBangla ? "ইমেইল (ঐচ্ছিক)" : "Email (Optional)"}
                           </label>
                           <Input
                             type="email"
@@ -597,7 +629,7 @@ export function AdminSettingsModal({
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                         <div className="space-y-1">
                           <label className="text-[11px] font-semibold text-muted-foreground">
-                            Administrative Role
+                            {isBangla ? "প্রশাসনিক ভূমিকা" : "Administrative Role"}
                           </label>
                           <div className="flex items-center gap-2">
                             <Button
@@ -607,7 +639,7 @@ export function AdminSettingsModal({
                               onClick={() => setNewUserRole("member")}
                               className="text-xs flex-1 h-8 cursor-pointer"
                             >
-                              Member
+                              {isBangla ? "সাধারণ সদস্য" : "Member"}
                             </Button>
                             <Button
                               type="button"
@@ -617,14 +649,14 @@ export function AdminSettingsModal({
                               className="text-xs flex-1 h-8 cursor-pointer gap-1"
                             >
                               <ShieldCheck className="size-3.5" />
-                              <span>Admin</span>
+                              <span>{isBangla ? "অ্যাডমিন" : "Admin"}</span>
                             </Button>
                           </div>
                         </div>
 
                         <div className="space-y-1">
                           <label className="text-[11px] font-semibold text-muted-foreground">
-                            Financial Participation
+                            {isBangla ? "আর্থিক অংশীদারিত্ব" : "Financial Participation"}
                           </label>
                           <div className="flex items-center gap-2">
                             <Button
@@ -633,9 +665,9 @@ export function AdminSettingsModal({
                               variant={newUserIsRoommate ? "default" : "outline"}
                               onClick={() => setNewUserIsRoommate(true)}
                               className="text-xs flex-1 h-8 cursor-pointer"
-                              title="Splits groceries and apartment bills"
+                              title={isBangla ? "মেসের বাজার ও বিল সমান ভাগে ভাগ হবে" : "Splits groceries and apartment bills"}
                             >
-                              Roommate
+                              {isBangla ? "রুমমেট" : "Roommate"}
                             </Button>
                             <Button
                               type="button"
@@ -643,9 +675,9 @@ export function AdminSettingsModal({
                               variant={!newUserIsRoommate ? "default" : "outline"}
                               onClick={() => setNewUserIsRoommate(false)}
                               className="text-xs flex-1 h-8 cursor-pointer"
-                              title="Admin only, excluded from splits & debts"
+                              title={isBangla ? "শুধু হিসাব নিয়ন্ত্রণ করবে, খরচের ভাগে থাকবে না" : "Admin only, excluded from splits & debts"}
                             >
-                              External Manager
+                              {isBangla ? "বহিরাগত ম্যানেজার" : "External Manager"}
                             </Button>
                           </div>
                         </div>
@@ -657,7 +689,7 @@ export function AdminSettingsModal({
                           size="sm"
                           className="bg-primary text-primary-foreground text-xs font-semibold"
                         >
-                          Confirm & Add User
+                          {isBangla ? "নিশ্চিত ও যোগ করুন" : "Confirm & Add User"}
                         </Button>
                       </div>
                     </motion.form>
@@ -689,20 +721,20 @@ export function AdminSettingsModal({
                                   variant="secondary"
                                   className="text-[10px] px-1.5 py-0 text-muted-foreground font-normal"
                                 >
-                                  You
+                                  {t.common.you}
                                 </Badge>
                               )}
                               {isUserAdmin ? (
                                 <Badge className="text-[10px] px-2 py-0 bg-primary/15 text-primary border border-primary/30 font-semibold flex items-center gap-1">
                                   <ShieldCheck className="size-3" />
-                                  <span>Admin</span>
+                                  <span>{isBangla ? "অ্যাডমিন" : "Admin"}</span>
                                 </Badge>
                               ) : (
                                 <Badge
                                   variant="outline"
                                   className="text-[10px] px-1.5 py-0 border-border text-muted-foreground"
                                 >
-                                  Member
+                                  {isBangla ? "সদস্য" : "Member"}
                                 </Badge>
                               )}
 
@@ -711,20 +743,22 @@ export function AdminSettingsModal({
                                   variant="outline"
                                   className="text-[10px] px-1.5 py-0 border-positive/30 text-positive bg-positive/5 shrink-0"
                                 >
-                                  Active Roommate
+                                  {isBangla ? "সক্রিয় রুমমেট" : "Active Roommate"}
                                 </Badge>
                               ) : (
                                 <Badge
                                   variant="outline"
                                   className="text-[10px] px-1.5 py-0 border-warning/30 text-warning bg-warning/5 shrink-0"
                                 >
-                                  <span className="xs:hidden">External</span>
-                                  <span className="hidden xs:inline">External Manager (No Splits)</span>
+                                  <span className="xs:hidden">{isBangla ? "ম্যানেজার" : "External"}</span>
+                                  <span className="hidden xs:inline">
+                                    {isBangla ? "বহিরাগত ম্যানেজার (ভাগে নেই)" : "External Manager (No Splits)"}
+                                  </span>
                                 </Badge>
                               )}
                             </div>
                             <p className="text-xs text-muted-foreground truncate">
-                              {u.email || "Local account"}
+                              {u.email || (isBangla ? "স্থানীয় অ্যাকাউন্ট" : "Local account")}
                             </p>
                           </div>
                         </div>
@@ -744,11 +778,13 @@ export function AdminSettingsModal({
                             }
                             title={
                               isUserAdmin
-                                ? "Demote to Member"
-                                : "Promote to Admin"
+                                ? (isBangla ? "অ্যাডমিন পদবি সরান" : "Demote to Member")
+                                : (isBangla ? "অ্যাডমিন বানান" : "Promote to Admin")
                             }
                           >
-                            {isUserAdmin ? "Remove Admin" : "Make Admin"}
+                            {isUserAdmin
+                              ? (isBangla ? "অ্যাডমিন সরান" : "Remove Admin")
+                              : (isBangla ? "অ্যাডমিন বানান" : "Make Admin")}
                           </Button>
 
                           {/* Toggle Roommate Split Status */}
@@ -761,11 +797,13 @@ export function AdminSettingsModal({
                             }
                             title={
                               isRoommate
-                                ? "Exclude from grocery & bill splits"
-                                : "Include in roommate splits"
+                                ? (isBangla ? "বাজার ও বিলের ভাগ থেকে বাদ দিন" : "Exclude from grocery & bill splits")
+                                : (isBangla ? "রুমমেট হিসেবে ভাগে যুক্ত করুন" : "Include in roommate splits")
                             }
                           >
-                            {isRoommate ? "Set Manager" : "Set Roommate"}
+                            {isRoommate
+                              ? (isBangla ? "ম্যানেজার করুন" : "Set Manager")
+                              : (isBangla ? "রুমমেট করুন" : "Set Roommate")}
                           </Button>
                         </div>
                       </div>
@@ -783,17 +821,19 @@ export function AdminSettingsModal({
                 <div>
                   <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                     <ShoppingBag className="size-4 text-primary" />
-                    <span>Apartment Grocery Catalog & Suggestions</span>
+                    <span>{isBangla ? "মেসের বাজারের পণ্যের ক্যাটালগ ও সাজেশন" : "Apartment Grocery Catalog & Suggestions"}</span>
                   </h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Manage Bangla item suggestions, phonetic Banglish spellings, and default units for all roommates.
+                    {isBangla
+                      ? "সকল রুমমেটের সুবিধার্থে বাংলা পণ্যের নাম, বাংলিশ ও ডিফল্ট পরিমাপ একক কনফিগার করুন।"
+                      : "Manage Bangla item suggestions, phonetic Banglish spellings, and default units for all roommates."}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
                   {itemSavedSuccess && (
                     <Badge className="bg-positive/15 border border-positive/30 text-positive text-xs flex items-center gap-1 font-semibold">
                       <Check className="size-3" />
-                      <span>Item Saved</span>
+                      <span>{isBangla ? "সংরক্ষিত হয়েছে" : "Item Saved"}</span>
                     </Badge>
                   )}
                   <Button
@@ -802,7 +842,7 @@ export function AdminSettingsModal({
                     className="text-xs font-semibold gap-1.5 h-8 bg-primary text-primary-foreground hover:opacity-90 cursor-pointer w-full sm:w-auto justify-center"
                   >
                     <Plus className="size-3.5" />
-                    <span>{isAddItemOpen ? "Close Form" : "Add Item"}</span>
+                    <span>{isAddItemOpen ? (isBangla ? "ফর্ম বন্ধ" : "Close Form") : (isBangla ? "পণ্য যোগ" : "Add Item")}</span>
                   </Button>
                 </div>
               </div>
@@ -820,16 +860,20 @@ export function AdminSettingsModal({
                     <div className="flex items-center justify-between pb-1 border-b border-border/50">
                       <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
                         <Sparkles className="size-3.5 text-primary" />
-                        <span>Add New Grocery Suggestion</span>
+                        <span>{isBangla ? "নতুন বাজারের পণ্য ও সাজেশন যোগ" : "Add New Grocery Suggestion"}</span>
                       </span>
-                      <span className="text-[10px] text-muted-foreground">Syncs instantly to all roommates via Supabase</span>
+                      <span className="text-[10px] text-muted-foreground">
+                        {isBangla ? "সকল রুমমেটের সাথে স্বয়ংক্রিয়ভাবে সিঙ্ক হবে" : "Syncs instantly to all roommates"}
+                      </span>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="space-y-1">
-                        <label className="text-[11px] font-semibold text-foreground">Bangla Name *</label>
+                        <label className="text-[11px] font-semibold text-foreground">
+                          {isBangla ? "বাংলা নাম *" : "Bangla Name *"}
+                        </label>
                         <Input
-                          placeholder="e.g. কালা ভুনা মসলা or মিনিকেট চাল"
+                          placeholder={isBangla ? "যেমন: কালা ভুনা মসলা বা মিনিকেট চাল" : "e.g. কালা ভুনা মসলা or মিনিকেট চাল"}
                           value={itemBn}
                           onChange={(e) => setItemBn(e.target.value)}
                           className="h-8.5 text-xs bg-background border-border"
@@ -837,7 +881,9 @@ export function AdminSettingsModal({
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[11px] font-semibold text-foreground">English Name *</label>
+                        <label className="text-[11px] font-semibold text-foreground">
+                          {isBangla ? "ইংরেজি নাম *" : "English Name *"}
+                        </label>
                         <Input
                           placeholder="e.g. Kala Bhuna Spice Mix or Miniket Rice"
                           value={itemEn}
@@ -850,7 +896,7 @@ export function AdminSettingsModal({
 
                     <div className="space-y-1">
                       <label className="text-[11px] font-semibold text-foreground">
-                        Banglish Aliases / Phonetic Keywords (comma-separated)
+                        {isBangla ? "বাংলিশ কিওয়ার্ড / সার্চ ট্যাগ (কমা দিয়ে লিখুন)" : "Banglish Aliases / Phonetic Keywords (comma-separated)"}
                       </label>
                       <Input
                         placeholder="e.g. kala bhuna, kalabhuna, mezbani, moshla"
@@ -859,13 +905,17 @@ export function AdminSettingsModal({
                         className="h-8.5 text-xs bg-background border-border"
                       />
                       <p className="text-[10px] text-muted-foreground">
-                        Roommates can type any of these keywords to match this item.
+                        {isBangla
+                          ? "রুমমেটরা এই কিওয়ার্ডগুলো লিখলেই স্বয়ংক্রিয়ভাবে পণ্যটি সাজেস্ট করবে।"
+                          : "Roommates can type any of these keywords to match this item."}
                       </p>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="space-y-1">
-                        <label className="text-[11px] font-semibold text-foreground">Default Unit</label>
+                        <label className="text-[11px] font-semibold text-foreground">
+                          {isBangla ? "ডিফল্ট একক" : "Default Unit"}
+                        </label>
                         <select
                           value={itemUnit}
                           onChange={(e) => setItemUnit(e.target.value)}
@@ -886,20 +936,22 @@ export function AdminSettingsModal({
                       </div>
 
                       <div className="space-y-1">
-                        <label className="text-[11px] font-semibold text-foreground">Category</label>
+                        <label className="text-[11px] font-semibold text-foreground">
+                          {isBangla ? "ক্যাটাগরি" : "Category"}
+                        </label>
                         <select
                           value={itemCategory}
                           onChange={(e) => setItemCategory(e.target.value)}
                           className="w-full h-10 bg-background border border-border rounded-xl px-3 text-xs font-medium focus:ring-2 focus:ring-primary/40 focus:border-primary focus:outline-none cursor-pointer"
                         >
-                          <option value="staples">Staples & Grains (চাল, ডাল, আটা)</option>
-                          <option value="vegetables">Vegetables (শাকসবজি)</option>
-                          <option value="meat_fish">Meat & Fish (মাংস ও মাছ)</option>
-                          <option value="spices">Spices & Seasonings (মসলা)</option>
-                          <option value="dairy_eggs">Dairy & Eggs (ডিম, দুধ)</option>
-                          <option value="oil_ghee">Oil & Ghee (তেল ও ঘি)</option>
-                          <option value="household">Household & Cleaning (পরিচ্ছন্নতা)</option>
-                          <option value="other">Other / Miscellaneous</option>
+                          <option value="staples">{isBangla ? "নিত্যপণ্য ও চাল-ডাল (চাল, ডাল, আটা)" : "Staples & Grains (চাল, ডাল, আটা)"}</option>
+                          <option value="vegetables">{isBangla ? "শাকসবজি ও কাঁচাবাজার" : "Vegetables (শাকসবজি)"}</option>
+                          <option value="meat_fish">{isBangla ? "মাংস ও মাছ" : "Meat & Fish (মাংস ও মাছ)"}</option>
+                          <option value="spices">{isBangla ? "মসলা ও উপাদান" : "Spices & Seasonings (মসলা)"}</option>
+                          <option value="dairy_eggs">{isBangla ? "দুধ ও ডিম" : "Dairy & Eggs (ডিম, দুধ)"}</option>
+                          <option value="oil_ghee">{isBangla ? "তেল ও ঘি" : "Oil & Ghee (তেল ও ঘি)"}</option>
+                          <option value="household">{isBangla ? "বাসার পরিচ্ছন্নতা সামগ্রী" : "Household & Cleaning (পরিচ্ছন্নতা)"}</option>
+                          <option value="other">{isBangla ? "অন্যান্য" : "Other / Miscellaneous"}</option>
                         </select>
                       </div>
                     </div>
@@ -912,7 +964,7 @@ export function AdminSettingsModal({
                         onClick={() => setIsAddItemOpen(false)}
                         className="h-8 text-xs cursor-pointer"
                       >
-                        Cancel
+                        {t.common.cancel}
                       </Button>
                       <Button
                         type="submit"
@@ -920,7 +972,7 @@ export function AdminSettingsModal({
                         disabled={isSavingItem}
                         className="h-8 text-xs font-semibold bg-primary text-primary-foreground cursor-pointer"
                       >
-                        {isSavingItem ? "Saving..." : "Save to Catalog"}
+                        {isSavingItem ? (isBangla ? "সংরক্ষণ হচ্ছে..." : "Saving...") : (isBangla ? "ক্যাটালগে সংরক্ষণ" : "Save to Catalog")}
                       </Button>
                     </div>
                   </motion.form>
@@ -932,7 +984,7 @@ export function AdminSettingsModal({
                 <div className="relative">
                   <Search className="size-3.5 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <Input
-                    placeholder="Search by Bangla name, English, or Banglish (e.g. chal, dim, chicken)..."
+                    placeholder={isBangla ? "বাংলা নাম, ইংরেজি বা বাংলিশ দিয়ে খুঁজুন (যেমন: chal, dim, chicken)..." : "Search by Bangla name, English, or Banglish (e.g. chal, dim, chicken)..."}
                     value={catalogSearch}
                     onChange={(e) => setCatalogSearch(e.target.value)}
                     className="h-9 pl-9 text-xs bg-background border-border"
@@ -943,14 +995,13 @@ export function AdminSettingsModal({
                       onClick={() => setCatalogSearch("")}
                       className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground hover:text-foreground px-1 py-0.5 cursor-pointer"
                     >
-                      Clear
+                      {isBangla ? "মুছুন" : "Clear"}
                     </button>
                   )}
                 </div>
 
-                {/* Category Pills with Horizontal Scroll, Arrows & Gradient Edges */}
+                {/* Category Pills */}
                 <div className="relative flex items-center">
-                  {/* Left Scroll Button */}
                   {canScrollLeft && (
                     <button
                       type="button"
@@ -962,26 +1013,24 @@ export function AdminSettingsModal({
                     </button>
                   )}
 
-                  {/* Left Gradient Edge */}
                   {canScrollLeft && (
-                    <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-card to-transparent pointer-events-none z-10" />
+                    <div className="absolute left-0 top-0 bottom-0 w-8 bg-linear-to-r from-card to-transparent pointer-events-none z-10" />
                   )}
 
-                  {/* Scrollable Container */}
                   <div
                     ref={categoryScrollRef}
                     className="flex items-center gap-1.5 overflow-x-auto py-1 px-1 scroll-smooth no-scrollbar text-xs w-full"
                   >
                     {[
-                      { key: "all", label: "All Items" },
-                      { key: "custom", label: "Apartment Custom" },
-                      { key: "staples", label: "Staples" },
-                      { key: "vegetables", label: "Vegetables" },
-                      { key: "meat_fish", label: "Meat & Fish" },
-                      { key: "spices", label: "Spices" },
-                      { key: "dairy_eggs", label: "Dairy & Eggs" },
-                      { key: "oil_ghee", label: "Oil & Ghee" },
-                      { key: "household", label: "Household" },
+                      { key: "all", label: isBangla ? "সকল পণ্য" : "All Items" },
+                      { key: "custom", label: isBangla ? "মেসের কাস্টম" : "Apartment Custom" },
+                      { key: "staples", label: isBangla ? "চাল-ডাল" : "Staples" },
+                      { key: "vegetables", label: isBangla ? "শাকসবজি" : "Vegetables" },
+                      { key: "meat_fish", label: isBangla ? "মাংস ও মাছ" : "Meat & Fish" },
+                      { key: "spices", label: isBangla ? "মসলা" : "Spices" },
+                      { key: "dairy_eggs", label: isBangla ? "ডিম ও দুধ" : "Dairy & Eggs" },
+                      { key: "oil_ghee", label: isBangla ? "তেল-ঘি" : "Oil & Ghee" },
+                      { key: "household", label: isBangla ? "পরিচ্ছন্নতা" : "Household" },
                     ].map((cat) => (
                       <button
                         key={cat.key}
@@ -1005,12 +1054,10 @@ export function AdminSettingsModal({
                     ))}
                   </div>
 
-                  {/* Right Gradient Edge */}
                   {canScrollRight && (
-                    <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-card to-transparent pointer-events-none z-10" />
+                    <div className="absolute right-0 top-0 bottom-0 w-8 bg-linear-to-l from-card to-transparent pointer-events-none z-10" />
                   )}
 
-                  {/* Right Scroll Button */}
                   {canScrollRight && (
                     <button
                       type="button"
@@ -1028,9 +1075,13 @@ export function AdminSettingsModal({
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-[11px] text-muted-foreground px-1">
                   <span>
-                    Showing {filteredCatalog.length} item{filteredCatalog.length === 1 ? "" : "s"}
+                    {isBangla
+                      ? `${toBengaliNumerals(filteredCatalog.length)}টি পণ্য প্রদর্শিত হচ্ছে`
+                      : `Showing ${filteredCatalog.length} item${filteredCatalog.length === 1 ? "" : "s"}`}
                   </span>
-                  <span>Auto-suggestions active in Add & Edit Expense</span>
+                  <span>
+                    {isBangla ? "খরচ যোগ করার সময় অটো-সাজেশন সক্রিয়" : "Auto-suggestions active in Add & Edit Expense"}
+                  </span>
                 </div>
 
                 <div className="space-y-2 max-h-80 overflow-y-auto pr-1 custom-scrollbar">
@@ -1052,18 +1103,20 @@ export function AdminSettingsModal({
                             </span>
                             {isApartmentCustom ? (
                               <Badge className="text-[10px] px-1.5 py-0 bg-primary/15 border-primary/30 text-primary font-semibold">
-                                Apartment Custom
+                                {isBangla ? "মেসের কাস্টম" : "Apartment Custom"}
                               </Badge>
                             ) : (
                               <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-border text-muted-foreground">
-                                Default
+                                {isBangla ? "ডিফল্ট" : "Default"}
                               </Badge>
                             )}
                           </div>
 
                           {item.banglish_aliases && item.banglish_aliases.length > 0 && (
                             <div className="flex items-center gap-1 flex-wrap pt-0.5">
-                              <span className="text-[10px] text-muted-foreground">Matches:</span>
+                              <span className="text-[10px] text-muted-foreground">
+                                {isBangla ? "ট্যাগ:" : "Matches:"}
+                              </span>
                               {item.banglish_aliases.slice(0, 5).map((alias, aIdx) => (
                                 <span
                                   key={aIdx}
@@ -1074,7 +1127,7 @@ export function AdminSettingsModal({
                               ))}
                               {item.banglish_aliases.length > 5 && (
                                 <span className="text-[10px] text-muted-foreground opacity-60">
-                                  +{item.banglish_aliases.length - 5} more
+                                  +{item.banglish_aliases.length - 5}
                                 </span>
                               )}
                             </div>
@@ -1084,7 +1137,7 @@ export function AdminSettingsModal({
                         <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0 w-full sm:w-auto pt-2 border-t border-border/40 sm:border-0 sm:pt-0">
                           {item.default_unit && (
                             <span className="text-[11px] font-semibold bg-accent/70 text-foreground px-2 py-0.5 rounded border border-border/60">
-                              Unit: {item.default_unit}
+                              {isBangla ? `একক: ${item.default_unit}` : `Unit: ${item.default_unit}`}
                             </span>
                           )}
 
@@ -1093,7 +1146,7 @@ export function AdminSettingsModal({
                               type="button"
                               onClick={() => setCatalogItemToDelete(item)}
                               className="size-7 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors cursor-pointer ml-auto sm:ml-0"
-                              title="Delete custom item"
+                              title={isBangla ? "পণ্য মুছুন" : "Delete custom item"}
                             >
                               <Trash2 className="size-3.5" />
                             </button>
@@ -1106,9 +1159,13 @@ export function AdminSettingsModal({
                   {filteredCatalog.length === 0 && (
                     <div className="text-center py-8 border border-dashed border-border/60 rounded-xl">
                       <ShoppingBag className="size-8 mx-auto text-muted-foreground/50 mb-2" />
-                      <p className="text-xs font-semibold text-foreground">No matching grocery items found</p>
+                      <p className="text-xs font-semibold text-foreground">
+                        {isBangla ? "কোনো পণ্য খুঁজে পাওয়া যায়নি" : "No matching grocery items found"}
+                      </p>
                       <p className="text-[11px] text-muted-foreground mt-0.5">
-                        Try a different search query or click "Add Item" above to create it.
+                        {isBangla
+                          ? "অন্য কোনো নামে খুঁজুন অথবা উপরে 'পণ্য যোগ' বোতামে চাপুন।"
+                          : 'Try a different search query or click "Add Item" above to create it.'}
                       </p>
                     </div>
                   )}
@@ -1123,16 +1180,18 @@ export function AdminSettingsModal({
               <div className="flex items-center justify-between pb-2 border-b border-border/60">
                 <div>
                   <h3 className="text-sm font-bold text-foreground">
-                    Apartment & Landlord Credentials Vault
+                    {isBangla ? "বাড়িওয়ালা ও ইউটিলিটি তথ্য ভল্ট" : "Apartment & Landlord Credentials Vault"}
                   </h3>
                   <p className="text-xs text-muted-foreground">
-                    Shared reference details so flatmates never have to ask for payment info.
+                    {isBangla
+                      ? "পেমেন্ট রেফারেন্স তথ্য যাতে রুমমেটদের বারবার চাইতে না হয়।"
+                      : "Shared reference details so flatmates never have to ask for payment info."}
                   </p>
                 </div>
                 {vaultSaved && (
                   <Badge className="bg-positive/15 border border-positive/30 text-positive text-xs flex items-center gap-1 font-semibold">
                     <Check className="size-3.5" />
-                    <span>Saved!</span>
+                    <span>{isBangla ? "সংরক্ষিত!" : "Saved!"}</span>
                   </Badge>
                 )}
               </div>
@@ -1140,13 +1199,13 @@ export function AdminSettingsModal({
               <div className="space-y-3">
                 <div className="space-y-1">
                   <label className="text-xs font-semibold text-muted-foreground">
-                    Apartment / Household Display Name
+                    {isBangla ? "মেস / ফ্ল্যাটের নাম" : "Apartment / Household Display Name"}
                   </label>
                   <Input
                     required
                     value={householdName}
                     onChange={(e) => setHouseholdName(e.target.value)}
-                    placeholder="e.g. Flat 4B — Dhanmondi"
+                    placeholder={isBangla ? "যেমন: ফ্ল্যাট ৪বি — ধানমন্ডি" : "e.g. Flat 4B — Dhanmondi"}
                     className="bg-background text-sm"
                   />
                 </div>
@@ -1155,12 +1214,12 @@ export function AdminSettingsModal({
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
                       <Building className="size-3.5" />
-                      <span>Landlord / Manager Name</span>
+                      <span>{isBangla ? "বাড়িওয়ালা / কেয়ারটেকারের নাম" : "Landlord / Manager Name"}</span>
                     </label>
                     <Input
                       value={landlordName}
                       onChange={(e) => setLandlordName(e.target.value)}
-                      placeholder="e.g. Alhaj Rafiqul Islam"
+                      placeholder={isBangla ? "যেমন: আলহাজ্ব রফিকুল ইসলাম" : "e.g. Alhaj Rafiqul Islam"}
                       className="bg-background text-sm"
                     />
                   </div>
@@ -1168,7 +1227,7 @@ export function AdminSettingsModal({
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
                       <Phone className="size-3.5" />
-                      <span>Landlord Contact Phone</span>
+                      <span>{isBangla ? "বাড়িওয়ালার মোবাইল নম্বর" : "Landlord Contact Phone"}</span>
                     </label>
                     <Input
                       value={landlordPhone}
@@ -1183,7 +1242,7 @@ export function AdminSettingsModal({
                   <label className="text-xs font-semibold text-muted-foreground flex items-center justify-between">
                     <span className="flex items-center gap-1.5">
                       <CreditCard className="size-3.5" />
-                      <span>Landlord Payment Details (bKash / Bank Account)</span>
+                      <span>{isBangla ? "বাড়িওয়ালার পেমেন্ট মাধ্যম (বিকাশ / ব্যাংক অ্যাকাউন্ট)" : "Landlord Payment Details (bKash / Bank Account)"}</span>
                     </span>
                     {landlordPaymentMethod && (
                       <button
@@ -1198,14 +1257,14 @@ export function AdminSettingsModal({
                         ) : (
                           <Copy className="size-3" />
                         )}
-                        <span>Copy</span>
+                        <span>{isBangla ? "কপি" : "Copy"}</span>
                       </button>
                     )}
                   </label>
                   <Input
                     value={landlordPaymentMethod}
                     onChange={(e) => setLandlordPaymentMethod(e.target.value)}
-                    placeholder="e.g. bKash 01711234567 / City Bank A/C 204128912"
+                    placeholder={isBangla ? "যেমন: বিকাশ ০১৭১১২৩৪৫৬৭ / সিটি ব্যাংক A/C ২০৪১২৮৯১২" : "e.g. bKash 01711234567 / City Bank A/C 204128912"}
                     className="bg-background text-sm"
                   />
                 </div>
@@ -1215,7 +1274,7 @@ export function AdminSettingsModal({
                     <label className="text-xs font-semibold text-muted-foreground flex items-center justify-between">
                       <span className="flex items-center gap-1.5">
                         <Zap className="size-3.5 text-amber-400" />
-                        <span>DESCO / DPDC Electricity Meter No</span>
+                        <span>{isBangla ? "ডেসকো / ডিপিডিসি প্রিপেইড বিদ্যুৎ মিটার নং" : "DESCO / DPDC Electricity Meter No"}</span>
                       </span>
                       {electricityMeterNo && (
                         <button
@@ -1230,7 +1289,7 @@ export function AdminSettingsModal({
                           ) : (
                             <Copy className="size-3" />
                           )}
-                          <span>Copy</span>
+                          <span>{isBangla ? "কপি" : "Copy"}</span>
                         </button>
                       )}
                     </label>
@@ -1246,7 +1305,7 @@ export function AdminSettingsModal({
                     <label className="text-xs font-semibold text-muted-foreground flex items-center justify-between">
                       <span className="flex items-center gap-1.5">
                         <Wifi className="size-3.5 text-cyan-400" />
-                        <span>Wi-Fi / ISP Client ID</span>
+                        <span>{isBangla ? "ওয়াইফাই / ইন্টারনেট ক্লায়েন্ট আইডি" : "Wi-Fi / ISP Client ID"}</span>
                       </span>
                       {internetClientId && (
                         <button
@@ -1261,7 +1320,7 @@ export function AdminSettingsModal({
                           ) : (
                             <Copy className="size-3" />
                           )}
-                          <span>Copy</span>
+                          <span>{isBangla ? "কপি" : "Copy"}</span>
                         </button>
                       )}
                     </label>
@@ -1277,7 +1336,7 @@ export function AdminSettingsModal({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-muted-foreground">
-                      Edit Roommate Invite Code
+                      {isBangla ? "রুমমেট ইনভাইট কোড পরিবর্তন" : "Edit Roommate Invite Code"}
                     </label>
                     <Input
                       value={inviteCode}
@@ -1288,7 +1347,7 @@ export function AdminSettingsModal({
                   </div>
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-muted-foreground">
-                      Edit Admin Master Key
+                      {isBangla ? "অ্যাডমিন মাস্টার কি পরিবর্তন" : "Edit Admin Master Key"}
                     </label>
                     <Input
                       value={adminInviteCode}
@@ -1306,28 +1365,30 @@ export function AdminSettingsModal({
                   size="sm"
                   className="bg-primary text-primary-foreground text-xs font-semibold cursor-pointer w-full sm:w-auto"
                 >
-                  Save Vault Details
+                  {isBangla ? "ভল্ট তথ্য সংরক্ষণ করুন" : "Save Vault Details"}
                 </Button>
               </div>
             </form>
           )}
 
-          {/* TAB 3: HOUSE POLICIES & SPLIT DEFAULTS */}
+          {/* TAB 4: HOUSE POLICIES & SPLIT DEFAULTS */}
           {activeTab === "policies" && (
             <form onSubmit={handleSavePolicies} className="space-y-5">
               <div className="flex items-center justify-between pb-2 border-b border-border/60">
                 <div>
                   <h3 className="text-sm font-bold text-foreground">
-                    Household Policies & Fund Management
+                    {isBangla ? "মেসের হিসাব নীতিমালা ও ড্রয়ার ফান্ড" : "Household Policies & Fund Management"}
                   </h3>
                   <p className="text-xs text-muted-foreground">
-                    Configure default splitting behavior and common cash funds.
+                    {isBangla
+                      ? "খরচ ভাগের ডিফল্ট নিয়ম ও ড্রয়ারের নগদ তহবিল পরিচালনা করুন।"
+                      : "Configure default splitting behavior and common cash funds."}
                   </p>
                 </div>
                 {policiesSaved && (
                   <Badge className="bg-positive/15 border border-positive/30 text-positive text-xs flex items-center gap-1 font-semibold">
                     <Check className="size-3.5" />
-                    <span>Saved!</span>
+                    <span>{isBangla ? "সংরক্ষিত!" : "Saved!"}</span>
                   </Badge>
                 )}
               </div>
@@ -1341,10 +1402,12 @@ export function AdminSettingsModal({
                     </div>
                     <div className="min-w-0">
                       <h4 className="text-xs font-bold text-foreground">
-                        Common Emergency / Petty Cash Pool
+                        {isBangla ? "সাধারণ ড্রয়ার ক্যাশ / জরুরি তহবিল" : "Common Emergency / Petty Cash Pool"}
                       </h4>
                       <p className="text-[11px] text-muted-foreground line-clamp-2 sm:line-clamp-none">
-                        Fixed household drawer cash for daily drinking water jars, garbage bills & maid tips.
+                        {isBangla
+                          ? "খাবার পানির জার, ময়লার বিল ও বুয়ার বকশিশের মতো নগদ খরচের জন্য।"
+                          : "Fixed household drawer cash for daily drinking water jars, garbage bills & maid tips."}
                       </p>
                     </div>
                   </div>
@@ -1364,7 +1427,7 @@ export function AdminSettingsModal({
                     <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-3">
                       <div>
                         <span className="text-[11px] text-muted-foreground block">
-                          Current Pool Cash Balance:
+                          {isBangla ? "বর্তমান ড্রয়ার ক্যাশ ব্যালেন্স:" : "Current Pool Cash Balance:"}
                         </span>
                         <CurrencyAmount
                           amount={Number(emergencyBalance) || 0}
@@ -1374,7 +1437,7 @@ export function AdminSettingsModal({
                       </div>
                       <div className="flex items-center gap-2 w-full xs:w-auto">
                         <span className="text-xs text-muted-foreground font-medium shrink-0">
-                          Set Balance ৳:
+                          {isBangla ? "ব্যালেন্স ৳:" : "Set Balance ৳:"}
                         </span>
                         <Input
                           type="number"
@@ -1386,9 +1449,11 @@ export function AdminSettingsModal({
                       </div>
                     </div>
 
-                    {/* Quick Add / Deposit Chips */}
+                    {/* Quick Add Chips */}
                     <div className="flex items-center gap-1.5 pt-1.5 border-t border-border/40 flex-wrap">
-                      <span className="text-[10px] text-muted-foreground font-medium">Quick Deposit:</span>
+                      <span className="text-[10px] text-muted-foreground font-medium">
+                        {isBangla ? "দ্রুত জমা:" : "Quick Deposit:"}
+                      </span>
                       <button
                         type="button"
                         onClick={() =>
@@ -1398,7 +1463,7 @@ export function AdminSettingsModal({
                         }
                         className="h-6 px-2.5 rounded-full bg-accent/80 hover:bg-accent text-[10px] font-mono font-semibold text-foreground border border-border/60 cursor-pointer inline-flex items-center transition-colors"
                       >
-                        +৳500
+                        {isBangla ? "+৳৫০০" : "+৳500"}
                       </button>
                       <button
                         type="button"
@@ -1409,7 +1474,7 @@ export function AdminSettingsModal({
                         }
                         className="h-6 px-2.5 rounded-full bg-accent/80 hover:bg-accent text-[10px] font-mono font-semibold text-foreground border border-border/60 cursor-pointer inline-flex items-center transition-colors"
                       >
-                        +৳1,000
+                        {isBangla ? "+৳১,০০০" : "+৳1,000"}
                       </button>
                       <button
                         type="button"
@@ -1420,21 +1485,23 @@ export function AdminSettingsModal({
                         }
                         className="h-6 px-2.5 rounded-full bg-accent/80 hover:bg-accent text-[10px] font-mono font-semibold text-foreground border border-border/60 cursor-pointer inline-flex items-center transition-colors"
                       >
-                        +৳2,000
+                        {isBangla ? "+৳২,০০০" : "+৳2,000"}
                       </button>
                       <button
                         type="button"
                         onClick={() => setEmergencyBalance("0")}
                         className="h-6 px-2.5 rounded-full text-[10px] font-mono text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer ml-auto inline-flex items-center transition-colors"
                       >
-                        Reset to ৳0
+                        {isBangla ? "৳০ করুন" : "Reset to ৳0"}
                       </button>
                     </div>
                   </div>
                 ) : (
                   <div className="p-3 rounded-lg bg-muted/20 border border-border/40 text-center">
                     <p className="text-[11px] text-muted-foreground">
-                      Petty cash pool is currently <span className="font-semibold text-foreground">disabled</span>. Toggle the switch above to activate common drawer cash.
+                      {isBangla
+                        ? "ড্রয়ার তহবিল বর্তমানে নিষ্ক্রিয়। সক্রিয় করতে উপরের সুইচটি অন করুন।"
+                        : "Petty cash pool is currently disabled. Toggle the switch above to activate common drawer cash."}
                     </p>
                   </div>
                 )}
@@ -1444,10 +1511,12 @@ export function AdminSettingsModal({
               <div className="p-4 rounded-xl bg-background border border-border/80 space-y-3">
                 <div>
                   <h4 className="text-xs font-bold text-foreground">
-                    Default Household Expense Splitting Rule
+                    {isBangla ? "মেসের খরচ ভাগ করার ডিফল্ট নিয়ম" : "Default Household Expense Splitting Rule"}
                   </h4>
                   <p className="text-[11px] text-muted-foreground">
-                    How new groceries and shared bills are divided by default.
+                    {isBangla
+                      ? "নতুন বিল বা বাজার কীভাবে সকল রুমমেটের মাঝে স্বয়ংক্রিয়ভাবে ভাগ হবে।"
+                      : "How new groceries and shared bills are divided by default."}
                   </p>
                 </div>
 
@@ -1455,28 +1524,32 @@ export function AdminSettingsModal({
                   <div className="p-3 rounded-lg bg-card border-2 border-primary/40 text-left">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs font-bold text-foreground">
-                        Equal 1/N Split (Active)
+                        {isBangla ? "সমান ১/N ভাগ (সক্রিয়)" : "Equal 1/N Split (Active)"}
                       </span>
                       <Badge className="text-[9px] bg-primary/20 text-primary border-primary/30">
-                        Default
+                        {isBangla ? "ডিফল্ট" : "Default"}
                       </Badge>
                     </div>
                     <p className="text-[11px] text-muted-foreground leading-relaxed">
-                      All active roommates share expenses equally with 1-poisha remainder handling.
+                      {isBangla
+                        ? "সকল সক্রিয় রুমমেট সমানভাবে খরচ ভাগ করে এবং পয়সার অমিল নিখুঁতভাবে সমন্বয় করা হয়।"
+                        : "All active roommates share expenses equally with 1-poisha remainder handling."}
                     </p>
                   </div>
 
                   <div className="p-3 rounded-lg bg-muted/20 border border-border text-left opacity-80">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs font-bold text-foreground">
-                        Room-Ratio Split
+                        {isBangla ? "রুম-রেশিও অনুযায়ী ভাগ" : "Room-Ratio Split"}
                       </span>
                       <Badge variant="outline" className="text-[9px]">
-                        Configurable
+                        {isBangla ? "ঐচ্ছিক" : "Configurable"}
                       </Badge>
                     </div>
                     <p className="text-[11px] text-muted-foreground leading-relaxed">
-                      Custom percentage ratios per roommate based on master room or balcony size.
+                      {isBangla
+                        ? "মাস্টার বেডরুম বা বারান্দা আকারের ওপর ভিত্তি করে কাস্টম শতাংশ অনুযায়ী ভাগ।"
+                        : "Custom percentage ratios per roommate based on master room or balcony size."}
                     </p>
                   </div>
                 </div>
@@ -1484,28 +1557,32 @@ export function AdminSettingsModal({
 
               <div className="pt-2 flex flex-col xs:flex-row xs:items-center justify-between gap-2">
                 <span className="text-[11px] text-muted-foreground">
-                  Changes save directly to Supabase & sync real-time to all roommates.
+                  {isBangla
+                    ? "সকল পরিবর্তন স্বয়ংক্রিয়ভাবে সংরক্ষিত ও রুমমেটদের সাথে সিঙ্ক হবে।"
+                    : "Changes save directly to Supabase & sync real-time to all roommates."}
                 </span>
                 <Button
                   type="submit"
                   size="sm"
                   className="bg-primary text-primary-foreground text-xs font-semibold cursor-pointer w-full xs:w-auto shrink-0"
                 >
-                  Save Policies
+                  {isBangla ? "নীতিমালা সংরক্ষণ" : "Save Policies"}
                 </Button>
               </div>
             </form>
           )}
 
-          {/* TAB 4: PERIOD LOCK & AUDIT */}
+          {/* TAB 5: PERIOD LOCK & AUDIT */}
           {activeTab === "audit" && (
             <div className="space-y-5">
               <div className="pb-2 border-b border-border/60">
                 <h3 className="text-sm font-bold text-foreground">
-                  Financial Integrity, Month Lock & Export
+                  {isBangla ? "আর্থিক নিরাপত্তা, মাস লক ও ব্যাকআপ" : "Financial Integrity, Month Lock & Export"}
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  Protect past records once settled and generate apartment archives.
+                  {isBangla
+                    ? "হিসাব নিষ্পত্তি হয়ে যাওয়া পূর্ববর্তী মাস লক করুন এবং মেসের ডেটা ডাউনলোড করুন।"
+                    : "Protect past records once settled and generate apartment archives."}
                 </p>
               </div>
 
@@ -1517,10 +1594,12 @@ export function AdminSettingsModal({
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-foreground">
-                      Lock Past Billing Months
+                      {isBangla ? "পূর্ববর্তী মাসের হিসাব লক করুন" : "Lock Past Billing Months"}
                     </h4>
                     <p className="text-[11px] text-muted-foreground">
-                      Locked months freeze previous grocery logs so historical balances cannot be accidentally altered.
+                      {isBangla
+                        ? "লক করা থাকলে পূর্ববর্তী মাসের খরচ বা ভাউচার অনিচ্ছাকৃতভাবে পরিবর্তন করা যাবে না।"
+                        : "Locked months freeze previous grocery logs so historical balances cannot be accidentally altered."}
                     </p>
                   </div>
                 </div>
@@ -1528,7 +1607,9 @@ export function AdminSettingsModal({
                 <div className="space-y-2 pt-1">
                   {["2026-08", "2026-07"].map((mKey) => {
                     const isLocked = lockedMonths.includes(mKey);
-                    const label = mKey === "2026-08" ? "August 2026 (Current)" : "July 2026 (Settled)";
+                    const label = mKey === "2026-08"
+                      ? (isBangla ? "আগস্ট ২০২৬ (চলতি মাস)" : "August 2026 (Current)")
+                      : (isBangla ? "জুলাই ২০২৬ (নিষ্পত্তিকৃত)" : "July 2026 (Settled)");
 
                     return (
                       <div
@@ -1544,7 +1625,7 @@ export function AdminSettingsModal({
                               variant="outline"
                               className="text-[10px] px-1.5 py-0 border-amber-500/30 text-amber-400 bg-amber-500/10"
                             >
-                              Locked
+                              {isBangla ? "লক করা" : "Locked"}
                             </Badge>
                           )}
                         </div>
@@ -1554,7 +1635,9 @@ export function AdminSettingsModal({
                           className="text-xs h-7 cursor-pointer"
                           onClick={() => toggleMonthLock(mKey)}
                         >
-                          {isLocked ? "Unlock Month" : "Lock Month"}
+                          {isLocked
+                            ? (isBangla ? "আনলক করুন" : "Unlock Month")
+                            : (isBangla ? "লক করুন" : "Lock Month")}
                         </Button>
                       </div>
                     );
@@ -1567,10 +1650,12 @@ export function AdminSettingsModal({
                 <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-3">
                   <div>
                     <h4 className="text-xs font-bold text-foreground">
-                      Download Full Apartment Backup
+                      {isBangla ? "সম্পূর্ণ মেসের ডেটা ব্যাকআপ ডাউনলোড" : "Download Full Apartment Backup"}
                     </h4>
                     <p className="text-[11px] text-muted-foreground">
-                      Exports all expenses, splits, debts, and household settings as a JSON archive.
+                      {isBangla
+                        ? "সকল খরচ, হিসাব, বকেয়া এবং মেসের সেটিংস JSON ফাইল হিসেবে এক্সপোর্ট করুন।"
+                        : "Exports all expenses, splits, debts, and household settings as a JSON archive."}
                     </p>
                   </div>
                   <Button
@@ -1580,20 +1665,24 @@ export function AdminSettingsModal({
                     className="text-xs font-semibold gap-1.5 cursor-pointer w-full xs:w-auto shrink-0 justify-center"
                   >
                     <Download className="size-3.5" />
-                    <span>Export JSON</span>
+                    <span>{isBangla ? "JSON এক্সপোর্ট" : "Export JSON"}</span>
                   </Button>
                 </div>
               </div>
 
-              {/* Danger Zone (offline prototype only) */}
+              {/* Danger Zone */}
               {!isCloudConnected && (
                 <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/30 space-y-3">
                   <div className="flex items-center gap-2 text-destructive">
                     <AlertTriangle className="size-4 shrink-0" />
-                    <h4 className="text-xs font-bold">Reset Demo Household Data</h4>
+                    <h4 className="text-xs font-bold">
+                      {isBangla ? "ডেমো ডেটা রিসেট করুন" : "Reset Demo Household Data"}
+                    </h4>
                   </div>
                   <p className="text-[11px] text-muted-foreground leading-relaxed">
-                    Resets offline data to default mock seeds.
+                    {isBangla
+                      ? "অফলাইন মেসের ডেটা পূর্ববর্তী ডেমো অবস্থায় রিসেট করে দেবে।"
+                      : "Resets offline data to default mock seeds."}
                   </p>
                   <div className="flex justify-end">
                     <Button
@@ -1603,7 +1692,7 @@ export function AdminSettingsModal({
                       className="text-xs font-semibold gap-1.5 cursor-pointer w-full xs:w-auto justify-center"
                     >
                       <RotateCcw className="size-3.5" />
-                      <span>Reset to Defaults</span>
+                      <span>{isBangla ? "ডিফল্টে রিসেট" : "Reset to Defaults"}</span>
                     </Button>
                   </div>
                 </div>
@@ -1615,78 +1704,86 @@ export function AdminSettingsModal({
     </Dialog>
 
     {/* Delete Custom Grocery Item Alert Dialog */}
-        <AlertDialog open={Boolean(catalogItemToDelete)} onOpenChange={(open) => !open && setCatalogItemToDelete(null)}>
-          <AlertDialogContent className="w-[95vw] sm:max-w-md bg-card border-border rounded-2xl p-5 sm:p-6 shadow-2xl">
-            <AlertDialogHeader className="text-left space-y-2">
-              <div className="size-10 rounded-full bg-destructive/15 border border-destructive/30 flex items-center justify-center text-destructive mb-1">
-                <AlertTriangle className="size-5" />
-              </div>
-              <AlertDialogTitle className="text-lg font-bold text-foreground">
-                Delete Custom Item?
-              </AlertDialogTitle>
-              <AlertDialogDescription className="text-xs text-muted-foreground space-y-1">
-                <span>Are you sure you want to remove </span>
-                <strong className="text-foreground font-semibold">
-                  &ldquo;{catalogItemToDelete?.name_bn || catalogItemToDelete?.name_en}&rdquo;
-                </strong>
-                <span> from apartment catalog suggestions?</span>
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter className="pt-3 gap-2 flex-col-reverse sm:flex-row">
-              <AlertDialogCancel className="h-10 rounded-xl border-border hover:bg-accent cursor-pointer">
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() => {
-                  if (catalogItemToDelete) {
-                    deleteItem(catalogItemToDelete.id);
-                    toast.success("Catalog item removed", {
-                      description: `"${catalogItemToDelete.name_bn || catalogItemToDelete.name_en}" was deleted.`,
-                    });
-                    setCatalogItemToDelete(null);
-                  }
-                }}
-                className="h-10 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90 font-semibold cursor-pointer shadow-md shadow-destructive/20"
-              >
-                Yes, Remove Item
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+    <AlertDialog open={Boolean(catalogItemToDelete)} onOpenChange={(open) => !open && setCatalogItemToDelete(null)}>
+      <AlertDialogContent className="w-[95vw] sm:max-w-md bg-card border-border rounded-2xl p-5 sm:p-6 shadow-2xl">
+        <AlertDialogHeader className="text-left space-y-2">
+          <div className="size-10 rounded-full bg-destructive/15 border border-destructive/30 flex items-center justify-center text-destructive mb-1">
+            <AlertTriangle className="size-5" />
+          </div>
+          <AlertDialogTitle className="text-lg font-bold text-foreground">
+            {isBangla ? "পণ্যটি তালিকা থেকে বাদ দিতে চান?" : "Delete Custom Item?"}
+          </AlertDialogTitle>
+          <AlertDialogDescription className="text-xs text-muted-foreground space-y-1">
+            <span>{isBangla ? "আপনি কি নিশ্চিতভাবে " : "Are you sure you want to remove "}</span>
+            <strong className="text-foreground font-semibold">
+              &ldquo;{catalogItemToDelete?.name_bn || catalogItemToDelete?.name_en}&rdquo;
+            </strong>
+            <span>{isBangla ? " মেসের ক্যাটালগ সাজেশন থেকে মুছে ফেলতে চান?" : " from apartment catalog suggestions?"}</span>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="pt-3 gap-2 flex-col-reverse sm:flex-row">
+          <AlertDialogCancel className="h-10 rounded-xl border-border hover:bg-accent cursor-pointer">
+            {t.common.cancel}
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => {
+              if (catalogItemToDelete) {
+                deleteItem(catalogItemToDelete.id);
+                toast.success(isBangla ? "ক্যাটালগ পণ্য মুছে ফেলা হয়েছে" : "Catalog item removed", {
+                  description: isBangla
+                    ? `"${catalogItemToDelete.name_bn || catalogItemToDelete.name_en}" মুছে ফেলা হয়েছে।`
+                    : `"${catalogItemToDelete.name_bn || catalogItemToDelete.name_en}" was deleted.`,
+                });
+                setCatalogItemToDelete(null);
+              }
+            }}
+            className="h-10 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90 font-semibold cursor-pointer shadow-md shadow-destructive/20"
+          >
+            {isBangla ? "হ্যাঁ, মুছে ফেলুন" : "Yes, Remove Item"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
 
-        {/* Reset Household Data Alert Dialog */}
-        <AlertDialog open={isResetConfirmOpen} onOpenChange={setIsResetConfirmOpen}>
-          <AlertDialogContent className="w-[95vw] sm:max-w-md bg-card border-border rounded-2xl p-5 sm:p-6 shadow-2xl">
-            <AlertDialogHeader className="text-left space-y-2">
-              <div className="size-10 rounded-full bg-destructive/15 border border-destructive/30 flex items-center justify-center text-destructive mb-1">
-                <AlertTriangle className="size-5" />
-              </div>
-              <AlertDialogTitle className="text-lg font-bold text-foreground">
-                Reset All Household Data?
-              </AlertDialogTitle>
-              <AlertDialogDescription className="text-xs text-muted-foreground space-y-1">
-                <span>Are you sure you want to reset all household expenses, settlements, and recurring bills back to demo defaults? </span>
-                <strong className="text-destructive font-semibold">This action cannot be undone.</strong>
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter className="pt-3 gap-2 flex-col-reverse sm:flex-row">
-              <AlertDialogCancel className="h-10 rounded-xl border-border hover:bg-accent cursor-pointer">
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() => {
-                  resetToDefaults();
-                  toast.success("Household data reset to default demo seeds");
-                  setIsResetConfirmOpen(false);
-                  onClose();
-                }}
-                className="h-10 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90 font-semibold cursor-pointer shadow-md shadow-destructive/20"
-              >
-                Yes, Reset Everything
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </>
-    );
-  }
+    {/* Reset Household Data Alert Dialog */}
+    <AlertDialog open={isResetConfirmOpen} onOpenChange={setIsResetConfirmOpen}>
+      <AlertDialogContent className="w-[95vw] sm:max-w-md bg-card border-border rounded-2xl p-5 sm:p-6 shadow-2xl">
+        <AlertDialogHeader className="text-left space-y-2">
+          <div className="size-10 rounded-full bg-destructive/15 border border-destructive/30 flex items-center justify-center text-destructive mb-1">
+            <AlertTriangle className="size-5" />
+          </div>
+          <AlertDialogTitle className="text-lg font-bold text-foreground">
+            {isBangla ? "সকল মেসের ডেটা রিসেট করতে চান?" : "Reset All Household Data?"}
+          </AlertDialogTitle>
+          <AlertDialogDescription className="text-xs text-muted-foreground space-y-1">
+            <span>
+              {isBangla
+                ? "আপনি কি নিশ্চিতভাবে মেসের সকল খরচ, লেনদেন ও হিসাব ডেমো অবস্থায় রিসেট করতে চান? "
+                : "Are you sure you want to reset all household expenses, settlements, and recurring bills back to demo defaults? "}
+            </span>
+            <strong className="text-destructive font-semibold">
+              {isBangla ? "এই কাজটি আর ফেরানো সম্ভব নয়।" : "This action cannot be undone."}
+            </strong>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="pt-3 gap-2 flex-col-reverse sm:flex-row">
+          <AlertDialogCancel className="h-10 rounded-xl border-border hover:bg-accent cursor-pointer">
+            {t.common.cancel}
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => {
+              resetToDefaults();
+              toast.success(isBangla ? "মেসের ডেটা সফলভাবে রিসেট করা হয়েছে" : "Household data reset to default demo seeds");
+              setIsResetConfirmOpen(false);
+              onClose();
+            }}
+            className="h-10 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90 font-semibold cursor-pointer shadow-md shadow-destructive/20"
+          >
+            {isBangla ? "হ্যাঁ, সব রিসেট করুন" : "Yes, Reset Everything"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  </>
+  );
+}

@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next";
-import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, JetBrains_Mono, Noto_Sans_Bengali } from "next/font/google";
 import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -8,6 +8,13 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   display: "swap",
   weight: ["400", "500", "600", "700", "800"],
+});
+
+const notoSansBengali = Noto_Sans_Bengali({
+  variable: "--font-bengali",
+  subsets: ["bengali"],
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -56,6 +63,7 @@ export const metadata: Metadata = {
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/context/auth-context";
+import { LanguageProvider } from "@/context/language-context";
 import { PwaManager } from "@/components/pwa/pwa-manager";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -68,7 +76,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${plusJakartaSans.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${plusJakartaSans.variable} ${jetbrainsMono.variable} ${notoSansBengali.variable} h-full antialiased`}
     >
       <body
         suppressHydrationWarning
@@ -79,11 +87,13 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
         >
-          <AuthProvider>
-            {children}
-            <PwaManager />
-            <Toaster position="top-right" richColors closeButton />
-          </AuthProvider>
+          <LanguageProvider>
+            <AuthProvider>
+              {children}
+              <PwaManager />
+              <Toaster position="top-right" richColors closeButton />
+            </AuthProvider>
+          </LanguageProvider>
         </ThemeProvider>
         <Analytics />
       </body>

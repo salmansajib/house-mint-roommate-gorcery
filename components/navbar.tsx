@@ -24,6 +24,8 @@ import {
 import { navVariants, navItemVariants } from "@/lib/animations";
 import { NotificationPopover } from "@/components/notifications/notification-popover";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageToggle } from "@/components/language-toggle";
+import { useLanguage } from "@/context/language-context";
 
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { HouseMintLogo } from "@/components/ui/house-mint-logo";
@@ -38,6 +40,7 @@ export function Navbar({
   onOpenClaimAdmin,
 }: NavbarProps = {}) {
   const { signOut } = useAuth();
+  const { t, isBangla } = useLanguage();
   const {
     users,
     currentUser,
@@ -84,14 +87,14 @@ export function Navbar({
             <HouseMintLogo size={20} className="size-4.5 sm:size-5" />
           </motion.div>
           <div className="flex items-center gap-1.5 sm:gap-2">
-            <span className="font-extrabold text-base sm:text-lg tracking-tight bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent shrink-0 select-none">
+            <span className="font-extrabold text-base sm:text-lg tracking-tight bg-linear-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent shrink-0 select-none">
               HouseMint
             </span>
             <Badge
               variant="outline"
               className="hidden min-[420px]:inline-flex items-center text-[10px] font-semibold px-2 py-0.5 border-primary/30 text-primary/90 rounded-full whitespace-nowrap shrink-0"
             >
-              {users.length} {users.length === 1 ? "Roommate" : "Roommates"}
+              {users.length} {isBangla ? t.nav.roommateCount : (users.length === 1 ? t.common.roommate : t.common.roommates)}
             </Badge>
           </div>
         </motion.div>
@@ -105,16 +108,16 @@ export function Navbar({
               size="sm"
               onClick={onOpenAdminSettings}
               className="inline-flex items-center justify-center gap-1.5 w-8 sm:w-auto h-8 sm:h-9 px-0 sm:px-3 bg-primary/10 border-primary/30 text-primary hover:bg-primary/20 text-xs font-semibold rounded-full cursor-pointer shrink-0 transition-colors"
-              title="Open Apartment Admin Hub"
+              title={t.admin.modalTitle}
             >
               <ShieldCheck className="size-3.5 sm:size-4 text-primary shrink-0" />
-              <span className="hidden sm:inline">Admin Hub</span>
+              <span className="hidden sm:inline">{t.common.admin}</span>
             </Button>
           )}
 
           {/* Household Total Pill (Desktop/Tablet) */}
           <div className="hidden md:flex items-center gap-2 px-3.5 h-9 rounded-full bg-card border border-border text-xs transition-colors hover:border-border/80 shrink-0">
-            <span className="text-muted-foreground">Household Spent:</span>
+            <span className="text-muted-foreground">{t.dashboard.monthlyTotal}:</span>
             {!isLoaded ? (
               <Skeleton className="h-4 w-16 rounded-full" />
             ) : (
@@ -125,6 +128,9 @@ export function Navbar({
               />
             )}
           </div>
+
+          {/* Language Switcher */}
+          <LanguageToggle />
 
           {/* Theme Mode Toggle (Dark / Light) */}
           <ThemeToggle />
@@ -151,7 +157,7 @@ export function Navbar({
                 aria-label="Roommate Switcher Menu"
               >
                 <UserAvatar user={currentUser} size="xs" />
-                <span className="text-foreground hidden md:inline truncate max-w-[80px]">
+                <span className="text-foreground hidden md:inline truncate max-w-20">
                   {currentUser?.name || "Roommate"}
                 </span>
                 {currentUser?.role === "admin" && (
@@ -188,7 +194,7 @@ export function Navbar({
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -6, scale: 0.98 }}
                     transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-                    className="fixed inset-x-3 top-[68px] sm:top-auto sm:inset-x-auto sm:absolute sm:right-0 sm:mt-2 w-auto sm:w-60 max-w-sm max-h-[calc(100dvh-5.5rem)] overflow-y-auto bg-card border border-border rounded-2xl shadow-2xl py-1.5 z-50"
+                    className="fixed inset-x-3 top-17 sm:top-auto sm:inset-x-auto sm:absolute sm:right-0 sm:mt-2 w-auto sm:w-60 max-w-sm max-h-[calc(100dvh-5.5rem)] overflow-y-auto bg-card border border-border rounded-2xl shadow-2xl py-1.5 z-50"
                   >
                     <div className="px-3 py-2 border-b border-border bg-muted/40">
                       <div className="flex items-center justify-between gap-1">
@@ -209,7 +215,7 @@ export function Navbar({
                         {currentUser?.email || "Local account"}
                       </div>
                       <div className="mt-1 flex items-center justify-between text-[9px] font-semibold text-primary">
-                        <span className="truncate max-w-[120px]">{householdSettings.householdName}</span>
+                        <span className="truncate max-w-30">{householdSettings.householdName}</span>
                         <span className="font-mono bg-primary/10 px-1 py-0.2 rounded border border-primary/20 shrink-0">
                           {householdSettings.inviteCode}
                         </span>
@@ -227,7 +233,7 @@ export function Navbar({
                           className="w-full px-2.5 py-1.5 text-xs flex items-center gap-2 font-semibold text-primary bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors cursor-pointer text-left"
                         >
                           <ShieldCheck className="size-3.5 shrink-0" />
-                          <span>Apartment Admin Hub</span>
+                          <span>{t.admin.modalTitle}</span>
                         </button>
                       ) : (
                         <button
@@ -238,13 +244,13 @@ export function Navbar({
                           className="w-full px-2.5 py-1.5 text-xs flex items-center gap-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-xl transition-colors cursor-pointer text-left"
                         >
                           <Key className="size-3.5 text-primary shrink-0" />
-                          <span>Claim Admin Rights</span>
+                          <span>{t.nav.claimAdmin}</span>
                         </button>
                       )}
                     </div>
 
                     <div className="px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
-                      Switch Roommate
+                      {isBangla ? "রুমমেট পরিবর্তন" : "Switch Roommate"}
                     </div>
 
                     <div className="space-y-0.5 px-1 max-h-48 overflow-y-auto custom-scrollbar">
@@ -268,7 +274,7 @@ export function Navbar({
                               <span className="truncate">{user.name}</span>
                               {user.role === "admin" && (
                                 <span className="text-[9px] text-primary font-normal">
-                                  (Admin)
+                                  ({t.common.admin})
                                 </span>
                               )}
                             </div>
@@ -293,7 +299,7 @@ export function Navbar({
                         <div className="flex items-center gap-2">
                           <Share2 className="size-3.5 text-primary shrink-0" />
                           <span>
-                            {copiedInvite ? "Copied Invite Link!" : "Copy Roommate Link"}
+                            {copiedInvite ? t.common.copied : t.common.shareInvite}
                           </span>
                         </div>
                         {copiedInvite && <Check className="size-3 text-positive shrink-0" />}
@@ -307,7 +313,7 @@ export function Navbar({
                         className="w-full px-3 py-1.5 text-xs flex items-center gap-2 text-primary hover:text-primary hover:bg-primary/10 transition-colors cursor-pointer text-left font-medium"
                       >
                         <Download className="size-3.5 shrink-0" />
-                        <span>Install HouseMint App</span>
+                        <span>{isBangla ? "HouseMint অ্যাপ ইনস্টল করুন" : "Install HouseMint App"}</span>
                       </button>
 
                       {(!currentUser || !currentUser.email) && (
@@ -316,7 +322,7 @@ export function Navbar({
                           className="w-full px-3 py-1.5 text-xs flex items-center gap-2 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
                         >
                           <LogIn className="size-3.5 shrink-0" />
-                          <span>Sign In / Register</span>
+                          <span>{isBangla ? "লগইন / রেজিস্টার" : "Sign In / Register"}</span>
                         </a>
                       )}
                       <button
@@ -328,7 +334,7 @@ export function Navbar({
                         className="w-full px-3 py-1.5 text-xs flex items-center gap-2 text-destructive/80 hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer text-left"
                       >
                         <LogOut className="size-3.5 shrink-0" />
-                        <span>Sign Out</span>
+                        <span>{t.nav.signOut}</span>
                       </button>
                     </div>
                   </motion.div>
@@ -354,17 +360,22 @@ export function Navbar({
                 <>
                   <RefreshCw className="size-3 animate-spin text-primary shrink-0" />
                   <span className="text-primary font-semibold">
-                    Syncing offline changes with cloud...
+                    {isBangla ? "ক্লাউডের সাথে তথ্য সিঙ্ক হচ্ছে..." : "Syncing offline changes with cloud..."}
                   </span>
                 </>
               ) : (
                 <>
                   <WifiOff className="size-3 text-warning shrink-0" />
                   <span className="truncate">
-                    You are currently offline.{" "}
-                    {pendingOfflineCount > 0
-                      ? `${pendingOfflineCount} change${pendingOfflineCount === 1 ? "" : "s"} saved locally and will auto-sync when back online.`
-                      : "Viewing data from offline device cache."}
+                    {isBangla ? (
+                      pendingOfflineCount > 0
+                        ? `আপনি অফলাইনে আছেন। ${pendingOfflineCount}টি পরিবর্তন লোকাল ক্যাশে সংরক্ষিত হয়েছে, অনলাইন হলে স্বয়ংক্রিয়ভাবে সিঙ্ক হবে।`
+                        : "আপনি বর্তমানে অফলাইনে আছেন। ক্যাশ থেকে ডাটা দেখানো হচ্ছে।"
+                    ) : (
+                      pendingOfflineCount > 0
+                        ? `You are currently offline. ${pendingOfflineCount} change${pendingOfflineCount === 1 ? "" : "s"} saved locally and will auto-sync when back online.`
+                        : "You are currently offline. Viewing cached data."
+                    )}
                   </span>
                 </>
               )}
