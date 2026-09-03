@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useExpenses } from "@/context/expense-context";
+import { useLanguage } from "@/context/language-context";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +24,7 @@ interface SettleUpModalProps {
 
 export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
   const { users, currentUser, ledger, addSettlement } = useExpenses();
+  const { t, isBangla } = useLanguage();
 
   const otherUsers = users.filter((u) => u.id !== currentUser?.id);
   const hasMultipleUsers = users.length >= 2;
@@ -44,7 +46,7 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
   const [receiverId, setReceiverId] = React.useState(defaultReceiverId);
   const [amount, setAmount] = React.useState(defaultAmount);
   const [date, setDate] = React.useState(format(new Date(), "yyyy-MM-dd"));
-  const [notes, setNotes] = React.useState("Settlement payment via bKash");
+  const [notes, setNotes] = React.useState(isBangla ? "বিকাশ/নগদে হিসাব নিষ্পত্তি" : "Settlement payment via bKash");
 
   React.useEffect(() => {
     if (isOpen) {
@@ -90,8 +92,8 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
     if (matchingDebt) setAmount(matchingDebt.amount.toString());
   };
 
-  const payerName = users.find((u) => u.id === payerId)?.name || "Payer";
-  const receiverName = users.find((u) => u.id === receiverId)?.name || "Receiver";
+  const payerName = users.find((u) => u.id === payerId)?.name || t.common.payer;
+  const receiverName = users.find((u) => u.id === receiverId)?.name || t.common.paidBy;
   const isSamePerson = payerId === receiverId;
   const numAmount = parseFloat(amount);
   const isAmountValid = !isNaN(numAmount) && numAmount > 0;
@@ -101,22 +103,22 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
     e.preventDefault();
 
     if (!hasMultipleUsers) {
-      toast.error("Cannot record settlement", {
-        description: "You need at least two roommates in your household to settle debts.",
+      toast.error(isBangla ? "হিসাব নিষ্পত্তি সম্ভব নয়" : "Cannot record settlement", {
+        description: isBangla ? "হিসাব নিষ্পত্তির জন্য মেসের অন্তত দুজন সদস্যের প্রোফাইল থাকা আবশ্যক।" : "You need at least two roommates in your household to settle debts.",
       });
       return;
     }
 
     if (isSamePerson) {
-      toast.error("Invalid settlement", {
-        description: "Payer and recipient cannot be the same person.",
+      toast.error(isBangla ? "ভুল হিসাব নিষ্পত্তি" : "Invalid settlement", {
+        description: isBangla ? "টাকা প্রদানকারী এবং গ্রহণকারী একই ব্যক্তি হতে পারেন না।" : "Payer and recipient cannot be the same person.",
       });
       return;
     }
 
     if (!isAmountValid) {
-      toast.error("Invalid amount", {
-        description: "Please enter an amount greater than ৳0.",
+      toast.error(isBangla ? "ভুল টাকার অঙ্ক" : "Invalid amount", {
+        description: isBangla ? "অনুগ্রহ করে ০ এর বেশি সঠিক টাকার অঙ্ক লিখুন।" : "Please enter an amount greater than ৳0.",
       });
       return;
     }
@@ -129,8 +131,10 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
       notes: notes.trim() || undefined,
     });
 
-    toast.success("Payment recorded", {
-      description: `${payerName} paid ${receiverName} ৳${numAmount.toFixed(2)}`,
+    toast.success(t.settleUp.settleSuccess, {
+      description: isBangla
+        ? `${payerName} ${receiverName}-কে ৳${numAmount.toFixed(2)} পরিশোধ করেছেন`
+        : `${payerName} paid ${receiverName} ৳${numAmount.toFixed(2)}`,
     });
 
     onClose();
@@ -143,12 +147,12 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
           <div className="flex items-center gap-2 text-primary mb-1">
             <HandCoins className="size-5" />
             <span className="text-xs font-semibold uppercase tracking-wider">
-              Debt Repayment
+              {isBangla ? "দেনা-পাওনা নিষ্পত্তি" : "Debt Repayment"}
             </span>
           </div>
-          <DialogTitle className="text-lg sm:text-xl font-bold">Record Settle Up</DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl font-bold">{t.settleUp.modalTitle}</DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground">
-            Log a direct payment between any two roommates
+            {t.settleUp.modalDescription}
           </DialogDescription>
         </DialogHeader>
 
@@ -157,9 +161,13 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
           <div className="p-3.5 rounded-xl bg-warning/10 border border-warning/25 flex items-start gap-2.5">
             <AlertCircle className="size-4 text-warning shrink-0 mt-0.5" />
             <div className="text-xs space-y-0.5">
-              <p className="font-semibold text-foreground">Need at least 2 roommates</p>
+              <p className="font-semibold text-foreground">
+                {isBangla ? "কমপক্ষে ২ জন রুমমেট আবশ্যক" : "Need at least 2 roommates"}
+              </p>
               <p className="text-muted-foreground leading-relaxed">
-                Settling up logs direct payments between two roommates to balance debts. Add or invite roommates in Settings to record payments.
+                {isBangla
+                  ? "রুমমেটদের মধ্যে লেনদেন সমন্বয় করতে সেটিংস থেকে রুমমেট যুক্ত করুন।"
+                  : "Settling up logs direct payments between two roommates to balance debts. Add or invite roommates in Settings to record payments."}
               </p>
             </div>
           </div>
@@ -170,14 +178,14 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
           <div className="p-3 rounded-xl bg-accent/40 border border-border/80 flex items-center justify-between">
             <div className="text-center flex-1 min-w-0">
               <span className="text-[10px] uppercase font-bold text-muted-foreground block">
-                Payer (Sender)
+                {isBangla ? "পরিশোধকারী (Sender)" : "Payer (Sender)"}
               </span>
               <span className="text-xs sm:text-sm font-bold text-foreground truncate block">{payerName}</span>
             </div>
             <ArrowRight className="size-4 text-primary shrink-0 mx-2" />
             <div className="text-center flex-1 min-w-0">
               <span className="text-[10px] uppercase font-bold text-muted-foreground block">
-                Recipient
+                {isBangla ? "গ্রহণকারী (Recipient)" : "Recipient"}
               </span>
               <span className="text-xs sm:text-sm font-bold text-foreground truncate block">{receiverName}</span>
             </div>
@@ -185,7 +193,7 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-foreground">Who is Paying?</label>
+              <label className="text-xs font-semibold text-foreground">{t.settleUp.whoPaid}</label>
               <div className="relative">
                 <select
                   value={payerId}
@@ -195,7 +203,7 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
                 >
                   {users.map((u) => (
                     <option key={u.id} value={u.id}>
-                      {u.name} {u.id === currentUser.id ? "(You)" : ""}
+                      {u.name} {u.id === currentUser.id ? `(${t.common.you})` : ""}
                     </option>
                   ))}
                 </select>
@@ -204,7 +212,7 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-foreground">Who is Receiving?</label>
+              <label className="text-xs font-semibold text-foreground">{t.settleUp.whoReceived}</label>
               <div className="relative">
                 <select
                   value={receiverId}
@@ -214,7 +222,7 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
                 >
                   {users.map((u) => (
                     <option key={u.id} value={u.id}>
-                      {u.name} {u.id === currentUser.id ? "(You)" : ""}
+                      {u.name} {u.id === currentUser.id ? `(${t.common.you})` : ""}
                     </option>
                   ))}
                 </select>
@@ -225,13 +233,13 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
 
           {hasMultipleUsers && isSamePerson && (
             <p className="text-[11px] text-destructive font-medium">
-              Payer and recipient cannot be the same person.
+              {isBangla ? "টাকা প্রদানকারী এবং গ্রহণকারী একই ব্যক্তি হতে পারেন না।" : "Payer and recipient cannot be the same person."}
             </p>
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-foreground">Amount (৳)</label>
+              <label className="text-xs font-semibold text-foreground">{t.settleUp.amountPaid}</label>
               <div className="relative">
                 <span className="absolute left-3 top-2.5 text-xs font-bold text-muted-foreground">৳</span>
                 <Input
@@ -248,7 +256,7 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-foreground">Date</label>
+              <label className="text-xs font-semibold text-foreground">{t.common.date}</label>
               <Input
                 type="date"
                 value={date}
@@ -261,9 +269,9 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-foreground">Note / Payment Method</label>
+            <label className="text-xs font-semibold text-foreground">{t.settleUp.paymentReference}</label>
             <Input
-              placeholder="e.g. Sent via bKash / Nagad / Cash"
+              placeholder={t.settleUp.paymentReferencePlaceholder}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               disabled={!hasMultipleUsers}
@@ -273,7 +281,7 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
 
           <DialogFooter className="pt-2 gap-2 flex-col-reverse sm:flex-row">
             <Button type="button" variant="outline" size="lg" onClick={onClose} className="h-11 sm:h-12 rounded-xl">
-              Cancel
+              {t.common.cancel}
             </Button>
             <Button
               type="submit"
@@ -281,7 +289,7 @@ export function SettleUpModal({ isOpen, onClose }: SettleUpModalProps) {
               disabled={!isFormValid}
               className="h-11 sm:h-12 rounded-xl bg-primary text-primary-foreground font-semibold shadow-sm hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Record Payment
+              {t.settleUp.confirmSettlement}
             </Button>
           </DialogFooter>
         </form>

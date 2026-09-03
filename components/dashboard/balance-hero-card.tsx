@@ -3,12 +3,14 @@
 import * as React from "react";
 import { motion } from "motion/react";
 import { useExpenses } from "@/context/expense-context";
+import { useLanguage } from "@/context/language-context";
 import { Card, CardContent } from "@/components/ui/card";
 import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getUserDebts } from "@/lib/balance";
 import { UserBadge } from "@/components/ui/user-badge";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { PlusCircle, HandCoins, ArrowUpRight, ArrowDownLeft, CheckCircle2 } from "lucide-react";
 import {
   heroContentVariants,
@@ -77,6 +79,7 @@ export function BalanceHeroCard({
   onOpenSettleUp,
 }: BalanceHeroCardProps) {
   const { currentUser, users, ledger, isLoaded } = useExpenses();
+  const { t, isBangla } = useLanguage();
 
   const userBalance = (currentUser && ledger?.user_balances?.[currentUser.id]) || {
     total_paid: 0,
@@ -96,7 +99,7 @@ export function BalanceHeroCard({
   }, [ledger?.debts, currentUser?.id]);
 
   const getUserName = (id: string) => {
-    return users.find((u) => u.id === id)?.name || "Roommate";
+    return users.find((u) => u.id === id)?.name || t.common.roommate;
   };
 
   if (!isLoaded) {
@@ -132,10 +135,12 @@ export function BalanceHeroCard({
             className="flex items-center justify-between gap-3 text-[11px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider"
           >
             <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-              <span className="text-foreground/90 whitespace-nowrap">Personal Balance</span>
+              <span className="text-foreground/90 whitespace-nowrap">
+                {isBangla ? "ব্যক্তিগত স্থিতি" : "Personal Balance"}
+              </span>
               <span className="text-muted-foreground/40">•</span>
               <span className="text-muted-foreground/80 whitespace-nowrap">
-                {users.length} {users.length === 1 ? "Roommate" : "Roommates"}
+                {users.length} {isBangla ? t.nav.roommateCount : (users.length === 1 ? t.common.roommate : t.common.roommates)}
               </span>
             </div>
 
@@ -157,10 +162,10 @@ export function BalanceHeroCard({
                     </div>
                     <div>
                       <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight">
-                        All Settled Up!
+                        {t.dashboard.allSettledUp}
                       </h2>
                       <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                        You are all square with everyone in the apartment.
+                        {isBangla ? "মেসের সকলের সাথে আপনার সমস্ত দেনা-পাওনা পরিশোধিত।" : "You are all square with everyone in the apartment."}
                       </p>
                     </div>
                   </div>
@@ -173,7 +178,7 @@ export function BalanceHeroCard({
                     className="flex flex-col sm:flex-row sm:items-baseline gap-1.5 sm:gap-3"
                   >
                     <span className="text-sm sm:text-base text-muted-foreground font-medium">
-                      {isOwed ? "You are owed in total" : "You owe in total"}
+                      {isOwed ? t.dashboard.youAreOwed : t.dashboard.youOwe}
                     </span>
                     <CurrencyAmount
                       amount={Math.abs(netBalance)}
@@ -191,21 +196,25 @@ export function BalanceHeroCard({
                 className="pt-1 grid grid-cols-1 xs:grid-cols-2 gap-2.5 sm:gap-4 max-w-xl"
               >
                 <div className="flex items-center gap-2.5 bg-accent/40 border border-border/70 p-2.5 sm:p-3 rounded-xl transition-[background-color,border-color] duration-150 ease-out hover:bg-accent/60 hover:border-border">
-                  <div className="size-7 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
+                  <div className="size-7 rounded-lg bg-positive/15 text-positive flex items-center justify-center shrink-0">
                     <ArrowUpRight className="size-4" />
                   </div>
                   <div className="min-w-0">
-                    <span className="text-[11px] text-muted-foreground block truncate">Paid Out of Pocket</span>
+                    <span className="text-[11px] text-muted-foreground block truncate">
+                      {isBangla ? "নিজের পকেট থেকে পরিশোধ" : "Paid Out of Pocket"}
+                    </span>
                     <CurrencyAmount amount={userBalance.total_paid} size="sm" className="font-bold text-foreground" />
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2.5 bg-accent/40 border border-border/70 p-2.5 sm:p-3 rounded-xl transition-[background-color,border-color] duration-150 ease-out hover:bg-accent/60 hover:border-border">
-                  <div className="size-7 rounded-lg bg-rose-500/15 text-rose-400 flex items-center justify-center shrink-0">
+                  <div className="size-7 rounded-lg bg-destructive/15 text-destructive flex items-center justify-center shrink-0">
                     <ArrowDownLeft className="size-4" />
                   </div>
                   <div className="min-w-0">
-                    <span className="text-[11px] text-muted-foreground block truncate">Your Equal Fair Share</span>
+                    <span className="text-[11px] text-muted-foreground block truncate">
+                      {isBangla ? "আপনার নিজের অংশ" : "Your Equal Fair Share"}
+                    </span>
                     <CurrencyAmount amount={userBalance.total_share} size="sm" className="font-bold text-foreground" />
                   </div>
                 </div>
@@ -228,7 +237,7 @@ export function BalanceHeroCard({
                   className="w-full sm:w-auto h-12 rounded-xl bg-primary text-primary-foreground font-semibold shadow-lg shadow-primary/20 hover:bg-primary/90 gap-2 justify-center cursor-pointer"
                 >
                   <PlusCircle className="size-5" />
-                  <span>Add Expense</span>
+                  <span>{t.dashboard.addExpense}</span>
                 </Button>
               </motion.div>
 
@@ -243,8 +252,8 @@ export function BalanceHeroCard({
                   size="lg"
                   className="w-full sm:w-auto h-12 rounded-xl border-border hover:bg-accent hover:text-accent-foreground font-semibold gap-2 justify-center cursor-pointer"
                 >
-                  <HandCoins className="size-5 text-emerald-400" />
-                  <span>Settle Up</span>
+                  <HandCoins className="size-5 text-primary" />
+                  <span>{t.nav.settleUp}</span>
                 </Button>
               </motion.div>
             </motion.div>
@@ -263,7 +272,7 @@ export function BalanceHeroCard({
               variants={listItemVariants}
               className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block mb-2.5"
             >
-              Direct Peer Breakdown for {currentUser.name}
+              {isBangla ? `${currentUser.name}-এর বকেয়া লেনদেন হিসাব` : `Direct Peer Breakdown for ${currentUser.name}`}
             </motion.span>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
               {/* Roommates who owe the active user */}
@@ -271,14 +280,23 @@ export function BalanceHeroCard({
                 <motion.div
                   key={`${debt.from_user_id}-${debt.to_user_id}`}
                   variants={listItemVariants}
-                  className="p-3 rounded-xl bg-emerald-950/20 border border-emerald-500/25 flex items-center justify-between gap-2 text-xs transition-[background-color,border-color] duration-150 ease-out hover:bg-emerald-950/35 hover:border-emerald-500/40"
+                  className="p-3 rounded-xl bg-positive/10 border border-positive/20 flex items-center justify-between gap-2 text-xs transition-[background-color,border-color] duration-150 ease-out hover:bg-positive/15 hover:border-positive/35"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="size-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-[11px] shrink-0">
-                      {getUserName(debt.from_user_id)[0]}
-                    </div>
-                    <span className="font-semibold text-emerald-300 truncate">
-                      {getUserName(debt.from_user_id)} owes you
+                    <UserAvatar
+                      user={
+                        users.find((u) => u.id === debt.from_user_id) || {
+                          id: debt.from_user_id,
+                          name: getUserName(debt.from_user_id),
+                        }
+                      }
+                      size="xs"
+                      className="size-7 text-[11px] font-bold shrink-0"
+                    />
+                    <span className="font-semibold text-foreground truncate">
+                      {isBangla
+                        ? `${getUserName(debt.from_user_id)} আপনাকে দেবে`
+                        : `${getUserName(debt.from_user_id)} owes you`}
                     </span>
                   </div>
                   <CurrencyAmount amount={debt.amount} intent="positive" size="sm" className="font-bold shrink-0" />
@@ -290,14 +308,23 @@ export function BalanceHeroCard({
                 <motion.div
                   key={`${debt.from_user_id}-${debt.to_user_id}`}
                   variants={listItemVariants}
-                  className="p-3 rounded-xl bg-rose-950/20 border border-rose-500/25 flex items-center justify-between gap-2 text-xs transition-[background-color,border-color] duration-150 ease-out hover:bg-rose-950/35 hover:border-rose-500/40"
+                  className="p-3 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center justify-between gap-2 text-xs transition-[background-color,border-color] duration-150 ease-out hover:bg-destructive/15 hover:border-destructive/35"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="size-7 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold text-[11px] shrink-0">
-                      {getUserName(debt.to_user_id)[0]}
-                    </div>
-                    <span className="font-semibold text-rose-300 truncate">
-                      You owe {getUserName(debt.to_user_id)}
+                    <UserAvatar
+                      user={
+                        users.find((u) => u.id === debt.to_user_id) || {
+                          id: debt.to_user_id,
+                          name: getUserName(debt.to_user_id),
+                        }
+                      }
+                      size="xs"
+                      className="size-7 text-[11px] font-bold shrink-0"
+                    />
+                    <span className="font-semibold text-foreground truncate">
+                      {isBangla
+                        ? `আপনি ${getUserName(debt.to_user_id)}-কে দেবেন`
+                        : `You owe ${getUserName(debt.to_user_id)}`}
                     </span>
                   </div>
                   <CurrencyAmount amount={debt.amount} intent="negative" size="sm" className="font-bold shrink-0" />

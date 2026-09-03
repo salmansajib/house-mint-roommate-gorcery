@@ -3,6 +3,7 @@
 import * as React from "react";
 import { motion } from "motion/react";
 import { useExpenses } from "@/context/expense-context";
+import { useLanguage } from "@/context/language-context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +12,7 @@ import { UserAvatar } from "@/components/ui/user-avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getUrgencyBadgeConfig } from "@/lib/recurring-bills";
 import { RecurringBill } from "@/types";
+import { toBengaliNumerals } from "@/lib/utils";
 import {
   Home,
   Wifi,
@@ -106,6 +108,7 @@ export function RecurringBillsCard({
   onOpenQuickLog,
 }: RecurringBillsCardProps) {
   const { recurringBillStatuses, recurringMetrics, users, isLoaded } = useExpenses();
+  const { t, isBangla } = useLanguage();
 
   if (!isLoaded) {
     return <RecurringBillsCardSkeleton />;
@@ -120,10 +123,10 @@ export function RecurringBillsCard({
           </div>
           <div>
             <h3 className="text-sm font-bold text-foreground">
-              No Recurring Bills Configured Yet
+              {t.recurring.noRecurringBills}
             </h3>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Set up monthly bills like Rent, Wi-Fi, or Electricity to get automatic due-date reminders.
+              {t.recurring.description}
             </p>
           </div>
         </div>
@@ -133,7 +136,7 @@ export function RecurringBillsCard({
           className="gap-1.5 bg-primary text-primary-foreground font-semibold shrink-0 cursor-pointer shadow-xs"
         >
           <Plus className="size-3.5" />
-          <span>Add Recurring Bill</span>
+          <span>{t.recurring.addNewBill}</span>
         </Button>
       </Card>
     );
@@ -150,14 +153,14 @@ export function RecurringBillsCard({
             <div>
               <div className="flex items-center gap-2">
                 <CardTitle className="text-sm sm:text-base font-bold text-foreground">
-                  Recurring Bills & Due Dates
+                  {t.recurring.title}
                 </CardTitle>
                 {recurringMetrics.overdueCount > 0 && (
                   <Badge
                     variant="outline"
                     className="bg-destructive/15 text-destructive border-destructive/30 text-[10px] px-1.5 py-0 font-bold animate-pulse"
                   >
-                    {recurringMetrics.overdueCount} Overdue
+                    {isBangla ? `${toBengaliNumerals(recurringMetrics.overdueCount)}টি মেয়াদোত্তীর্ণ` : `${recurringMetrics.overdueCount} Overdue`}
                   </Badge>
                 )}
                 {recurringMetrics.dueSoonCount > 0 && (
@@ -165,25 +168,27 @@ export function RecurringBillsCard({
                     variant="outline"
                     className="bg-warning/15 text-warning border-warning/30 text-[10px] px-1.5 py-0 font-bold"
                   >
-                    {recurringMetrics.dueSoonCount} Due Soon
+                    {isBangla ? `${toBengaliNumerals(recurringMetrics.dueSoonCount)}টি তাগাদা` : `${recurringMetrics.dueSoonCount} Due Soon`}
                   </Badge>
                 )}
               </div>
               <p className="text-[11px] text-muted-foreground mt-0.5">
-                Monthly household utilities and fixed payments
+                {isBangla ? "মেসের নিয়মিত মাসিক ও নির্ধারিত বিলসমূহ" : "Monthly household utilities and fixed payments"}
               </p>
             </div>
           </div>
 
-            {/* Quick Metrics & Manage Button */}
+          {/* Quick Metrics & Manage Button */}
           <div className="flex items-center gap-2 self-end sm:self-auto">
             <div className="hidden md:flex items-center h-8 rounded-full px-3 gap-2 text-xs text-muted-foreground bg-background/50 border border-border/60">
-              <span>Paid:</span>
+              <span>{isBangla ? "পরিশোধিত:" : "Paid:"}</span>
               <span className="font-semibold text-positive">
-                {recurringMetrics.paidCount}/{recurringMetrics.totalBills}
+                {isBangla
+                  ? `${toBengaliNumerals(recurringMetrics.paidCount)}/${toBengaliNumerals(recurringMetrics.totalBills)}`
+                  : `${recurringMetrics.paidCount}/${recurringMetrics.totalBills}`}
               </span>
               <span>•</span>
-              <span>Pending:</span>
+              <span>{isBangla ? "বাকি:" : "Pending:"}</span>
               <CurrencyAmount
                 amount={recurringMetrics.totalPendingAmount}
                 size="xs"
@@ -198,7 +203,7 @@ export function RecurringBillsCard({
               className="h-8 text-xs gap-1.5 border-border hover:bg-accent cursor-pointer"
             >
               <Settings2 className="size-3.5" />
-              <span>Manage Bills</span>
+              <span>{t.recurring.manageTitle}</span>
             </Button>
           </div>
         </div>
@@ -216,6 +221,18 @@ export function RecurringBillsCard({
             const Icon = CATEGORY_ICONS[bill.category] || Tag;
             const badgeConfig = getUrgencyBadgeConfig(status);
             const payer = users.find((u) => u.id === bill.default_payer_id);
+
+            const localizedBadgeLabel = isBangla
+              ? (status === "overdue"
+                  ? "মেয়াদোত্তীর্ণ"
+                  : status === "due_today"
+                  ? "আজকের মধ্যে"
+                  : status === "due_soon"
+                  ? "দ্রুত পরিশোধ করুন"
+                  : isPaidThisMonth
+                  ? "পরিশোধিত"
+                  : "আসন্ন")
+              : badgeConfig.label;
 
             return (
               <motion.div
@@ -252,7 +269,7 @@ export function RecurringBillsCard({
                       </h4>
                       <p className="text-[10px] text-muted-foreground flex items-center gap-1 mt-0.5">
                         <Clock className="size-2.5" />
-                        <span>{dueDateFormatted}</span>
+                        <span>{isBangla ? toBengaliNumerals(dueDateFormatted) : dueDateFormatted}</span>
                       </p>
                     </div>
                   </div>
@@ -261,7 +278,7 @@ export function RecurringBillsCard({
                     variant={badgeConfig.badgeVariant}
                     className={`text-[10px] px-1.5 py-0 font-semibold shrink-0 ${badgeConfig.className}`}
                   >
-                    {badgeConfig.label}
+                    {localizedBadgeLabel}
                   </Badge>
                 </div>
 
@@ -282,7 +299,7 @@ export function RecurringBillsCard({
                   {isPaidThisMonth ? (
                     <div className="flex items-center gap-1 text-[11px] font-semibold text-positive shrink-0">
                       <CheckCircle2 className="size-3.5" />
-                      <span>Paid</span>
+                      <span>{isBangla ? "পরিশোধিত" : "Paid"}</span>
                     </div>
                   ) : (
                     <Button
@@ -290,7 +307,7 @@ export function RecurringBillsCard({
                       onClick={() => onOpenQuickLog(bill)}
                       className="h-7 text-xs px-2.5 font-semibold bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer shadow-xs gap-1"
                     >
-                      <span>Log Bill</span>
+                      <span>{isBangla ? "বিল যুক্ত করুন" : "Log Bill"}</span>
                       <ArrowRight className="size-3" />
                     </Button>
                   )}

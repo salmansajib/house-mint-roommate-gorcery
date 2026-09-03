@@ -22,6 +22,8 @@ import { GroceryItemCombobox } from "./grocery-item-combobox";
 import { mapBanglaUnitToStandard } from "@/lib/grocery-catalog";
 import { useGroceryCatalog } from "@/hooks/use-grocery-catalog";
 import { toast } from "@/components/ui/sonner";
+import { useLanguage } from "@/context/language-context";
+import { toBengaliNumerals } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -74,6 +76,7 @@ const createEmptyGroceryItem = (): GroceryHaulItem => ({
 
 export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
   const { users, currentUser, addExpense } = useExpenses();
+  const { t, isBangla } = useLanguage();
   const { recordUsage } = useGroceryCatalog();
 
   // Mode: "single" or "itemized"
@@ -92,7 +95,9 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
   const [selectedParticipants, setSelectedParticipants] = React.useState<string[]>([]);
 
   // Itemized Grocery Form State
-  const [groceryTitle, setGroceryTitle] = React.useState("Weekly Grocery Trip");
+  const [groceryTitle, setGroceryTitle] = React.useState(
+    isBangla ? "সাপ্তাহিক বাজার" : "Weekly Grocery Trip"
+  );
   const [groceryPaidBy, setGroceryPaidBy] = React.useState(currentUser?.id || "");
   const [groceryDate, setGroceryDate] = React.useState(format(new Date(), "yyyy-MM-dd"));
   const [groceryTime, setGroceryTime] = React.useState(format(new Date(), "HH:mm"));
@@ -119,7 +124,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
       setTime(format(now, "HH:mm"));
       setGroceryDate(format(now, "yyyy-MM-dd"));
       setGroceryTime(format(now, "HH:mm"));
-      setGroceryTitle("Weekly Grocery Trip");
+      setGroceryTitle(isBangla ? "সাপ্তাহিক বাজার" : "Weekly Grocery Trip");
       setGroceryItems([]);
       setComposerName("");
       setComposerQty("");
@@ -127,7 +132,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
       setComposerPrice("");
       setEditingItemId(null);
     }
-  }, [isOpen, currentUser.id, users]);
+  }, [isOpen, currentUser.id, users, isBangla]);
 
   // Toggle participant for Single Bill
   const toggleParticipant = (userId: string) => {
@@ -377,10 +382,12 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
         <DialogHeader className="shrink-0 text-left pb-1">
           <DialogTitle className="text-lg sm:text-xl font-bold flex items-center gap-2">
             <Sparkles className="size-5 text-primary" />
-            <span>Add New Expense</span>
+            <span>{t.expenses.addExpenseTitle}</span>
           </DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground">
-            Log bills or groceries — automatically split equally among roommates
+            {isBangla
+              ? "বিল বা বাজার যুক্ত করুন — স্বয়ংক্রিয়ভাবে রুমমেটদের মাঝে সমান ভাগে হিসাব হবে"
+              : "Log bills or groceries — automatically split equally among roommates"}
           </DialogDescription>
         </DialogHeader>
 
@@ -392,11 +399,11 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
           <TabsList className="grid w-full grid-cols-2 bg-accent/40 shrink-0 p-1 mb-1">
             <TabsTrigger value="single" className="text-xs font-semibold gap-1.5 py-1.5 cursor-pointer">
               <Receipt className="size-3.5" />
-              Single Bill / Item
+              {isBangla ? "একক খরচ / বিল" : "Single Bill / Item"}
             </TabsTrigger>
             <TabsTrigger value="itemized" className="text-xs font-semibold gap-1.5 py-1.5 cursor-pointer">
               <Layers className="size-3.5" />
-              Itemized Grocery Haul
+              {isBangla ? "বাজারের ফর্দ (আইটেম অনুযায়ী)" : "Itemized Grocery Haul"}
             </TabsTrigger>
           </TabsList>
 
@@ -408,26 +415,26 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
             <form onSubmit={handleSingleSubmit} className="space-y-4 pb-2">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">Category</label>
+                  <label className="text-xs font-semibold text-foreground">{t.expenses.categoryLabel}</label>
                   <div className="relative">
                     <select
                       value={category}
                       onChange={(e) => setCategory(e.target.value as ExpenseCategory)}
                       className="w-full h-10 bg-accent/30 border border-border rounded-xl pl-3.5 pr-10 text-xs font-medium focus:ring-2 focus:ring-primary/40 focus:border-primary focus:outline-none transition-all cursor-pointer appearance-none"
                     >
-                      <option value="rent">Rent</option>
-                      <option value="groceries">Groceries</option>
-                      <option value="electricity">Electricity</option>
-                      <option value="gas">Gas</option>
-                      <option value="internet">Internet</option>
-                      <option value="other">Other</option>
+                      <option value="rent">{t.categories.rent}</option>
+                      <option value="groceries">{t.categories.groceries}</option>
+                      <option value="electricity">{t.categories.electricity}</option>
+                      <option value="gas">{t.categories.gas}</option>
+                      <option value="internet">{t.categories.internet}</option>
+                      <option value="other">{t.categories.other}</option>
                     </select>
                     <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">Paid By</label>
+                  <label className="text-xs font-semibold text-foreground">{t.expenses.payerLabel}</label>
                   <div className="relative">
                     <select
                       value={paidBy}
@@ -436,7 +443,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                     >
                       {users.map((u) => (
                         <option key={u.id} value={u.id}>
-                          {u.name} {u.id === currentUser.id ? "(You)" : ""}
+                          {u.name} {u.id === currentUser.id ? `(${t.common.you})` : ""}
                         </option>
                       ))}
                     </select>
@@ -446,12 +453,12 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-foreground">Expense Title</label>
+                <label className="text-xs font-semibold text-foreground">{t.expenses.titleLabel}</label>
                 <GroceryItemCombobox
                   placeholder={
                     category === "groceries"
-                      ? "e.g. chal, rice, peyaj, dim (auto-suggests Bangla)"
-                      : "e.g. August Apartment Rent, Wifi Bill, Grocery item"
+                      ? (isBangla ? "যেমন: চাল, পেঁয়াজ, ডিম, তেল ইত্যাদি" : "e.g. chal, rice, peyaj, dim (auto-suggests Bangla)")
+                      : (isBangla ? "যেমন: বাসা ভাড়া, ওয়াইফাই বিল, গ্যাস বিল" : "e.g. August Apartment Rent, Wifi Bill, Grocery item")
                   }
                   value={title}
                   onChange={(val) => setTitle(val)}
@@ -474,14 +481,18 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
               {/* Quantity & Unit of Measurement (Optional) */}
               <div className="p-3.5 rounded-xl bg-accent/25 border border-border/70 space-y-2.5">
                 <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                  <span>Quantity & Unit</span>
-                  <span className="text-[10px] text-muted-foreground font-normal">(Optional)</span>
+                  <span>{isBangla ? "পরিমাণ ও একক" : "Quantity & Unit"}</span>
+                  <span className="text-[10px] text-muted-foreground font-normal">
+                    ({t.common.optional})
+                  </span>
                 </label>
 
                 <div className="grid grid-cols-12 gap-2.5">
                   <div className="col-span-5">
                     <div className="relative">
-                      <span className="absolute left-3 top-3 text-[10px] text-muted-foreground font-semibold">Qty:</span>
+                      <span className="absolute left-3 top-3 text-[10px] text-muted-foreground font-semibold">
+                        {isBangla ? "পরিমাণ:" : "Qty:"}
+                      </span>
                       <Input
                         type="number"
                         inputMode="decimal"
@@ -489,7 +500,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                         placeholder="e.g. 2.5"
                         value={singleQuantity}
                         onChange={(e) => setSingleQuantity(e.target.value)}
-                        className="h-10 pl-10 text-xs font-numeral bg-card rounded-xl border-border focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                        className="h-10 pl-12 text-xs font-numeral bg-card rounded-xl border-border focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                       />
                     </div>
                   </div>
@@ -514,7 +525,9 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
 
                 {/* Quick Unit Suggestion Chips */}
                 <div className="flex items-center gap-1.5 overflow-x-auto pt-1 no-scrollbar">
-                  <span className="text-[10px] text-muted-foreground font-medium shrink-0">Quick units:</span>
+                  <span className="text-[10px] text-muted-foreground font-medium shrink-0">
+                    {isBangla ? "দ্রুত একক:" : "Quick units:"}
+                  </span>
                   {QUICK_UNIT_CHIPS.map((chip) => (
                     <button
                       key={chip}
@@ -535,7 +548,9 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
               {/* Total Amount, Date & Time */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">Total Amount (৳)</label>
+                  <label className="text-xs font-semibold text-foreground">
+                    {isBangla ? "মোট খরচের পরিমাণ (৳)" : "Total Amount (৳)"}
+                  </label>
                   <div className="relative">
                     <span className="absolute left-3 top-2.5 text-xs font-bold text-muted-foreground">৳</span>
                     <Input
@@ -555,7 +570,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-foreground flex items-center gap-1">
                       <Calendar className="size-3 text-muted-foreground" />
-                      <span>Date</span>
+                      <span>{t.common.date}</span>
                     </label>
                     <Input
                       type="date"
@@ -569,7 +584,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-foreground flex items-center gap-1">
                       <Clock className="size-3 text-muted-foreground" />
-                      <span>Time</span>
+                      <span>{isBangla ? "সময়" : "Time"}</span>
                     </label>
                     <Input
                       type="time"
@@ -587,10 +602,12 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
                     <Users className="size-3.5 text-primary" />
-                    <span>Split Equally Among</span>
+                    <span>{isBangla ? "কার কার মাঝে সমান ভাগে ভাগ হবে?" : "Split Equally Among"}</span>
                   </span>
                   <span className="text-[11px] text-primary font-semibold">
-                    {selectedParticipants.length} of {users.length} Roommates
+                    {isBangla
+                      ? `${toBengaliNumerals(users.length)} জনের মধ্যে ${toBengaliNumerals(selectedParticipants.length)} জন`
+                      : `${selectedParticipants.length} of ${users.length} Roommates`}
                   </span>
                 </div>
 
@@ -619,9 +636,9 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-foreground">Notes (Optional)</label>
+                <label className="text-xs font-semibold text-foreground">{t.expenses.notesLabel}</label>
                 <Input
-                  placeholder="e.g. Paid via bKash to landlord"
+                  placeholder={isBangla ? "যেমন: বাড়িওয়ালাকে বিকাশ করা হয়েছে" : "e.g. Paid via bKash to landlord"}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   className="h-10 text-xs bg-accent/20 border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
@@ -632,23 +649,27 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
               {parseFloat(amount) > 0 && (
                 <div className="p-3 rounded-xl bg-primary/10 border border-primary/20 text-xs flex justify-between items-center">
                   <div>
-                    <span className="text-muted-foreground block">Equal share per person:</span>
+                    <span className="text-muted-foreground block">
+                      {isBangla ? "মাথাপিছু সমান অংশ:" : "Equal share per person:"}
+                    </span>
                     <span className="text-[10px] text-muted-foreground">
-                      Divided equally among {selectedParticipants.length} members
+                      {isBangla
+                        ? `${toBengaliNumerals(selectedParticipants.length)} জন সদস্যের মাঝে সমান ভাগে বিভক্ত`
+                        : `Divided equally among ${selectedParticipants.length} members`}
                     </span>
                   </div>
                   <span className="font-bold text-primary text-base font-numeral">
-                    ৳{singlePerPerson}
+                    ৳{isBangla ? toBengaliNumerals(singlePerPerson) : singlePerPerson}
                   </span>
                 </div>
               )}
 
               <DialogFooter className="pt-3 pb-1 gap-2 flex-col-reverse sm:flex-row">
                 <Button type="button" variant="outline" size="lg" onClick={onClose} className="h-11 sm:h-12 rounded-xl">
-                  Cancel
+                  {t.common.cancel}
                 </Button>
                 <Button type="submit" size="lg" className="h-11 sm:h-12 rounded-xl bg-primary text-primary-foreground font-semibold shadow-sm hover:opacity-90 transition-opacity">
-                  Save Expense
+                  {isBangla ? "খরচ সংরক্ষণ করুন" : "Save Expense"}
                 </Button>
               </DialogFooter>
             </form>
@@ -663,17 +684,19 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
               {/* Row 1: Trip Title & Paid By */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">Trip Title</label>
+                  <label className="text-xs font-semibold text-foreground">
+                    {isBangla ? "বাজারের শিরোনাম" : "Trip Title"}
+                  </label>
                   <Input
                     value={groceryTitle}
                     onChange={(e) => setGroceryTitle(e.target.value)}
-                    placeholder="e.g. Weekly Grocery Trip"
+                    placeholder={isBangla ? "যেমন: সাপ্তাহিক মেসের বাজার" : "e.g. Weekly Grocery Trip"}
                     className="h-10 text-xs bg-accent/20 border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                     required
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">Paid By</label>
+                  <label className="text-xs font-semibold text-foreground">{t.expenses.payerLabel}</label>
                   <div className="relative">
                     <select
                       value={groceryPaidBy}
@@ -682,7 +705,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                     >
                       {users.map((u) => (
                         <option key={u.id} value={u.id}>
-                          {u.name} {u.id === currentUser.id ? "(You)" : ""}
+                          {u.name} {u.id === currentUser.id ? `(${t.common.you})` : ""}
                         </option>
                       ))}
                     </select>
@@ -696,7 +719,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-foreground flex items-center gap-1">
                     <Calendar className="size-3 text-muted-foreground" />
-                    <span>Date</span>
+                    <span>{t.common.date}</span>
                   </label>
                   <Input
                     type="date"
@@ -709,7 +732,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-foreground flex items-center gap-1">
                     <Clock className="size-3 text-muted-foreground" />
-                    <span>Time</span>
+                    <span>{isBangla ? "সময়" : "Time"}</span>
                   </label>
                   <Input
                     type="time"
@@ -726,10 +749,12 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
                     <Users className="size-3.5 text-primary" />
-                    <span>Split Grocery Bill Equally Among</span>
+                    <span>{isBangla ? "বাজারের খরচ কার কার মধ্যে ভাগ হবে?" : "Split Grocery Bill Equally Among"}</span>
                   </span>
                   <span className="text-[11px] text-primary font-semibold">
-                    {groceryParticipants.length} of {users.length} Roommates
+                    {isBangla
+                      ? `${toBengaliNumerals(users.length)} জনের মধ্যে ${toBengaliNumerals(groceryParticipants.length)} জন`
+                      : `${groceryParticipants.length} of ${users.length} Roommates`}
                   </span>
                 </div>
 
@@ -764,12 +789,12 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                     {editingItemId ? (
                       <>
                         <Pencil className="size-3.5 text-primary" />
-                        <span>Editing Item</span>
+                        <span>{isBangla ? "পণ্য সম্পাদনা" : "Editing Item"}</span>
                       </>
                     ) : (
                       <>
                         <Plus className="size-3.5 text-primary" />
-                        <span>Add Grocery Item</span>
+                        <span>{isBangla ? "বাজারের পণ্য যোগ করুন" : "Add Grocery Item"}</span>
                       </>
                     )}
                   </span>
@@ -780,7 +805,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                       className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1 cursor-pointer transition-colors"
                     >
                       <X className="size-3" />
-                      <span>Cancel Edit</span>
+                      <span>{isBangla ? "বাতিল" : "Cancel Edit"}</span>
                     </button>
                   )}
                 </div>
@@ -788,7 +813,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                 {/* Composer Row 1: Item Name Combobox */}
                 <div className="space-y-1">
                   <GroceryItemCombobox
-                    placeholder="Item name (e.g. chal, rice, peyaj, dim)"
+                    placeholder={isBangla ? "পণ্যের নাম লিখুন (যেমন: চাল, ডাল, আলু, ডিম, পেঁয়াজ)" : "Item name (e.g. chal, rice, peyaj, dim)"}
                     value={composerName}
                     onChange={(val) => setComposerName(val)}
                     onSelectSuggestion={(suggestion) => {
@@ -805,7 +830,9 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                 <div className="grid grid-cols-12 gap-2 items-center">
                   <div className="col-span-3 sm:col-span-3">
                     <div className="relative">
-                      <span className="absolute left-2.5 top-3 text-[9px] text-muted-foreground font-semibold">Qty:</span>
+                      <span className="absolute left-2.5 top-3 text-[9px] text-muted-foreground font-semibold">
+                        {isBangla ? "পরিমাণ:" : "Qty:"}
+                      </span>
                       <Input
                         type="number"
                         inputMode="decimal"
@@ -849,7 +876,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                         type="number"
                         inputMode="decimal"
                         step="any"
-                        placeholder="Total ৳"
+                        placeholder={isBangla ? "মোট ৳" : "Total ৳"}
                         value={composerPrice}
                         onChange={(e) => setComposerPrice(e.target.value)}
                         onKeyDown={(e) => {
@@ -873,12 +900,12 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                       {editingItemId ? (
                         <>
                           <Check className="size-3.5" />
-                          <span>Update Item</span>
+                          <span>{isBangla ? "আপডেট করুন" : "Update Item"}</span>
                         </>
                       ) : (
                         <>
                           <Plus className="size-3.5" />
-                          <span>Add to Haul</span>
+                          <span>{isBangla ? "ফর্দে যোগ" : "Add to Haul"}</span>
                         </>
                       )}
                     </Button>
@@ -887,7 +914,9 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
 
                 {/* Quick Unit Suggestion Chips */}
                 <div className="flex items-center gap-1 overflow-x-auto no-scrollbar pt-0.5">
-                  <span className="text-[10px] text-muted-foreground shrink-0 mr-1">Unit:</span>
+                  <span className="text-[10px] text-muted-foreground shrink-0 mr-1">
+                    {isBangla ? "একক:" : "Unit:"}
+                  </span>
                   {QUICK_UNIT_CHIPS.map((chip) => (
                     <button
                       key={chip}
@@ -910,7 +939,11 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
                     <Receipt className="size-3.5 text-primary" />
-                    <span>Items in this Haul ({groceryItems.length})</span>
+                    <span>
+                      {isBangla
+                        ? `ফর্দের পণ্যসমূহ (${toBengaliNumerals(groceryItems.length)}টি)`
+                        : `Items in this Haul (${groceryItems.length})`}
+                    </span>
                   </span>
                   {groceryItems.length > 0 && (
                     <button
@@ -921,7 +954,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                       }}
                       className="text-[11px] text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
                     >
-                      Clear All
+                      {isBangla ? "সব মুছুন" : "Clear All"}
                     </button>
                   )}
                 </div>
@@ -929,9 +962,13 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                 {groceryItems.length === 0 ? (
                   <div className="py-6 px-4 rounded-xl border border-dashed border-border/80 text-center flex flex-col items-center justify-center gap-1.5 bg-accent/10">
                     <ShoppingCart className="size-6 text-muted-foreground/50" />
-                    <p className="text-xs font-medium text-foreground">No items added to this haul yet</p>
+                    <p className="text-xs font-medium text-foreground">
+                      {isBangla ? "এখনও কোনো পণ্য যোগ করা হয়নি" : "No items added to this haul yet"}
+                    </p>
                     <p className="text-[11px] text-muted-foreground">
-                      Type an item name and total amount above, then click <strong>Add to Haul</strong> (or press Enter)
+                      {isBangla
+                        ? "উপরে পণ্যের নাম ও দাম লিখে ফর্দে যোগ করুন বোতামে চাপুন"
+                        : "Type an item name and total amount above, then click Add to Haul (or press Enter)"}
                     </p>
                   </div>
                 ) : (
@@ -959,26 +996,28 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                               </span>
                               {item.unit && (
                                 <span className="text-[9px] font-semibold px-1.5 py-0.2 bg-accent text-muted-foreground rounded border border-border/50 shrink-0">
-                                  {hasQty ? `${item.quantity} ${item.unit}` : item.unit}
+                                  {hasQty ? `${isBangla ? toBengaliNumerals(item.quantity) : item.quantity} ${item.unit}` : item.unit}
                                 </span>
                               )}
                             </div>
                             <p className="text-[11px] text-muted-foreground font-numeral">
                               {hasQty
-                                ? `${item.quantity} ${item.unit || "unit"} (≈ ৳${rate}/${item.unit || "unit"})`
-                                : "Full item amount"}
+                                ? (isBangla
+                                    ? `${toBengaliNumerals(item.quantity)} ${item.unit || "একক"} (দর ≈ ৳${toBengaliNumerals(rate || 0)}/${item.unit || "একক"})`
+                                    : `${item.quantity} ${item.unit || "unit"} (≈ ৳${rate}/${item.unit || "unit"})`)
+                                : (isBangla ? "মোট আইটেমের দাম" : "Full item amount")}
                             </p>
                           </div>
 
                           <div className="flex items-center gap-2 shrink-0">
                             <span className="font-bold text-xs text-primary font-numeral">
-                              ৳{itemTotal.toFixed(2)}
+                              ৳{isBangla ? toBengaliNumerals(itemTotal.toFixed(2)) : itemTotal.toFixed(2)}
                             </span>
                             <button
                               type="button"
                               onClick={() => handleStartEdit(item)}
                               className="size-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent cursor-pointer transition-colors"
-                              title="Edit item"
+                              title={isBangla ? "সম্পাদনা" : "Edit item"}
                             >
                               <Pencil className="size-3" />
                             </button>
@@ -986,7 +1025,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                               type="button"
                               onClick={() => setGroceryItemToDelete(item)}
                               className="size-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer transition-colors"
-                              title="Remove item"
+                              title={isBangla ? "মুছে ফেলুন" : "Remove item"}
                             >
                               <Trash2 className="size-3" />
                             </button>
@@ -1001,9 +1040,13 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
               {/* Total Grocery Summary */}
               <div className="p-3 rounded-xl bg-primary/10 border border-primary/25 flex items-center justify-between">
                 <div>
-                  <span className="text-xs font-bold text-foreground">Total Grocery Amount:</span>
+                  <span className="text-xs font-bold text-foreground">
+                    {isBangla ? "মোট বাজারের খরচ:" : "Total Grocery Amount:"}
+                  </span>
                   <p className="text-[11px] text-muted-foreground">
-                    ৳{groceryPerPerson} / roommate ({groceryParticipants.length} equal shares)
+                    {isBangla
+                      ? `৳${toBengaliNumerals(groceryPerPerson)} / রুমমেট (${toBengaliNumerals(groceryParticipants.length)}টি সমান অংশ)`
+                      : `৳${groceryPerPerson} / roommate (${groceryParticipants.length} equal shares)`}
                   </p>
                 </div>
                 <CurrencyAmount amount={groceryTotal} size="lg" className="font-extrabold text-primary" />
@@ -1011,7 +1054,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
 
               <DialogFooter className="pt-2 pb-1 gap-2 flex-col-reverse sm:flex-row">
                 <Button type="button" variant="outline" size="lg" onClick={onClose} className="h-11 sm:h-12 rounded-xl">
-                  Cancel
+                  {t.common.cancel}
                 </Button>
                 <Button
                   type="submit"
@@ -1019,7 +1062,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
                   disabled={groceryTotal <= 0}
                   className="h-11 sm:h-12 rounded-xl bg-primary text-primary-foreground font-semibold shadow-sm hover:opacity-90 transition-opacity"
                 >
-                  Save Grocery Trip
+                  {isBangla ? "সম্পূর্ণ বাজার সংরক্ষণ করুন" : "Save Grocery Trip"}
                 </Button>
               </DialogFooter>
             </form>
@@ -1036,19 +1079,19 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
             <AlertTriangle className="size-5" />
           </div>
           <AlertDialogTitle className="text-lg font-bold text-foreground">
-            Remove Item from Grocery Trip?
+            {isBangla ? "ফর্দ থেকে পণ্যটি বাদ দিতে চান?" : "Remove Item from Grocery Trip?"}
           </AlertDialogTitle>
           <AlertDialogDescription className="text-xs text-muted-foreground space-y-1">
-            <span>Are you sure you want to remove </span>
+            <span>{isBangla ? "আপনি কি নিশ্চিতভাবে " : "Are you sure you want to remove "}</span>
             <strong className="text-foreground font-semibold">
               &ldquo;{groceryItemToDelete?.name}&rdquo;
             </strong>
-            <span> from this grocery trip?</span>
+            <span>{isBangla ? " এই তালিকা থেকে মুছে ফেলতে চান?" : " from this grocery trip?"}</span>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="pt-3 gap-2 flex-col-reverse sm:flex-row">
           <AlertDialogCancel className="h-10 rounded-xl border-border hover:bg-accent cursor-pointer">
-            Cancel
+            {t.common.cancel}
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={() => {
@@ -1059,7 +1102,7 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
             }}
             className="h-10 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90 font-semibold cursor-pointer shadow-md shadow-destructive/20"
           >
-            Yes, Remove Item
+            {isBangla ? "হ্যাঁ, মুছে ফেলুন" : "Yes, Remove Item"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

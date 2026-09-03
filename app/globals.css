@@ -165,6 +165,7 @@
 
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
+  --font-bengali: var(--font-bengali);
 }
 
 /* ==========================================================================
@@ -173,6 +174,7 @@
 body {
   font-family:
     var(--font-sans),
+    var(--font-bengali),
     ui-sans-serif,
     system-ui,
     -apple-system,
