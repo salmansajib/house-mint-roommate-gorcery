@@ -4,7 +4,6 @@ import * as React from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "@/context/auth-context";
 import { useExpenses } from "@/context/expense-context";
-import { CurrencyAmount } from "@/components/ui/currency-amount";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -52,7 +51,6 @@ export function Navbar({
     setCurrentUser,
     isAdmin,
     householdSettings,
-    ledger,
     isLoaded,
     isCloudConnected,
     isSyncing,
@@ -119,20 +117,6 @@ export function Navbar({
               <span>{t.common.admin}</span>
             </Button>
           )}
-
-          {/* Household Total Pill (Visible only on large desktop screens where ample space exists) */}
-          <div className="hidden lg:flex items-center gap-2 px-3.5 h-9 rounded-full bg-card border border-border text-xs transition-colors hover:border-border/80 shrink-0">
-            <span className="text-muted-foreground">{t.dashboard.monthlyTotal}:</span>
-            {!isLoaded ? (
-              <Skeleton className="h-4 w-16 rounded-full" />
-            ) : (
-              <CurrencyAmount
-                amount={ledger.total_household_spent}
-                size="sm"
-                className="text-foreground font-semibold"
-              />
-            )}
-          </div>
 
           {/* Language Switcher (Always visible across all screen sizes) */}
           <LanguageToggle />
